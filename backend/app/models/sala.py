@@ -1,0 +1,12 @@
+# app/models/sala.py
+from sqlalchemy import Column, Integer, String
+from app.database import Base
+
+class Sala(Base):
+    __tablename__ = "salas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String(100), nullable=False)
+    capacidade = Column(Integer, nullable=False)
+    tipo = Column(String(50), nullable=False)
+    edificio = Column(String(100), nullable=False)
