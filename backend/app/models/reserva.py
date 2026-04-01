@@ -1,7 +1,6 @@
-# app/models/reserva.py
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database import Base
+from backend.app.db.session import Base
 
 class Reserva(Base):
     __tablename__ = "reservas"

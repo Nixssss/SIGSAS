@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from app.db.session import get_db
-from app.services.ia_service import LocalAIProcessor
+from backend.app.db.session import get_db
+from backend.app.services.ia_service import LocalAIProcessor
 
 class MensagemChat(BaseModel):
     texto: str
@@ -32,7 +32,7 @@ async def chat_inteligente(solicitacao: MensagemChat, db: Session = Depends(get_
         }
         
     except Exception as e:
-        raise HTTPException(
+        raise HTTPException( # type: ignore
             status_code=500, 
             detail=f"Erro interno no motor de IA: {str(e)}"
         )

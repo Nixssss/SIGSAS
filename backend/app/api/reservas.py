@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.models.reserva import Reserva
-from app.models.sala import Sala
-from app.schemas.reserva import ReservaCreate, ReservaRead
-from app.core.security import get_current_user
+from backend.app.db.session import get_db
+from backend.app.models.reserva import Reserva
+from backend.app.models.sala import Sala
+from backend.app.schemas.reserva import ReservaCreate, ReservaRead
+from backend.app.core.security import get_current_user
+
+
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
 
@@ -36,29 +38,10 @@ def criar_reserva(
         usuario_id=reserva.usuario_id,
         data_inicio=reserva.data_inicio,
         data_fim=reserva.data_fim,
-        status="pendente",
+        status="pendente"
     )
 
     db.add(nova_reserva)
     db.commit()
     db.refresh(nova_reserva)
     return nova_reserva
-
-@router.get("", response_model=list[ReservaRead])
-def listar_reservas(
-    sala_id: int | None = None,
-    usuario_id: int | None = None,
-    status: str | None = None,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user),
-):
-    query = db.query(Reserva)
-
-    if sala_id is not None:
-        query = query.filter(Reserva.sala_id == sala_id)
-    if usuario_id is not None:
-        query = query.filter(Reserva.usuario_id == usuario_id)
-    if status is not None:
-        query = query.filter(Reserva.status == status)
-
-    return query.all()

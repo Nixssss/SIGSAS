@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from datetime import datetime
-from app.db.base import Base
+from sqlalchemy import Column, Integer, String
+from backend.app.db.session import Base
 
 class Usuario(Base):
     __tablename__ = "usuarios"
@@ -9,4 +8,4 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     senha_hash = Column(String, nullable=False)
-    data_criacao = Column(DateTime, default=datetime.utcnow)
+    perfil = Column(String, default="usuario", nullable=False)

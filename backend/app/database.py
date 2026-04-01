@@ -4,7 +4,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 DATABASE_URL = "postgresql+psycopg2://usuario:senha@localhost:5432/sigsas"
 
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_db():

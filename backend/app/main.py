@@ -1,18 +1,22 @@
 from fastapi import FastAPI
-from app.api import chat
+from backend.app.api import chat, reservas, auth
+from backend.app.db.session import Base, engine
 
-app = FastAPI(title="SIGSAS - Sistema de Gestão de Salas")
+def create_db_tables():
+    Base.metadata.create_all(bind=engine)
 
-# Rota inicial para evitar o erro 404
-@app.get("/")
-async def root():
-    return {"mensagem": "API do SIGSAS está Online. Acesse /docs para testar o Chat."}
+create_db_tables()
+
+app = FastAPI(
+    title="SIGSAS API",
+    description="API para o Sistema Inteligente de Gerenciamento de Salas (SIGSAS)",
+    version="1.0.0",
+)
 
 app.include_router(chat.router, prefix="/api/v1/ia", tags=["Chat Inteligente"])
+app.include_router(reservas.router, prefix="/api/v1", tags=["Reservas"])
+app.include_router(auth.router, prefix="/api/v1", tags=["Autenticação"])
 
-from fastapi import FastAPI
-from app.api import reservas
-
-app = FastAPI()
-
-app.include_router(reservas.router)
+@app.get("/api/v1/health", tags=["Health Check"])
+def health_check():
+    return {"status": "ok", "message": "SIGSAS API is running!"}
