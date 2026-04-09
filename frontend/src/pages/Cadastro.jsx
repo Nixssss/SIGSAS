@@ -1,6 +1,6 @@
-import { useState } from "react";
-import "../styles/login.css";
-import logo from "../assets/logo.png";
+import { useState } from "react"
+import "../App.css"
+import logo from "../assets/logo.png"
 
 function Cadastro({ irLogin }) {
 
@@ -8,16 +8,38 @@ function Cadastro({ irLogin }) {
   const [email,setEmail] = useState("")
   const [senha,setSenha] = useState("")
   const [confirmar,setConfirmar] = useState("")
+  const [erro,setErro] = useState("")
+  const [sucesso,setSucesso] = useState(false)
 
   function handleCadastro(e){
     e.preventDefault()
-    console.log(nome,email,senha,confirmar)
+
+    if(senha !== confirmar){
+      setErro("As senhas não coincidem")
+      return
+    }
+
+    if(senha.length < 6){
+      setErro("A senha deve ter no mínimo 6 caracteres")
+      return
+    }
+
+    // salvar usuário
+    const usuario = { nome, email, senha }
+    localStorage.setItem("usuario", JSON.stringify(usuario))
+
+    setErro("")
+    setSucesso(true)
+
+    setTimeout(()=>{
+      irLogin()
+    },2000)
   }
 
   return(
-
     <div className="login-container">
 
+      {/* LADO ESQUERDO IGUAL LOGIN */}
       <div className="login-left">
 
         <div className="logo-area">
@@ -43,6 +65,7 @@ function Cadastro({ irLogin }) {
 
       </div>
 
+      {/* LADO DIREITO */}
       <div className="login-right">
 
         <div className="login-card">
@@ -59,29 +82,39 @@ function Cadastro({ irLogin }) {
             <input
               type="text"
               placeholder="Seu nome"
+              value={nome}
               onChange={(e)=>setNome(e.target.value)}
+              required
             />
 
             <label>E-mail</label>
             <input
               type="email"
               placeholder="seu@email.com"
+              value={email}
               onChange={(e)=>setEmail(e.target.value)}
+              required
             />
 
             <label>Senha</label>
             <input
               type="password"
               placeholder="mínimo 6 caracteres"
+              value={senha}
               onChange={(e)=>setSenha(e.target.value)}
+              required
             />
 
             <label>Confirmar senha</label>
             <input
               type="password"
               placeholder="repita a senha"
+              value={confirmar}
               onChange={(e)=>setConfirmar(e.target.value)}
+              required
             />
+
+            {erro && <p className="erro">{erro}</p>}
 
             <button>Cadastrar</button>
 
@@ -96,10 +129,19 @@ function Cadastro({ irLogin }) {
 
       </div>
 
+      {/* POPUP */}
+      {sucesso && (
+        <div className="popup">
+          <div className="popup-box">
+            <div className="check">✔</div>
+            <h3>Conta criada com sucesso!</h3>
+            <p>Redirecionando...</p>
+          </div>
+        </div>
+      )}
+
     </div>
-
   )
-
 }
 
 export default Cadastro

@@ -1,73 +1,66 @@
 import { useState } from "react"
-import "../styles/login.css"
-import logo from "../assets/logo.png"
+import "../App.css"
 
 function EsqueciSenha({ irLogin }){
 
   const [email,setEmail] = useState("")
+  const [sucesso,setSucesso] = useState(false)
 
   function recuperarSenha(e){
     e.preventDefault()
-    alert("Email enviado para recuperação")
+
+    setSucesso(true)
+
+    setTimeout(()=>{
+      irLogin()
+    },2000)
   }
 
   return(
+    <div className="center-container">
 
-    <div className="login-container">
+      <div className="login-card">
 
-      <div className="login-left">
+        <h2>Recuperar senha</h2>
 
-        <div className="logo-area">
-          <img src={logo} className="logo"/>
-          <span>SIGSAS</span>
-        </div>
+        <p className="subtitle">
+          Digite seu e-mail para receber instruções
+        </p>
 
-        <div className="left-content">
-          <h1>Recuperar senha</h1>
-          <p>
-            Informe seu email para receber
-            instruções de redefinição de senha.
-          </p>
-        </div>
+        <form onSubmit={recuperarSenha}>
 
-        <div className="copyright">
-          © 2025 SIGSAS
-        </div>
+          <label>E-mail</label>
+          <input
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e)=>setEmail(e.target.value)}
+            required
+          />
 
-      </div>
+          <button>Enviar</button>
 
-      <div className="login-right">
+        </form>
 
-        <div className="login-card">
-
-          <h2>Esqueci minha senha</h2>
-
-          <form onSubmit={recuperarSenha}>
-
-            <label>Email</label>
-
-            <input
-              type="email"
-              placeholder="seu@email.com"
-              onChange={(e)=>setEmail(e.target.value)}
-            />
-
-            <button>Enviar recuperação</button>
-
-          </form>
-
-          <p className="register">
-            <span onClick={irLogin}>Voltar para login</span>
-          </p>
-
-        </div>
+        <p className="register">
+          <span onClick={irLogin}>Voltar para login</span>
+        </p>
 
       </div>
+
+      {/* POPUP */}
+      {sucesso && (
+        <div className="popup">
+          <div className="popup-box">
+            <div className="check">✔</div>
+            <h3>Email enviado!</h3>
+            <p>Verifique sua caixa de entrada</p>
+          </div>
+        </div>
+      )}
 
     </div>
-
   )
-
 }
 
 export default EsqueciSenha
