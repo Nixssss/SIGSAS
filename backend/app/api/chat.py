@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from backend.app.db.session import get_db
-from backend.app.services.ia_service import LocalAIProcessor
+from app.db.session import get_db
+from app.services.ia_service import LocalAIProcessor
 
 class MensagemChat(BaseModel):
     texto: str

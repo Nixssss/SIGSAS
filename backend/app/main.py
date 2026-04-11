@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from backend.app.api import chat, reservas, auth
-from backend.app.db.session import Base, engine
+from app.api import chat, reservas, auth
+from app.db.session import Base, engine
 
 def create_db_tables():
     Base.metadata.create_all(bind=engine)

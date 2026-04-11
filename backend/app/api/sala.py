@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.db.session import get_db
 from app.models.sala import Sala
 from app.schemas.sala import SalaCreate, SalaRead
 from app.core.security import get_current_user

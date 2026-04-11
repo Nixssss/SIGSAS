@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.app.db.session import get_db
-from backend.app.models.reserva import Reserva
-from backend.app.models.sala import Sala
-from backend.app.schemas.reserva import ReservaCreate, ReservaRead
-from backend.app.core.security import get_current_user
+from app.db.session import get_db
+from app.models.reserva import Reserva
+from app.models.sala import Sala
+from app.schemas.reserva import ReservaCreate, ReservaRead
+from app.core.security import get_current_user
 
 
 
