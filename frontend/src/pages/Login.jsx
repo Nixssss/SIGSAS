@@ -12,7 +12,10 @@ function Login({ irCadastro, irEsqueci, irDashboard }) {
   function fazerLogin(e) {
     e.preventDefault()
 
-    if (email === ADMIN_EMAIL && senha === ADMIN_SENHA) {
+    const emailLimpo = email.trim().toLowerCase()
+    const senhaLimpa = senha.trim()
+
+    if (emailLimpo === ADMIN_EMAIL && senhaLimpa === ADMIN_SENHA) {
       localStorage.setItem(
         "logado",
         JSON.stringify({
@@ -26,20 +29,26 @@ function Login({ irCadastro, irEsqueci, irDashboard }) {
       return
     }
 
-    let usuario = null
+    let usuarios = []
 
     try {
-      usuario = JSON.parse(localStorage.getItem("usuario"))
+      usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]")
     } catch {
-      usuario = null
+      usuarios = []
     }
 
-    if (!usuario || !usuario.email || !usuario.senha) {
+    if (!Array.isArray(usuarios) || usuarios.length === 0) {
       setErro("Nenhum usuário cadastrado")
       return
     }
 
-    if (email !== usuario.email || senha !== usuario.senha) {
+    const usuarioEncontrado = usuarios.find(
+      (usuario) =>
+        usuario?.email?.trim().toLowerCase() === emailLimpo &&
+        usuario?.senha === senhaLimpa
+    )
+
+    if (!usuarioEncontrado) {
       setErro("Email ou senha incorretos")
       return
     }
@@ -47,7 +56,12 @@ function Login({ irCadastro, irEsqueci, irDashboard }) {
     localStorage.setItem(
       "logado",
       JSON.stringify({
-        email: usuario.email,
+        id: usuarioEncontrado.id,
+        nome: usuarioEncontrado.nome,
+        email: usuarioEncontrado.email,
+        matricula: usuarioEncontrado.matricula,
+        cargoId: usuarioEncontrado.cargoId,
+        cursoId: usuarioEncontrado.cursoId,
         tipo: "usuario",
       })
     )

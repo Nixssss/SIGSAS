@@ -2,10 +2,70 @@ import { useEffect, useState } from "react"
 import Toast from "./Toast"
 import SalasAdmin from "./SalasAdmin"
 
+const CURSOS_PADRAO = [
+  "Administração",
+  "Análise e Desenvolvimento de Sistemas",
+  "Arquitetura e Urbanismo",
+  "Biomedicina",
+  "Ciência da Computação",
+  "Ciências Biológicas",
+  "Ciências Contábeis",
+  "Direito",
+  "Educação Física",
+  "Enfermagem",
+  "Engenharia Ambiental",
+  "Engenharia Civil",
+  "Engenharia da Computação",
+  "Engenharia de Produção",
+  "Engenharia Elétrica",
+  "Engenharia Mecânica",
+  "Estética e Cosmética",
+  "Farmácia",
+  "Fisioterapia",
+  "Gastronomia",
+  "Gestão Comercial",
+  "Gestão de Recursos Humanos",
+  "História",
+  "Jornalismo",
+  "Logística",
+  "Marketing",
+  "Medicina",
+  "Medicina Veterinária",
+  "Nutrição",
+  "Odontologia",
+  "Pedagogia",
+  "Psicologia",
+  "Publicidade e Propaganda",
+  "Radiologia",
+  "Redes de Computadores",
+  "Serviço Social",
+  "Sistemas de Informação",
+  "Turismo",
+]
+
+const CARGOS_PADRAO = [
+  "Administrador",
+  "Aluno",
+  "Coordenador",
+  "Diretor",
+  "Professor",
+  "Secretaria",
+  "Técnico",
+]
+
+
 function Admin() {
   const [instituicoes, setInstituicoes] = useState([])
   const [campi, setCampi] = useState([])
   const [edificios, setEdificios] = useState([])
+
+  const [usuarios, setUsuarios] = useState([])
+  const [cargos, setCargos] = useState([])
+  const [cursos, setCursos] = useState(
+    CURSOS_PADRAO.map((nome, index) => ({ id: index + 1, nome }))
+  )
+
+  const [carregado, setCarregado] = useState(false)
 
   const [busca, setBusca] = useState("")
   const [modal, setModal] = useState(null)
@@ -18,27 +78,78 @@ function Admin() {
   const [nomeEdificio, setNomeEdificio] = useState("")
   const [campusId, setCampusId] = useState("")
 
+  const [nomeUsuario, setNomeUsuario] = useState("")
+  const [emailUsuario, setEmailUsuario] = useState("")
+  const [senhaUsuario, setSenhaUsuario] = useState("")
+  const [matriculaUsuario, setMatriculaUsuario] = useState("")
+  const [cargoId, setCargoId] = useState("")
+  const [cursoId, setCursoId] = useState("")
+  const [nomeCargo, setNomeCargo] = useState("")
+
   const [itemSelecionado, setItemSelecionado] = useState(null)
   const [tipoSelecionado, setTipoSelecionado] = useState("")
   const [toasts, setToasts] = useState([])
 
   useEffect(() => {
-    setInstituicoes(JSON.parse(localStorage.getItem("instituicoes")) || [])
-    setCampi(JSON.parse(localStorage.getItem("campi")) || [])
-    setEdificios(JSON.parse(localStorage.getItem("edificios")) || [])
+    const instituicoesSalvas = JSON.parse(localStorage.getItem("instituicoes") || "[]")
+    const campiSalvos = JSON.parse(localStorage.getItem("campi") || "[]")
+    const edificiosSalvos = JSON.parse(localStorage.getItem("edificios") || "[]")
+    const usuariosSalvos = JSON.parse(localStorage.getItem("usuarios") || "[]")
+    const cargosSalvos = JSON.parse(localStorage.getItem("cargos") || "[]")
+    const cursosSalvos = JSON.parse(localStorage.getItem("cursos") || "[]")
+
+    const cargosFinais =
+      cargosSalvos.length > 0
+        ? cargosSalvos
+        : CARGOS_PADRAO.map((nome, index) => ({ id: index + 1, nome }))
+
+    const cursosFinais =
+      cursosSalvos.length > 0
+        ? cursosSalvos
+        : CURSOS_PADRAO.map((nome, index) => ({ id: index + 1, nome }))
+
+    setInstituicoes(instituicoesSalvas)
+    setCampi(campiSalvos)
+    setEdificios(edificiosSalvos)
+    setUsuarios(usuariosSalvos)
+    setCargos(cargosFinais)
+    setCursos(cursosFinais)
+
+    localStorage.setItem("cargos", JSON.stringify(cargosFinais))
+    localStorage.setItem("cursos", JSON.stringify(cursosFinais))
+
+    setCarregado(true)
   }, [])
 
   useEffect(() => {
+    if (!carregado) return
     localStorage.setItem("instituicoes", JSON.stringify(instituicoes))
-  }, [instituicoes])
+  }, [instituicoes, carregado])
 
   useEffect(() => {
+    if (!carregado) return
     localStorage.setItem("campi", JSON.stringify(campi))
-  }, [campi])
+  }, [campi, carregado])
 
   useEffect(() => {
+    if (!carregado) return
     localStorage.setItem("edificios", JSON.stringify(edificios))
-  }, [edificios])
+  }, [edificios, carregado])
+
+  useEffect(() => {
+    if (!carregado) return
+    localStorage.setItem("usuarios", JSON.stringify(usuarios))
+  }, [usuarios, carregado])
+
+  useEffect(() => {
+    if (!carregado) return
+    localStorage.setItem("cargos", JSON.stringify(cargos))
+  }, [cargos, carregado])
+
+  useEffect(() => {
+    if (!carregado) return
+    localStorage.setItem("cursos", JSON.stringify(cursos))
+  }, [cursos, carregado])
 
   function showToast(mensagem, tipo = "sucesso") {
     const id = Date.now() + Math.random()
@@ -121,6 +232,14 @@ function Admin() {
     edificiosFiltrados = edificios.filter((e) => idsEdificios.includes(e.id))
   }
 
+  const cargosOrdenados = [...cargos].sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR")
+  )
+
+  const cursosOrdenados = [...cursos].sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR")
+  )
+
   function limparFormulario() {
     setNomeInst("")
     setNomeCampus("")
@@ -128,6 +247,15 @@ function Admin() {
     setInstId("")
     setNomeEdificio("")
     setCampusId("")
+
+    setNomeUsuario("")
+    setEmailUsuario("")
+    setSenhaUsuario("")
+    setMatriculaUsuario("")
+    setCargoId("")
+    setCursoId("")
+    setNomeCargo("")
+
     setItemSelecionado(null)
     setTipoSelecionado("")
   }
@@ -221,6 +349,59 @@ function Admin() {
     showToast("Edifício salvo com sucesso", "sucesso")
     fecharModal()
   }
+
+  function addUsuario(e) {
+    e.preventDefault()
+
+    if (
+      !nomeUsuario.trim() ||
+      !emailUsuario.trim() ||
+      !senhaUsuario.trim() ||
+      !matriculaUsuario.trim() ||
+      !cargoId ||
+      !cursoId
+    ) {
+      return
+    }
+
+    setUsuarios((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        nome: nomeUsuario,
+        email: emailUsuario,
+        senha: senhaUsuario,
+        matricula: matriculaUsuario,
+        cargoId: Number(cargoId),
+        cursoId: Number(cursoId),
+      },
+    ])
+
+    showToast("Usuário salvo com sucesso", "sucesso")
+    fecharModal()
+  }
+
+  function addCargo(e) {
+    e.preventDefault()
+
+    if (!nomeCargo.trim()) return
+
+    const novoId = Date.now()
+
+    setCargos((prev) => [
+      ...prev,
+      {
+        id: novoId,
+        nome: nomeCargo.trim(),
+      },
+    ])
+
+    setCargoId(String(novoId))
+    setNomeCargo("")
+    setModal("usuarioCadastro")
+    showToast("Cargo salvo com sucesso", "sucesso")
+  }
+
 
   function salvarEdicao(e) {
     e.preventDefault()
@@ -319,6 +500,14 @@ function Admin() {
     return campi.find((c) => c.id === id)?.nome || "?"
   }
 
+  function getNomeCargo(id) {
+    return cargos.find((c) => c.id === id)?.nome || "?"
+  }
+
+  function getNomeCurso(id) {
+    return cursos.find((c) => c.id === id)?.nome || "?"
+  }
+
   if (telaAdmin === "salas") {
     return <SalasAdmin voltar={() => setTelaAdmin("dashboard")} />
   }
@@ -383,6 +572,14 @@ function Admin() {
             Abrir
           </button>
         </div>
+
+        <div className="card admin-menu-card">
+          <h3>Usuários</h3>
+          <p>Cadastre usuários com cargo e curso.</p>
+          <button className="btn primary" onClick={() => abrirModalCadastro("usuarioCadastro")}>
+            Abrir
+          </button>
+        </div>
       </div>
 
       <div className="grid-3">
@@ -434,6 +631,24 @@ function Admin() {
                 {e.nome}
                 <br />
                 <small>{getNomeCampus(e.campusId)}</small>
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="card admin-card">
+          <div className="card-title-actions">
+            <h3>Usuários</h3>
+          </div>
+
+          {usuarios.map((u) => (
+            <div key={u.id} className="list-row no-button-row">
+              <span>
+                {u.nome}
+                <br />
+                <small>{u.email}</small>
+                <br />
+                <small>{getNomeCargo(u.cargoId)} - {getNomeCurso(u.cursoId)}</small>
               </span>
             </div>
           ))}
@@ -541,6 +756,128 @@ function Admin() {
 
               <button className="btn secondary" type="button" onClick={fecharModal}>
                 Cancelar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {modal === "usuarioCadastro" && (
+        <div className="popup">
+          <div className="modal-box">
+            <h3>Novo usuário</h3>
+
+            <form onSubmit={addUsuario} className="form-col">
+              <input
+                value={nomeUsuario}
+                onChange={(e) => setNomeUsuario(e.target.value)}
+                placeholder="Nome do usuário"
+                required
+              />
+
+              <input
+                value={emailUsuario}
+                onChange={(e) => setEmailUsuario(e.target.value)}
+                placeholder="Email"
+                required
+              />
+
+              <input
+                value={senhaUsuario}
+                onChange={(e) => setSenhaUsuario(e.target.value)}
+                placeholder="Senha"
+                type="password"
+                required
+              />
+
+              <input
+                value={matriculaUsuario}
+                onChange={(e) => setMatriculaUsuario(e.target.value)}
+                placeholder="Matrícula"
+                required
+              />
+
+              <div className="form-col">
+                <label>Cargo</label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <select
+                    value={cargoId}
+                    onChange={(e) => setCargoId(e.target.value)}
+                    required
+                    style={{ flex: 1 }}
+                  >
+                    <option value="">Selecione o cargo</option>
+                    {cargosOrdenados.map((cargo) => (
+                      <option key={cargo.id} value={cargo.id}>
+                        {cargo.nome}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    className="btn secondary"
+                    type="button"
+                    onClick={() => setModal("cargoCadastro")}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-col">
+                <label>Curso</label>
+                <select
+                  value={cursoId}
+                  onChange={(e) => setCursoId(e.target.value)}
+                  required
+                >
+                  <option value="">Selecione o curso</option>
+                  {cursosOrdenados.map((curso) => (
+                    <option key={curso.id} value={curso.id}>
+                      {curso.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button className="btn primary" type="submit">
+                Adicionar
+              </button>
+
+              <button className="btn secondary" type="button" onClick={fecharModal}>
+                Cancelar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {modal === "cargoCadastro" && (
+        <div className="popup">
+          <div className="modal-box">
+            <h3>Novo cargo</h3>
+
+            <form
+              onSubmit={addCargo}
+              className="form-col"
+            >
+              <input
+                value={nomeCargo}
+                onChange={(e) => setNomeCargo(e.target.value)}
+                placeholder="Nome do cargo"
+                required
+              />
+
+              <button className="btn primary" type="submit">
+                Salvar
+              </button>
+
+              <button
+                className="btn secondary"
+                type="button"
+                onClick={() => setModal("usuarioCadastro")}
+              >
+                Voltar
               </button>
             </form>
           </div>
