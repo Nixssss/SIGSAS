@@ -1,75 +1,73 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
-function Salas(){
+function Salas() {
+  const [salas, setSalas] = useState([])
+  const [edificios, setEdificios] = useState([])
+  const [campi, setCampi] = useState([])
+  const [instituicoes, setInstituicoes] = useState([])
+  const [busca, setBusca] = useState("")
 
-  const [salas,setSalas] = useState([])
-  const [nome,setNome] = useState("")
-  const [editId,setEditId] = useState(null)
+  useEffect(() => {
+    setSalas(JSON.parse(localStorage.getItem("salas")) || [])
+    setEdificios(JSON.parse(localStorage.getItem("edificios")) || [])
+    setCampi(JSON.parse(localStorage.getItem("campi")) || [])
+    setInstituicoes(JSON.parse(localStorage.getItem("instituicoes")) || [])
+  }, [])
 
-  useEffect(()=>{
-    const dados = JSON.parse(localStorage.getItem("salas")) || []
-    setSalas(dados)
-  },[])
-
-  useEffect(()=>{
-    localStorage.setItem("salas", JSON.stringify(salas))
-  },[salas])
-
-  function salvar(e){
-    e.preventDefault()
-
-    if(editId){
-      setSalas(salas.map(s =>
-        s.id === editId ? {...s,nome} : s
-      ))
-      setEditId(null)
-    }else{
-      setSalas([...salas,{id:Date.now(),nome}])
-    }
-
-    setNome("")
+  function getNomeEdificio(id) {
+    return edificios.find((e) => e.id === id)?.nome || "?"
   }
 
-  function excluir(id){
-    setSalas(salas.filter(s=>s.id!==id))
+  function getCampusPorEdificio(edificioId) {
+    const edificio = edificios.find((e) => e.id === edificioId)
+    return campi.find((c) => c.id === edificio?.campusId) || null
   }
 
-  function editar(sala){
-    setNome(sala.nome)
-    setEditId(sala.id)
+  function getInstituicaoPorCampus(campusId) {
+    const campus = campi.find((c) => c.id === campusId)
+    return instituicoes.find((i) => i.id === campus?.instituicaoId) || null
   }
 
-  return(
+  const salasFiltradas = salas.filter((s) =>
+    s.nome.toLowerCase().includes(busca.toLowerCase())
+  )
+
+  return (
     <div>
-
       <div className="card">
-        <form onSubmit={salvar}>
-          <input
-            value={nome}
-            onChange={(e)=>setNome(e.target.value)}
-            placeholder="Nome da sala"
-            required
-          />
-          <button className="btn primary">
-            {editId ? "Atualizar" : "Adicionar"}
-          </button>
-        </form>
+        <h3>Salas</h3>
+
+        <input
+          placeholder="Buscar sala..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
       </div>
 
-      {salas.map(s=>(
-        <div className="card" key={s.id}>
-          <p>{s.nome}</p>
+      {salasFiltradas.map((s) => {
+        const campus = getCampusPorEdificio(s.edificioId)
+        const instituicao = campus ? getInstituicaoPorCampus(campus.id) : null
 
-          <button className="btn edit" onClick={()=>editar(s)}>
-            Editar
-          </button>
+        return (
+          <div className="card card-actions" key={s.id}>
+            <div>
+              <p>
+                <strong>{s.nome}</strong>
+                <br />
+                Instituição: {instituicao?.nome || "?"}
+                <br />
+                Campus: {campus?.nome || "?"}
+                <br />
+                Edifício: {getNomeEdificio(s.edificioId)}
+              </p>
+            </div>
 
-          <button className="btn delete" onClick={()=>excluir(s.id)}>
-            Excluir
-          </button>
-        </div>
-      ))}
-
+            <div className="actions">
+              <button className="btn primary">Reservar</button>
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
