@@ -25,8 +25,9 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         )
 
     token = create_access_token({
-        "sub": str(user.id),
-        "email": user.email
+    "sub": str(user.id),
+    "email": user.email,
+    "perfil": user.perfil
     })
 
     return {

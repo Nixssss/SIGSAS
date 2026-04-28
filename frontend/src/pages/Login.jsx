@@ -1,60 +1,42 @@
 import { useState } from "react"
 import "../App.css"
+import { login } from "../services/authService";
+import { jwtDecode } from "jwt-decode";
 
-function Login({ irCadastro, irEsqueci, irDashboard }) {
+function Login({ irCadastro, irEsqueci, irDashboard, irAdmin}) {
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
   const [erro, setErro] = useState("")
 
-  const ADMIN_EMAIL = "admin@sigsas.com"
-  const ADMIN_SENHA = "123456"
+  async function fazerLogin(e) {
+  e.preventDefault();
 
-  function fazerLogin(e) {
-    e.preventDefault()
+  try { const response = await login({
+    email: email,
+    senha: senha,
+  });
 
-    if (email === ADMIN_EMAIL && senha === ADMIN_SENHA) {
-      localStorage.setItem(
-        "logado",
-        JSON.stringify({
-          email: ADMIN_EMAIL,
-          tipo: "admin",
-        })
-      )
+  console.log(response);
+  const token = response.access_token;
+  const decoded = jwtDecode(token);
+  console.log("DECODED:", decoded);
+  localStorage.setItem("token", token);
+  localStorage.setItem("perfil", decoded.perfil);
 
-      setErro("")
-      irDashboard()
-      return
-    }
+  setErro("");
+  if (decoded.perfil === "admin") {
+  irAdmin();
+} else {
+  irDashboard();
+}} 
+  catch (error) {
+  console.error("ERRO COMPLETO:", error);
+  console.log("STATUS:", error.response?.status);
+  console.log("DATA:", error.response?.data);
 
-    let usuario = null
-
-    try {
-      usuario = JSON.parse(localStorage.getItem("usuario"))
-    } catch {
-      usuario = null
-    }
-
-    if (!usuario || !usuario.email || !usuario.senha) {
-      setErro("Nenhum usuário cadastrado")
-      return
-    }
-
-    if (email !== usuario.email || senha !== usuario.senha) {
-      setErro("Email ou senha incorretos")
-      return
-    }
-
-    localStorage.setItem(
-      "logado",
-      JSON.stringify({
-        email: usuario.email,
-        tipo: "usuario",
-      })
-    )
-
-    setErro("")
-    irDashboard()
-  }
+  setErro(error.response?.data?.detail || "Erro ao fazer login");
+}
+}
 
   return (
     <div className="login-container">

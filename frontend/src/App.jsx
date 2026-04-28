@@ -3,11 +3,13 @@ import Login from "./pages/Login"
 import Cadastro from "./pages/Cadastro"
 import EsqueciSenha from "./pages/EsqueciSenha"
 import Dashboard from "./pages/Dashboard"
+import Admin from "./pages/Admin"
 import "./App.css"
 
 function App(){
 
   const [pagina,setPagina] = useState("login")
+  
 
   return(
     <>
@@ -16,6 +18,7 @@ function App(){
           irCadastro={()=>setPagina("cadastro")}
           irEsqueci={()=>setPagina("esqueci")}
           irDashboard={()=>setPagina("dashboard")}
+          irAdmin={()=>setPagina("admin")}
         />
       }
 
@@ -29,6 +32,9 @@ function App(){
 
       {pagina === "dashboard" &&
         <Dashboard sair={()=>setPagina("login")} />
+      }
+      {pagina === "admin" &&
+        <Admin sair={()=>setPagina("login")} />
       }
     </>
   )

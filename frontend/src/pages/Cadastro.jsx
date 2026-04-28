@@ -1,5 +1,6 @@
 import { useState } from "react"
 import "../App.css"
+import { registrar } from "../services/authService";
 
 function Cadastro({ irLogin }) {
   const [nome, setNome] = useState("")
@@ -8,36 +9,43 @@ function Cadastro({ irLogin }) {
   const [confirmar, setConfirmar] = useState("")
   const [erro, setErro] = useState("")
   const [sucesso, setSucesso] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  function handleCadastro(e) {
-    e.preventDefault()
+  async function handleCadastro(e) {
+  e.preventDefault();
 
-    if (senha !== confirmar) {
-      setErro("As senhas não coincidem")
-      return
-    }
+  if (senha !== confirmar) {
+    setErro("As senhas não coincidem");
+    return;
+  }
 
-    if (senha.length < 6) {
-      setErro("A senha deve ter no mínimo 6 caracteres")
-      return
-    }
+  if (senha.length < 6) {
+    setErro("A senha deve ter no mínimo 6 caracteres");
+    return;
+  }
 
-    const usuario = {
-      nome,
-      email,
-      senha,
-      tipo: "usuario",
-    }
+  try {
+    const response = await registrar({
+      nome: nome,
+      email: email,
+      senha: senha,
+      perfil: isAdmin ? "admin" : "usuario"
+    });
 
-    localStorage.setItem("usuario", JSON.stringify(usuario))
+    console.log(response);
 
-    setErro("")
-    setSucesso(true)
+    setErro("");
+    setSucesso(true);
 
     setTimeout(() => {
-      irLogin()
-    }, 2000)
+      irLogin();
+    }, 2000);
+  } catch (error) {
+    console.error("ERRO:", error.response?.data);
+
+    setErro(error.response?.data?.detail || "Erro ao cadastrar");
   }
+}
 
   return (
     <div className="login-container">
@@ -101,9 +109,16 @@ function Cadastro({ irLogin }) {
               onChange={(e) => setConfirmar(e.target.value)}
               required
             />
-
+            <label>
+            <input
+              type="checkbox"
+              checked={isAdmin}
+              onChange={(e) => setIsAdmin(e.target.checked)}
+            />
+            Criar como administrador
+            </label> 
             {erro && <p className="erro">{erro}</p>}
-
+           
             <button type="submit">Cadastrar</button>
           </form>
 
