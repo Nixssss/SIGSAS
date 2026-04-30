@@ -1,42 +1,47 @@
 import { useState } from "react"
 import "../App.css"
-import { login } from "../services/authService";
-import { jwtDecode } from "jwt-decode";
+import { login } from "../services/authService"
+import { jwtDecode } from "jwt-decode"
 
-function Login({ irCadastro, irEsqueci, irDashboard, irAdmin}) {
+function Login({ irCadastro, irEsqueci, irDashboard }) {
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
   const [erro, setErro] = useState("")
 
   async function fazerLogin(e) {
-  e.preventDefault();
+    e.preventDefault()
 
-  try { const response = await login({
-    email: email,
-    senha: senha,
-  });
+    try {
+      const response = await login({
+        email,
+        senha,
+      })
 
-  console.log(response);
-  const token = response.access_token;
-  const decoded = jwtDecode(token);
-  console.log("DECODED:", decoded);
-  localStorage.setItem("token", token);
-  localStorage.setItem("perfil", decoded.perfil);
+      const token = response.access_token
+      const decoded = jwtDecode(token)
 
-  setErro("");
-  if (decoded.perfil === "admin") {
-  irAdmin();
-} else {
-  irDashboard();
-}} 
-  catch (error) {
-  console.error("ERRO COMPLETO:", error);
-  console.log("STATUS:", error.response?.status);
-  console.log("DATA:", error.response?.data);
+      localStorage.setItem("token", token)
+      localStorage.setItem("perfil", decoded.perfil)
 
-  setErro(error.response?.data?.detail || "Erro ao fazer login");
-}
-}
+      localStorage.setItem(
+        "logado",
+        JSON.stringify({
+          id: decoded.id || decoded.idUsuario || 1,
+          nome: decoded.nome || decoded.sub || email,
+          email,
+          matricula: decoded.matricula || "Não informada",
+          cargo: decoded.cargo || decoded.perfil || "Não informado",
+          instituicao: decoded.instituicao || "Não informada",
+          perfil: decoded.perfil,
+        })
+      )
+
+      setErro("")
+      irDashboard()
+    } catch (error) {
+      setErro(error.response?.data?.detail || "Erro ao fazer login")
+    }
+  }
 
   return (
     <div className="login-container">

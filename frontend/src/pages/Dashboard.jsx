@@ -1,14 +1,23 @@
 import { useState } from "react"
 import Salas from "./Salas"
-import Admin from "./Admin"
+import StatusReservas from "./StatusReservas"
+import Admin from "../components/admin/Admin"
 
 function Dashboard({ sair }) {
   const [tela, setTela] = useState("salas")
-  const usuario = JSON.parse(localStorage.getItem("logado") || "null")
+  const [adminTela, setAdminTela] = useState("resumo")
+  const perfil = localStorage.getItem("perfil")
 
   function handleSair() {
+    localStorage.removeItem("token")
+    localStorage.removeItem("perfil")
     localStorage.removeItem("logado")
     sair()
+  }
+
+  function abrirAdmin(telaAdmin = "resumo") {
+    setTela("admin")
+    setAdminTela(telaAdmin)
   }
 
   return (
@@ -16,10 +25,75 @@ function Dashboard({ sair }) {
       <div className="sidebar">
         <h2>SIGSAS</h2>
 
-        <button onClick={() => setTela("salas")}>Salas</button>
+        <button
+          className={tela === "salas" ? "active" : ""}
+          onClick={() => setTela("salas")}
+        >
+          Salas
+        </button>
 
-        {usuario?.tipo === "admin" && (
-          <button onClick={() => setTela("admin")}>Admin</button>
+        <button
+          className={tela === "statusReservas" ? "active" : ""}
+          onClick={() => setTela("statusReservas")}
+        >
+          Status Reservas
+        </button>
+
+        {perfil === "admin" && (
+          <>
+            <button
+              className={tela === "admin" ? "active" : ""}
+              onClick={() => abrirAdmin("resumo")}
+            >
+              Admin
+            </button>
+
+            {tela === "admin" && (
+              <div className="admin-submenu">
+                <button
+                  className={adminTela === "resumo" ? "active" : ""}
+                  onClick={() => abrirAdmin("resumo")}
+                >
+                  Resumo
+                </button>
+
+                <button
+                  className={adminTela === "instituicoes" ? "active" : ""}
+                  onClick={() => abrirAdmin("instituicoes")}
+                >
+                  Instituições
+                </button>
+
+                <button
+                  className={adminTela === "campi" ? "active" : ""}
+                  onClick={() => abrirAdmin("campi")}
+                >
+                  Campi
+                </button>
+
+                <button
+                  className={adminTela === "edificios" ? "active" : ""}
+                  onClick={() => abrirAdmin("edificios")}
+                >
+                  Edifícios
+                </button>
+
+                <button
+                  className={adminTela === "salas" ? "active" : ""}
+                  onClick={() => abrirAdmin("salas")}
+                >
+                  Salas Admin
+                </button>
+
+                <button
+                  className={adminTela === "reservas" ? "active" : ""}
+                  onClick={() => abrirAdmin("reservas")}
+                >
+                  Reservas
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         <button onClick={handleSair}>Sair</button>
@@ -27,7 +101,12 @@ function Dashboard({ sair }) {
 
       <div className="content">
         {tela === "salas" && <Salas />}
-        {tela === "admin" && usuario?.tipo === "admin" && <Admin />}
+
+        {tela === "statusReservas" && <StatusReservas />}
+
+        {tela === "admin" && perfil === "admin" && (
+          <Admin adminTela={adminTela} />
+        )}
       </div>
     </div>
   )
