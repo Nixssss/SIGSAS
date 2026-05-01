@@ -1,18 +1,12 @@
 from pydantic_settings import BaseSettings
 
-class Settings(BaseSettings):
-    PROJECT_NAME: str = "SIGSAS - TCC"
-    USE_SQLITE_LOCAL: bool = True 
-    OPENAI_API_KEY: str = "" 
 
-    @property
-    def DATABASE_URI(self) -> str:
-        if self.USE_SQLITE_LOCAL:
-            return "sqlite:///./banco_temporario.db"
-        return "postgresql://usuario:senha@localhost/banco"
+class Settings(BaseSettings):
+    DATABASE_URL: str = "postgresql+psycopg2://postgres:1234@localhost:5432/sigsas"
 
     class Config:
         env_file = ".env"
-        extra = "ignore"
+        env_file_encoding = "utf-8"
+
 
 settings = Settings()

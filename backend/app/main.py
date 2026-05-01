@@ -1,19 +1,12 @@
 from fastapi import FastAPI
-from app.api import chat, reservas, auth
-from app.db.session import Base, engine
 from fastapi.middleware.cors import CORSMiddleware
 
-def create_db_tables():
-    Base.metadata.create_all(bind=engine)
+from app.db.session import Base, engine
+import app.models
 
-create_db_tables()
+app = FastAPI(title="SIGSAS")
 
-app = FastAPI(
-    title="SIGSAS API",
-    description="API para o Sistema Inteligente de Gerenciamento de Salas (SIGSAS)",
-    version="1.0.0",
-)
-
+# CORS (1 vez só)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,11 +15,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chat.router, prefix="/api/v1/ia", tags=["Chat Inteligente"])
-app.include_router(reservas.router, prefix="/api/v1", tags=["Reservas"])
-app.include_router(auth.router, prefix="/api/v1", tags=["Autenticação"])
+# 🔥 cria todas as tabelas depois de carregar os models
+Base.metadata.create_all(bind=engine)
 
-@app.get("/api/v1/health", tags=["Health Check"])
+# rotas
+from app.api.api_router import router as api_router
+app.include_router(api_router, prefix="/api/v1")
+
+
+@app.get("/api/v1/health")
 def health_check():
-    return {"status": "ok", "message": "SIGSAS API is running!"}
-
+    return {"status": "ok"}
