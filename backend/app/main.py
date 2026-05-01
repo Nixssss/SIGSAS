@@ -1,22 +1,33 @@
 from fastapi import FastAPI
-from backend.app.api import chat, reservas, auth
-from backend.app.db.session import Base, engine
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.api_router import router as api_router
+from app.db.session import Base, engine
+import uvicorn
 
-def create_db_tables():
-    Base.metadata.create_all(bind=engine)
+# Cria as tabelas automaticamente
+Base.metadata.create_all(bind=engine)
 
-create_db_tables()
+app = FastAPI(title="SIGSAS")
 
-app = FastAPI(
-    title="SIGSAS API",
-    description="API para o Sistema Inteligente de Gerenciamento de Salas (SIGSAS)",
-    version="1.0.0",
+# Configura CORS liberado
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-app.include_router(chat.router, prefix="/api/v1/ia", tags=["Chat Inteligente"])
-app.include_router(reservas.router, prefix="/api/v1", tags=["Reservas"])
-app.include_router(auth.router, prefix="/api/v1", tags=["Autenticação"])
-
-@app.get("/api/v1/health", tags=["Health Check"])
+@app.get("/api/v1/health")
 def health_check():
-    return {"status": "ok", "message": "SIGSAS API is running!"}
+    return {"status": "healthy"}
+
+app.include_router(api_router, prefix="/api/v1")
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )

@@ -1,32 +1,26 @@
-from pydantic import BaseModel, EmailStr, validator
-import re
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Optional
 
-class UsuarioCreate(BaseModel):
-    nome: str
-    email: EmailStr
-    senha: str
-    confirmacao_senha: str
 
-    @validator('senha')
-    def validar_senha(cls, v):
-        if len(v) < 8:
-            raise ValueError('A senha deve ter no mínimo 8 caracteres.')
-        if not re.search(r"[A-Z]", v):
-            raise ValueError('A senha deve conter uma letra maiúscula.')
-        if not re.search(r"[!@#$%^&*]", v):
-            raise ValueError('A senha deve conter um caractere especial.')
-        return v
+class UsuarioBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-    @validator('confirmacao_senha')
-    def senhas_iguais(cls, v, values):
-        if 'senha' in values and v != values['senha']:
-            raise ValueError('As senhas não coincidem.')
-        return v
+    nome: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., min_length=1, max_length=100)
+    cargo_id: int
 
-class UsuarioResponse(BaseModel):
+
+class UsuarioCreate(UsuarioBase):
+    senha: str = Field(..., min_length=8)
+
+
+class UsuarioUpdate(BaseModel):
+    nome: Optional[str] = Field(None, min_length=1, max_length=100)
+    email: Optional[str] = Field(None, min_length=1, max_length=100)
+    cargo_id: Optional[int] = None
+    senha: Optional[str] = Field(None, min_length=8)
+
+
+class Usuario(UsuarioBase):
     id: int
-    nome: str
-    email: EmailStr
-
-    class Config:
-        from_attributes = True
+    ativo: bool = True
