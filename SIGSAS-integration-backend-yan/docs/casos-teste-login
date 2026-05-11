@@ -1,0 +1,178 @@
+# Casos de Teste - Sprint 1 (Login e Cadastro)
+
+## Informações Gerais
+**Sistema:** SIGSAS  
+**Sprint:** 1  
+**Módulos:** Autenticação (Cadastro e Login)  
+**Ambiente:** Local (Frontend + Backend + PostgreSQL)
+
+---
+
+## CT-01 — Cadastro com dados válidos
+**Objetivo:** Garantir que o usuário consiga se cadastrar com sucesso.  
+**Pré-condições:** Sistema online; email e matrícula ainda não cadastrados.  
+
+**Passos:**
+1. Acessar a tela de cadastro.
+2. Informar nome válido.
+3. Informar email válido.
+4. Informar matrícula válida.
+5. Informar senha válida.
+6. Confirmar senha corretamente.
+7. Confirmar cadastro.
+
+**Resultado esperado:**
+- Retornar sucesso (ex.: 201).
+- Usuário criado no banco de dados.
+- Exibir mensagem de sucesso.
+- Redirecionar para a tela de login.
+
+---
+
+## CT-02 — Cadastro com email já existente
+**Objetivo:** Impedir cadastro com email duplicado.  
+**Pré-condições:** Sistema online; email já cadastrado.  
+
+**Passos:**
+1. Acessar a tela de cadastro.
+2. Informar nome válido.
+3. Informar email já cadastrado.
+4. Informar matrícula válida.
+5. Informar senha válida.
+6. Confirmar senha.
+7. Confirmar cadastro.
+
+**Resultado esperado:**
+- Retornar erro (ex.: 400 ou 409).
+- Exibir mensagem clara: "Email já cadastrado".
+- Não criar novo usuário no banco.
+
+---
+
+## CT-03 — Cadastro com matrícula já existente
+**Objetivo:** Impedir cadastro com matrícula duplicada.  
+**Pré-condições:** Sistema online; matrícula já cadastrada.  
+
+**Passos:**
+1. Acessar a tela de cadastro.
+2. Informar nome válido.
+3. Informar email válido.
+4. Informar matrícula já cadastrada.
+5. Informar senha válida.
+6. Confirmar senha.
+7. Confirmar cadastro.
+
+**Resultado esperado:**
+- Retornar erro (ex.: 400 ou 409).
+- Exibir mensagem clara: "Matrícula já cadastrada".
+- Não criar novo usuário no banco.
+
+---
+
+## CT-04 — Cadastro com email em formato inválido
+**Objetivo:** Validar formato do email.  
+**Pré-condições:** Sistema online.  
+
+**Passos:**
+1. Acessar a tela de cadastro.
+2. Informar nome válido.
+3. Informar email inválido (ex.: "murilo@").
+4. Informar matrícula válida.
+5. Informar senha válida.
+6. Confirmar senha.
+7. Confirmar cadastro.
+
+**Resultado esperado:**
+- Bloquear envio no frontend ou retornar erro (400).
+- Exibir mensagem: "Email em formato inválido".
+- Não criar usuário no banco.
+
+---
+
+## CT-05 — Cadastro com campos obrigatórios vazios
+**Objetivo:** Validar obrigatoriedade dos campos.  
+**Pré-condições:** Sistema online.  
+
+**Passos:**
+1. Acessar a tela de cadastro.
+2. Deixar nome vazio.
+3. Deixar email vazio.
+4. Deixar matrícula vazia.
+5. Deixar senha vazia.
+6. Confirmar cadastro.
+
+**Resultado esperado:**
+- Bloquear envio no frontend ou retornar erro (400).
+- Exibir mensagem de campos obrigatórios.
+- Não criar usuário no banco.
+
+---
+
+## CT-06 — Cadastro com confirmação de senha diferente
+**Objetivo:** Validar que o sistema não permite cadastro quando a confirmação de senha é diferente da senha informada.  
+**Pré-condições:** Sistema online; email e matrícula ainda não cadastrados.  
+
+**Passos:**
+1. Acessar a tela de cadastro.
+2. Informar nome válido.
+3. Informar email válido.
+4. Informar matrícula válida.
+5. Informar senha válida.
+6. Informar confirmação de senha diferente da senha informada.
+7. Confirmar cadastro.
+
+**Resultado esperado:**
+- Bloquear envio no frontend ou retornar erro (400).
+- Exibir mensagem clara: "As senhas não coincidem".
+- Não criar usuário no banco.
+
+---
+
+## CT-07 — Login com credenciais válidas
+**Objetivo:** Garantir autenticação com sucesso.  
+**Pré-condições:** Usuário previamente cadastrado.  
+
+**Passos:**
+1. Acessar a tela de login.
+2. Informar email ou matrícula válida.
+3. Informar senha correta.
+4. Clicar em "Entrar".
+
+**Resultado esperado:**
+- Retornar sucesso (200).
+- Retornar token de autenticação.
+- Redirecionar para a tela principal do sistema.
+
+---
+
+## CT-08 — Login com senha incorreta
+**Objetivo:** Impedir autenticação com senha inválida.  
+**Pré-condições:** Usuário previamente cadastrado.  
+
+**Passos:**
+1. Acessar a tela de login.
+2. Informar email ou matrícula válida.
+3. Informar senha incorreta.
+4. Clicar em "Entrar".
+
+**Resultado esperado:**
+- Retornar erro (401).
+- Exibir mensagem: "Credenciais inválidas".
+- Não gerar token.
+
+---
+
+## CT-09 — Login com usuário inexistente
+**Objetivo:** Impedir autenticação de usuário não cadastrado.  
+**Pré-condições:** Email ou matrícula inexistente.  
+
+**Passos:**
+1. Acessar a tela de login.
+2. Informar email ou matrícula não cadastrada.
+3. Informar qualquer senha.
+4. Clicar em "Entrar".
+
+**Resultado esperado:**
+- Retornar erro (401 ou 404).
+- Exibir mensagem: "Usuário não encontrado".
+- Não gerar token.
