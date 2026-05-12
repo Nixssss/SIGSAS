@@ -3,10 +3,21 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.models.usuario import Usuario
-from app.schemas.auth import LoginRequest, TokenResponse, UserCreate, UserRead
-from app.core.security import verify_password, create_access_token, get_password_hash
+from app.schemas.auth import (
+    LoginRequest,
+    TokenResponse,
+    UserCreate,
+    UserRead,
+    RedefinirSenhaRequest,
+)
+from app.core.security import (
+    verify_password,
+    create_access_token,
+    get_password_hash,
+)
 
 router = APIRouter()
+
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
@@ -15,33 +26,41 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou senha inválidos"
+            detail="Email ou senha inválidos",
         )
 
     if not verify_password(data.senha, user.senha_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou senha inválidos"
+            detail="Email ou senha inválidos",
         )
 
-    token = create_access_token({
-    "sub": str(user.id),
-    "email": user.email,
-    "perfil": user.perfil
-    })
+    token = create_access_token(
+        {
+            "sub": str(user.id),
+            "email": user.email,
+            "perfil": user.perfil,
+        }
+    )
 
     return {
         "access_token": token,
-        "token_type": "bearer"
+        "token_type": "bearer",
     }
 
-@router.post("/registrar", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "/registrar",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+)
 def registrar_usuario(user_in: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(Usuario).filter(Usuario.email == user_in.email).first()
+
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email já registrado"
+            detail="Email já registrado",
         )
 
     hashed_password = get_password_hash(user_in.senha)
@@ -50,10 +69,50 @@ def registrar_usuario(user_in: UserCreate, db: Session = Depends(get_db)):
         nome=user_in.nome,
         email=user_in.email,
         senha_hash=hashed_password,
-        perfil=user_in.perfil
+        perfil=user_in.perfil,
     )
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
     return db_user
+
+
+@router.post("/redefinir-senha")
+def redefinir_senha(data: RedefinirSenhaRequest, db: Session = Depends(get_db)):
+    if not data.email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email não informado",
+        )
+
+    if not data.nova_senha:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nova senha não informada",
+        )
+
+    if len(data.nova_senha) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A senha deve ter no mínimo 6 caracteres",
+        )
+
+    user = db.query(Usuario).filter(Usuario.email == data.email).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado",
+        )
+
+    user.senha_hash = get_password_hash(data.nova_senha)
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "detail": "Senha redefinida com sucesso",
+        "email": user.email,
+    }

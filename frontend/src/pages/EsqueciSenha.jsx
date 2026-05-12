@@ -1,24 +1,67 @@
 import { useState } from "react"
 import "../App.css"
+import { enviarRecuperacaoSenha } from "../services/emailServices"
 
 function EsqueciSenha({ irLogin }) {
   const [email, setEmail] = useState("")
   const [sucesso, setSucesso] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [erro, setErro] = useState("")
 
-  function recuperarSenha(e) {
+  function emailValido(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
+  async function recuperarSenha(e) {
     e.preventDefault()
 
-    setLoading(true)
+    const emailLimpo = email.trim().toLowerCase()
 
-    setTimeout(() => {
+    if (!emailLimpo) {
+      setErro("Informe um email.")
+      return
+    }
+
+    if (!emailValido(emailLimpo)) {
+      setErro("Informe um email válido.")
+      return
+    }
+
+    const token = crypto.randomUUID()
+
+    const novoToken = {
+      email: emailLimpo,
+      token,
+      criadoEm: new Date().toISOString(),
+      usado: false,
+      validadeHoras: 1,
+    }
+
+    try {
+      setLoading(true)
+      setErro("")
+
+      await enviarRecuperacaoSenha(emailLimpo, token)
+
+      const tokensSalvos =
+        JSON.parse(localStorage.getItem("tokensRecuperacaoSenha")) || []
+
+      localStorage.setItem(
+        "tokensRecuperacaoSenha",
+        JSON.stringify([novoToken, ...tokensSalvos])
+      )
+
       setLoading(false)
       setSucesso(true)
 
       setTimeout(() => {
         irLogin()
-      }, 2000)
-    }, 1500)
+      }, 2500)
+    } catch (error) {
+      console.error("Erro ao enviar recuperação:", error)
+      setLoading(false)
+      setErro("Erro ao enviar email de recuperação.")
+    }
   }
 
   return (
@@ -36,6 +79,8 @@ function EsqueciSenha({ irLogin }) {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
+          {erro && <p className="erro">{erro}</p>}
 
           <button className={loading ? "loading" : ""} disabled={loading}>
             {loading ? "Enviando..." : "Enviar"}

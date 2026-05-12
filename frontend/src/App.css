@@ -524,6 +524,8 @@ button.loading::after{
   transition:0.3s;
 }
 
+
+
 @keyframes slideIn{
   from{
     transform:translateX(100%);
@@ -699,4 +701,212 @@ button.loading::after{
 
 .info-tooltip:hover .tooltip-box{
   display:block;
+}
+
+.tabela-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.tabela-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-container th,
+.tabela-container td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.tabela-container th {
+  background: #f5f5f5;
+}
+
+.status-ativo {
+  color: #0f766e;
+  font-weight: bold;
+}
+
+.status-usado {
+  color: #2563eb;
+  font-weight: bold;
+}
+
+.status-expirado {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.tabela-container button {
+  margin-right: 8px;
+  margin-bottom: 6px;
+}
+
+.admin-page form {
+  max-width: 520px;
+  margin-top: 20px;
+  margin-bottom: 28px;
+}
+
+.admin-page .form-group {
+  margin-bottom: 16px;
+}
+
+.admin-page label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.admin-page input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.admin-page input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.admin-page form button,
+.tabela-container button {
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.admin-page form button:hover,
+.tabela-container button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.admin-page form button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tabela-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 18px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.tabela-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-container th {
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 700;
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tabela-container td {
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.tabela-container tr:hover {
+  background: #f8fafc;
+}
+
+.status-ativo,
+.status-usado,
+.status-expirado {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-ativo {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-usado {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-expirado {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.tabela-container td:last-child {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tabela-container button {
+  font-size: 13px;
+  padding: 8px 12px;
+}
+
+.tabela-container button:nth-child(2) {
+  background: #0f766e;
+}
+
+.tabela-container button:nth-child(2):hover {
+  background: #115e59;
+}
+
+.tabela-container button:nth-child(3) {
+  background: #dc2626;
+}
+
+.tabela-container button:nth-child(3):hover {
+  background: #b91c1c;
+}
+
+.token-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.token-box p {
+  margin: 6px 0;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.toast.removido {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border-left: 5px solid #ef4444 !important;
+}
+
+.toast.removido::before {
+  color: #991b1b !important;
 }

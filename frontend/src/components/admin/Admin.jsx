@@ -4,13 +4,13 @@ import SalasAdmin from "./SalasAdmin"
 
 import AdminResumo from "./AdminResumo"
 import AdminBusca from "./AdminBusca"
+import CadastroAdmin from "./CadastroAdmin"
 import InstituicoesAdmin from "./InstituicoesAdmin"
 import CampiAdmin from "./CampiAdmin"
 import EdificiosAdmin from "./EdificiosAdmin"
 import ReservasAdmin from "./ReservasAdmin"
 
 function Admin({ adminTela }) {
-  // 🔥 Persistência correta (lazy load)
   const [instituicoes, setInstituicoes] = useState(() => {
     return JSON.parse(localStorage.getItem("instituicoes")) || []
   })
@@ -30,7 +30,6 @@ function Admin({ adminTela }) {
   const [busca, setBusca] = useState("")
   const [toasts, setToasts] = useState([])
 
-  // 🔥 Apenas salvar (sem reescrever vazio)
   useEffect(() => {
     localStorage.setItem("instituicoes", JSON.stringify(instituicoes))
   }, [instituicoes])
@@ -102,7 +101,6 @@ function Admin({ adminTela }) {
     )
   }
 
-  // 🔹 SALAS ADMIN
   if (adminTela === "salas") {
     return (
       <div className="admin-page">
@@ -119,7 +117,6 @@ function Admin({ adminTela }) {
     )
   }
 
-  // 🔹 INSTITUIÇÕES
   if (adminTela === "instituicoes") {
     return (
       <div className="admin-page">
@@ -139,7 +136,6 @@ function Admin({ adminTela }) {
     )
   }
 
-  // 🔹 CAMPI
   if (adminTela === "campi") {
     return (
       <div className="admin-page">
@@ -159,7 +155,6 @@ function Admin({ adminTela }) {
     )
   }
 
-  // 🔹 EDIFÍCIOS
   if (adminTela === "edificios") {
     return (
       <div className="admin-page">
@@ -177,7 +172,6 @@ function Admin({ adminTela }) {
     )
   }
 
-  // 🔹 RESERVAS (NOVO)
   if (adminTela === "reservas") {
     return (
       <div className="admin-page">
@@ -187,7 +181,15 @@ function Admin({ adminTela }) {
     )
   }
 
-  // 🔹 RESUMO (DEFAULT)
+  if (adminTela === "cadastro") {
+    return (
+      <div className="admin-page">
+        {renderToasts()}
+        <CadastroAdmin showToast={showToast} />
+      </div>
+    )
+  }
+
   return (
     <div className="admin-page">
       {renderToasts()}

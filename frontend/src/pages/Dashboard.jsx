@@ -91,6 +91,13 @@ function Dashboard({ sair }) {
                 >
                   Reservas
                 </button>
+
+                <button
+                  className={adminTela === "cadastro" ? "active" : ""}
+                  onClick={() => abrirAdmin("cadastro")}
+                >
+                  Cadastro
+                </button>
               </div>
             )}
           </>
