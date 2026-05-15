@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.palavras import Palavra
 
-
+#if (i = Length(Frase)) or (Frase[i] in [' ',',','.',':','-','!','?','/',';','(',')','_','[',']']) then
 def normalize(text):
     return (
         unicodedata.normalize("NFKD", text)

@@ -18,6 +18,7 @@ from app.api.assunto_router import router as assuntos_router
 from app.api.palavras_router import router as palavras_router
 from app.api.peso_palavra import router as pesos_palavra_router
 from app.api.erro_palavras import router as erros_palavra_router
+from app.api.chatfluxo_router import router as chatfluxo
 
 router.include_router(usuarios_router)
 router.include_router(salas_router)
@@ -35,6 +36,10 @@ router.include_router(assuntos_router)
 router.include_router(palavras_router)
 router.include_router(pesos_palavra_router)
 router.include_router(erros_palavra_router)
-
+router.include_router(
+    chatfluxo,
+    prefix="/chatbot-fluxo",
+    tags=["Chatbot Fluxo"]
+)
 
 

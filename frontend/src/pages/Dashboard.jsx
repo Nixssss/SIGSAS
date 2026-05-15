@@ -21,6 +21,7 @@ function Dashboard({ sair }) {
         {usuario?.tipo === "admin" && (
           <button onClick={() => setTela("admin")}>Admin</button>
         )}
+        <button onClick={() => setPagina("chatbot")}>Abrir Chatbot</button>
 
         <button onClick={handleSair}>Sair</button>
       </div>

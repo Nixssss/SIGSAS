@@ -1,5 +1,5 @@
-from typing import List, Optional
 from sqlalchemy.orm import Session
+from typing import List, Optional
 
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioUpdate
@@ -14,6 +14,10 @@ class UsuarioService:
     @staticmethod
     def get_by_id(db: Session, id: int) -> Optional[Usuario]:
         return db.query(Usuario).filter(Usuario.id == id).first()
+
+    @staticmethod
+    def get_by_email(db: Session, email: str) -> Optional[Usuario]:
+        return db.query(Usuario).filter(Usuario.email == email).first()
 
     @staticmethod
     def criar_usuario(db: Session, obj_in: UsuarioCreate) -> Usuario:

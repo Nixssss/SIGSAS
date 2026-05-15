@@ -529,4 +529,49 @@ button.loading::after{
   .sidebar{
     width:200px;
   }
+  .chat-container{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
 }
+
+.chat-box{
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  height:500px;
+  overflow-y:auto;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.chat-message{
+  padding:12px 14px;
+  border-radius:14px;
+  margin-bottom:12px;
+  max-width:75%;
+  width:fit-content;
+  line-height:1.5;
+  white-space: pre-line;
+}
+
+.chat-message.user{
+  background:#2563eb;
+  color:white;
+  margin-left:auto;
+}
+
+.chat-message.bot{
+  background:#e2e8f0;
+  color:#0f172a;
+}
+
+.chat-input-area{
+  display:flex;
+  gap:12px;
+}
+
+.chat-input-area input{
+  flex:1;
+}
+}
+

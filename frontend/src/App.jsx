@@ -1,41 +1,52 @@
 import { useState } from "react"
+
 import Login from "./pages/Login"
 import Cadastro from "./pages/Cadastro"
 import EsqueciSenha from "./pages/EsqueciSenha"
 import Dashboard from "./pages/Dashboard"
 import Admin from "./pages/Admin"
+import ChatbotTeste from "./pages/ChatFluxo"
+
 import "./App.css"
 
-function App(){
+function App() {
+  const [pagina, setPagina] = useState("login")
 
-  const [pagina,setPagina] = useState("login")
-  
+  const ir = (paginaDestino) => setPagina(paginaDestino)
 
-  return(
+  return (
     <>
-      {pagina === "login" &&
+      {pagina === "login" && (
         <Login
-          irCadastro={()=>setPagina("cadastro")}
-          irEsqueci={()=>setPagina("esqueci")}
-          irDashboard={()=>setPagina("dashboard")}
-          irAdmin={()=>setPagina("admin")}
+          irCadastro={() => ir("cadastro")}
+          irEsqueci={() => ir("esqueci")}
+          irDashboard={() => ir("dashboard")}
+          irAdmin={() => ir("admin")}
         />
-      }
+      )}
 
-      {pagina === "cadastro" &&
-        <Cadastro irLogin={()=>setPagina("login")} />
-      }
+      {pagina === "cadastro" && (
+        <Cadastro irLogin={() => ir("login")} />
+      )}
 
-      {pagina === "esqueci" &&
-        <EsqueciSenha irLogin={()=>setPagina("login")} />
-      }
+      {pagina === "esqueci" && (
+        <EsqueciSenha irLogin={() => ir("login")} />
+      )}
 
-      {pagina === "dashboard" &&
-        <Dashboard sair={()=>setPagina("login")} />
-      }
-      {pagina === "admin" &&
-        <Admin sair={()=>setPagina("login")} />
-      }
+      {pagina === "dashboard" && (
+        <Dashboard
+          sair={() => ir("login")}
+          irChatbot={() => ir("chatbot")}
+        />
+      )}
+
+      {pagina === "admin" && (
+        <Admin sair={() => ir("login")} />
+      )}
+
+      {pagina === "chatbot" && (
+        <ChatbotTeste voltar={() => ir("dashboard")} />
+      )}
     </>
   )
 }
