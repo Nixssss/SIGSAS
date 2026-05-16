@@ -1,0 +1,106 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.login-container{
+  display:flex;
+  height:100vh;
+}
+
+.login-left{
+  width:45%;
+  background:#175e63;
+  color:white;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+
+  padding:40px;
+}
+
+.logo-area{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.logo{
+  width:110px;
+}
+
+.left-content h1{
+  font-size:32px;
+  margin-bottom:15px;
+}
+
+.left-content p{
+  color:#b0b8c4;
+}
+
+.login-right{
+  width:60%;
+  background:#f5f6fa;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.login-card{
+  width:380px;
+}
+
+.subtitle{
+  color:#6b7280;
+  margin-bottom:20px;
+}
+
+form{
+  display:flex;
+  flex-direction:column;
+}
+
+label{
+  margin-top:10px;
+  font-size:14px;
+}
+
+input{
+  padding:12px;
+  border-radius:6px;
+  border:1px solid #d1d5db;
+}
+
+button{
+  margin-top:20px;
+  padding:12px;
+
+  background:#3563d9;
+  color:white;
+
+  border:none;
+  border-radius:6px;
+
+  cursor:pointer;
+}
+
+button:hover{
+  background:#274fb6;
+}
+
+.register{
+  margin-top:20px;
+  text-align:center;
+}
+
+.register span{
+  color:#3563d9;
+  cursor:pointer;
+}
