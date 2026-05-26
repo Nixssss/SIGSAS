@@ -1,0 +1,109 @@
+import { useState } from "react"
+import "../App.css"
+import { login } from "../services/authService"
+import { jwtDecode } from "jwt-decode"
+
+function Login({ irCadastro, irEsqueci, irDashboard }) {
+  const [email, setEmail] = useState("")
+  const [senha, setSenha] = useState("")
+  const [erro, setErro] = useState("")
+  const [carregando, setCarregando] = useState(false)
+
+  async function fazerLogin(e) {
+    e.preventDefault()
+    setErro("")
+
+    try {
+      setCarregando(true)
+
+      const response = await login({
+        email: email.trim().toLowerCase(),
+        senha,
+      })
+
+      const token = response.access_token
+      const decoded = jwtDecode(token)
+
+      localStorage.setItem("token", token)
+      localStorage.setItem("perfil", decoded.perfil || "usuario")
+
+      localStorage.setItem(
+        "logado",
+        JSON.stringify({
+          id: decoded.id || Number(decoded.sub),
+          idUsuario: decoded.idUsuario || decoded.id || Number(decoded.sub),
+          nome: decoded.nome || decoded.email || email,
+          email: decoded.email || email,
+          matricula: decoded.matricula || "Não informada",
+          cargo: decoded.cargo || decoded.perfil || "Não informado",
+          idInstituicao: decoded.idInstituicao || null,
+          instituicao: decoded.instituicao || "Não informada",
+          perfil: decoded.perfil || "usuario",
+        })
+      )
+
+      irDashboard()
+    } catch (error) {
+      setErro(error.response?.data?.detail || "Erro ao fazer login")
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  return (
+    <div className="login-container">
+      <div className="login-left">
+        <div className="logo-area">
+          <span>SIGSAS</span>
+        </div>
+
+        <div className="left-content">
+          <h1>Gerencie suas salas</h1>
+          <p>Sistema inteligente de organização.</p>
+        </div>
+
+        <div className="copyright">© 2026</div>
+      </div>
+
+      <div className="login-right">
+        <div className="login-card">
+          <h2>Login</h2>
+
+          <form onSubmit={fazerLogin}>
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+
+            <label>Senha</label>
+            <input
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              required
+            />
+
+            {erro && <p className="erro">{erro}</p>}
+
+            <button type="submit" disabled={carregando}>
+              {carregando ? "Entrando..." : "Entrar"}
+            </button>
+          </form>
+
+          <p className="register">
+            <span onClick={irEsqueci}>Esqueci senha</span>
+          </p>
+
+          <p className="register">
+            Não tem conta? <span onClick={irCadastro}>Cadastre-se</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Login
