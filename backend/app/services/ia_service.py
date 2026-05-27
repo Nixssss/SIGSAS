@@ -5,53 +5,57 @@ import re
 import json
 
 class LocalAIProcessor:
+
     def __init__(self):
-        print("\n[SIGSAS DEBUG] IA inicializada (sem carregar modelo ainda)\n", flush=True)
+        print("\n[SIGSAS DEBUG] 1. Iniciando carregamento do serviço de IA...", flush=True)
 
-        self.model = None
-        self.tokenizer = None
+        try:
+            if not os.path.exists("offload"):
+                os.makedirs("offload")
 
-    def load_model(self):
-        if self.model is not None:
-            return
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16
+            )
 
-        print("\n[SIGSAS DEBUG] 1. Carregando modelo de IA (primeira vez pode demorar)...", flush=True)
+            print("[SIGSAS DEBUG] 2. Configuração de 4-bit aplicada.", flush=True)
 
-        if not os.path.exists("offload"):
-            os.makedirs("offload")
+            model_id = "microsoft/Phi-3-mini-4k-instruct"
 
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16,
-        )
+            print("[SIGSAS DEBUG] 3. Carregando modelo (pode levar 1-2 min)...", flush=True)
 
-        model_id = "microsoft/Phi-3-mini-4k-instruct"
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                device_map="auto",
+                quantization_config=bnb_config,
+                attn_implementation="eager",
+                low_cpu_mem_usage=True,
+                offload_folder="offload",
+                trust_remote_code=False
+            )
 
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_id,
-            device_map="auto",
-            quantization_config=bnb_config,
-            trust_remote_code=False,
-            attn_implementation="eager",
-            low_cpu_mem_usage=True,
-            offload_folder="offload"
-        )
+            self.tokenizer = AutoTokenizer.from_pretrained(model_id)
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+            print("[SIGSAS DEBUG] 4. IA carregada com sucesso!\n", flush=True)
 
-        print("\n[SIGSAS DEBUG] 2. IA carregada com sucesso!\n", flush=True)
+        except Exception as e:
+            print(f"[ERRO CRÍTICO] Falha ao carregar IA: {str(e)}", flush=True)
+            self.model = None
+    # PROCESSADOR
+    def processar_agendamento(self, mensagem: str, db=None):
 
-    def processar_agendamento(self, mensagem: str):
+        if not self.model:
+            return {
+                "erro": "Motor de IA não inicializado."
+            }
 
-        # 🔥 garante que o modelo só carrega quando precisar
-        if self.model is None:
-            self.load_model()
-
-        prompt = f"""<|system|>
+        prompt = f"""
+<|system|>
 Você é a IA do SIGSAS. Extraia dados de agendamento.
-Retorne APENAS JSON:
+Retorne APENAS JSON puro no formato:
+
 {{
   "intencao": "reservar" | "cancelar" | "consultar",
   "sala_tipo": "laboratorio" | "sala_aula" | "auditorio",
@@ -59,13 +63,16 @@ Retorne APENAS JSON:
   "data": "YYYY-MM-DD",
   "horario": "HH:MM"
 }}
-Se não souber, use null.<|end|>
-<|user|>
-Mensagem: "{mensagem}"<|end|>
+
+Se não souber algo, retorne null.
+<|end|>
+
+<|user|> Mensagem: "{mensagem}" <|end|>
 <|assistant|>
 """
 
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
+        inputs = self.tokenizer(prompt, return_tensors="pt")
+        inputs = {k: v.to(self.model.device, dtype=torch.long) for k, v in inputs.items()}
 
         outputs = self.model.generate(
             **inputs,
@@ -76,25 +83,22 @@ Mensagem: "{mensagem}"<|end|>
 
         resposta_bruta = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+        # Limpeza do JSON
         try:
-            json_match = re.search(r'\{.*\}', resposta_bruta, re.DOTALL)
+            match = re.findall(r"\{[^{}]*\}", resposta_bruta)
 
-            if json_match:
-                dados_json = json.loads(json_match.group())
+            if not match:
+                dados_json = {"erro": "JSON não encontrado", "bruto": resposta_bruta}
             else:
-                dados_json = {
-                    "erro": "JSON não detectado",
-                    "texto_bruto": resposta_bruta
-                }
-
+                dados_json = json.loads(match[-1])  
         except Exception as e:
             dados_json = {
-                "erro": f"Falha no processamento: {str(e)}",
+                "erro": f"Falha ao decodificar JSON: {str(e)}",
                 "raw": resposta_bruta
             }
 
+        # retorno compatível com o Chat Inteligente
         return {
-            "status": "sucesso",
             "dados_extraidos": dados_json,
-            "mensagem_usuario": "Interpretei seu pedido com IA local."
+            "mensagem_amigavel": "Interpretei seu pedido. Validando regras de negócio...",
         }

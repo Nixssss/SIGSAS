@@ -16,6 +16,10 @@ from app.api import (
     convites,
     cargos,
     seed,
+    usuarios,
+    auditoria,
+    reportes_problemas,
+    sugestoes_melhorias,
 )
 
 from app.db.session import Base, engine
@@ -29,10 +33,12 @@ from app.models.tipo_sala import TipoSala
 from app.models.recurso import Recurso
 from app.models.tipo_sala_recurso import TipoSalaRecurso
 from app.models.sala_recurso import SalaRecurso
-from app.api import salas
 from app.models.reserva import Reserva
 from app.models.convite import Convite
 from app.models.cargo import Cargo
+from app.models.auditoria import Auditoria
+from app.models.reporte_problema import ReporteProblema
+from app.models.sugestao_melhoria import SugestaoMelhoria
 
 
 def create_db_tables():
@@ -70,7 +76,10 @@ app.include_router(salas.router, prefix="/api/v1", tags=["Salas"])
 app.include_router(convites.router, prefix="/api/v1", tags=["Convites"])
 app.include_router(cargos.router, prefix="/api/v1", tags=["Cargos"])
 app.include_router(seed.router, prefix="/api/v1", tags=["Seed"])
-
+app.include_router(usuarios.router, prefix="/api/v1", tags=["Usuários"])
+app.include_router(auditoria.router, prefix="/api/v1", tags=["Auditoria"])
+app.include_router(reportes_problemas.router, prefix="/api/v1", tags=["Reportes de Problemas"])
+app.include_router(sugestoes_melhorias.router, prefix="/api/v1", tags=["Sugestões de Melhorias"])
 
 
 @app.get("/api/v1/health", tags=["Health Check"])
