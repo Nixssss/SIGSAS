@@ -1,94 +1,253 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
 import os
-import re    
-import json  
+import re
+import json
 
 class LocalAIProcessor:
+
     def __init__(self):
         print("\n[SIGSAS DEBUG] 1. Iniciando carregamento do serviço de IA...", flush=True)
-        
+
         try:
-            
             if not os.path.exists("offload"):
                 os.makedirs("offload")
-
+ 
             bnb_config = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_use_double_quant=True,
                 bnb_4bit_quant_type="nf4",
                 bnb_4bit_compute_dtype=torch.float16,
+                llm_int8_enable_fp32_cpu_offload=True
             )
-            print("[SIGSAS DEBUG] 2. Configuração de memória (4-bit) definida.", flush=True)
-            
-            # Carregamento do modelo Phi-3 com travas para evitar estouro de memória
-            print("[SIGSAS DEBUG] 3. Sincronizando motor de IA local... (Aguarde 1-2 min)", flush=True)
+
+            print("[SIGSAS DEBUG] 2. Configuração de 4-bit aplicada.", flush=True)
+
             model_id = "microsoft/Phi-3-mini-4k-instruct"
-            
+
+            print("[SIGSAS DEBUG] 3. Carregando modelo (pode levar 1-2 min)...", flush=True)
+
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_id,
-                device_map="auto",
+                device_map="auto",  
                 quantization_config=bnb_config,
-                trust_remote_code=False,      
-                attn_implementation="eager",  
-                low_cpu_mem_usage=True,       
-                offload_folder="offload"      
+                attn_implementation="eager",
+                low_cpu_mem_usage=True,
+                offload_folder="offload",
+                trust_remote_code=False
             )
-            
+
             self.tokenizer = AutoTokenizer.from_pretrained(model_id)
-            print("[SIGSAS DEBUG] 4. Motor de IA carregado e pronto!\n", flush=True)
+
+            print("[SIGSAS DEBUG] 4. IA carregada com sucesso!\n", flush=True)
 
         except Exception as e:
-            print(f"\n[ERRO CRÍTICO NA IA] Falha ao iniciar: {str(e)}", flush=True)
+            print(f"[ERRO CRÍTICO] Falha ao carregar IA: {str(e)}", flush=True)
             self.model = None
 
-    def processar_agendamento(self, mensagem: str):
-        """
-        Interpreta a mensagem do professor e extrai dados para o SIGSAS.
-        Focado nos requisitos de capacidade e tipo de sala definidos no TCC.
-        """
+    # PROCESSADOR
+    def processar_agendamento(self, mensagem: str, db=None):
+
         if not self.model:
-            return {"status": "erro", "detalhes": "Motor de IA não inicializado."}
-        
-        # PROMPT DE ENGENHARIA (Instruções rigorosas para a IA)
-        prompt = f"""<|system|>
-Você é a IA do SIGSAS. Extraia dados de agendamento do professor.
-Retorne APENAS um JSON puro (sem explicações) no formato:
+            return {
+                "erro": "Motor de IA não inicializado."
+            }
+
+        prompt = f"""
+<|system|>
+Você é a IA de agendamentos oficial do SIGSAS. Sua função é transformar mensagens em
+dados estruturados de agendamento. Siga as regras com rigor absoluto:
+
+REGRAS GERAIS (NUNCA viole):
+1. Responda SOMENTE um JSON válido, puro, sem explicações, sem frases, sem markdown.
+2. Se não souber um valor, retorne null.
+3. Nunca invente datas, salas ou capacidades.
+4. Nunca crie texto fora do JSON.
+5. Nunca mude nomes de campos.
+6. Nunca inclua comentários.
+7. Nunca retorne duas estruturas JSON — apenas uma.
+
+ESTRUTURA OBRIGATÓRIA DO JSON:
 {{
-  "intencao": "reservar" | "cancelar" | "consultar",
-  "sala_tipo": "laboratorio" | "sala_aula" | "auditorio",
-  "capacidade_estimada": int,
-  "data": "YYYY-MM-DD",
-  "horario": "HH:MM"
+ "intencao": "reservar" | "cancelar" | "consultar" | null,
+ "sala_tipo": "laboratorio" | "sala_aula" | "auditorio" | null,
+ "capacidade_estimada": int | null,
+ "data": "YYYY-MM-DD" | null,
+ "horario": "HH:MM" | null
 }}
-Se não souber o valor de um campo, coloque null.<|end|>
+
+NORMALIZAÇÕES:
+- Converta “sala de aula” → "sala_aula"
+- Converta "auditório" → "auditorio"
+- Se a mensagem tiver números, interprete como capacidade, exceto se for data/hora.
+- Datas como "amanhã", "depois de amanhã", "quinta" devem virar null (backend resolverá).
+- Horários como “10h”, “14 horas”, “às 9” → HH:MM com zero à esquerda.
+- Nunca tente converter datas relativas para datas absolutas.
+- Não tente interpretar campus — isso é responsabilidade do backend.
+
+
+EXEMPLOS (SIGA O PADRÃO EXATO):
+
+EXEMPLO 1:
+Entrada:
+"Quero reservar um laboratório amanhã às 10h para 20 alunos"
+Saída:
+{{
+ "intencao": "reservar",
+ "sala_tipo": "laboratorio",
+ "capacidade_estimada": 20,
+ "data": null,
+ "horario": "10:00"
+}}
+
+EXEMPLO 2:
+Entrada:
+"Preciso de um auditório quinta à tarde"
+Saída:
+{{
+ "intencao": "reservar",
+ "sala_tipo": "auditorio",
+ "capacidade_estimada": null,
+ "data": null,
+ "horario": null
+}}
+
+EXEMPLO 3:
+Entrada:
+"Agendar sala de aula dia 2025-03-19 às 14"
+Saída:
+{{
+ "intencao": "reservar",
+ "sala_tipo": "sala_aula",
+ "capacidade_estimada": null,
+ "data": "2025-03-19",
+ "horario": "14:00"
+}}
+
+EXEMPLO 4:
+Entrada:
+"Quero cancelar a reserva de laboratório das 8h"
+Saída:
+{{
+ "intencao": "cancelar",
+ "sala_tipo": "laboratorio",
+ "capacidade_estimada": null,
+ "data": null,
+ "horario": "08:00"
+}}
+
+EXEMPLO 5:
+Entrada:
+"Tem sala disponível para 40 pessoas?"
+Saída:
+{{
+ "intencao": "consultar",
+ "sala_tipo": null,
+ "capacidade_estimada": 40,
+ "data": null,
+ "horario": null
+}}
+
+EXEMPLO 6:
+Entrada:
+"Quero reservar um laboratório grande, umas 35 pessoas"
+Saída:
+{{
+ "intencao": "reservar",
+ "sala_tipo": "laboratorio",
+ "capacidade_estimada": 35,
+ "data": null,
+ "horario": null
+}}
+
+EXEMPLO 7:
+Entrada:
+"Reservar sala de aula 2025-12-01 09:30"
+Saída:
+{{
+ "intencao": "reservar",
+ "sala_tipo": "sala_aula",
+ "capacidade_estimada": null,
+ "data": "2025-12-01",
+ "horario": "09:30"
+}}
+
+EXEMPLO 8:
+Entrada:
+"Quero usar o auditório hoje mais tarde"
+Saída:
+{{
+ "intencao": "reservar",
+ "sala_tipo": "auditorio",
+ "capacidade_estimada": null,
+ "data": null,
+ "horario": null
+}}
+
+EXEMPLO 9:
+Entrada:
+"Cancelar sala de aula marcada para as 11"
+Saída:
+{{
+ "intencao": "cancelar",
+ "sala_tipo": "sala_aula",
+ "capacidade_estimada": null,
+ "data": null,
+ "horario": "11:00"
+}}
+
+EXEMPLO 10:
+Entrada:
+"Preciso de qualquer sala às 15h"
+Saída:
+{{
+ "intencao": "reservar",
+ "sala_tipo": null,
+ "capacidade_estimada": null,
+ "data": null,
+ "horario": "15:00"
+}}
+
 <|user|>
-Mensagem: "{mensagem}"<|end|>
+Mensagem: "{mensagem}"
+<|end|>
 <|assistant|>
 """
-        # GERAÇÃO DA RESPOSTA (Configurada para precisão máxima)
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
+
+        inputs = self.tokenizer(prompt, return_tensors="pt")
+        inputs = {k: v.to(self.model.device, dtype=torch.long) for k, v in inputs.items()}
+
         outputs = self.model.generate(
-            **inputs, 
-            max_new_tokens=150, 
-            temperature=0.1, 
+            **inputs,
+            max_new_tokens=150,
+            temperature=0.1,
             do_sample=False
         )
-        resposta_bruta = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        
-        try:
-            # Localiza o conteúdo entre chaves { } caso a IA adicione texto extra
-            json_match = re.search(r'\{.*\}', resposta_bruta, re.DOTALL)
-            if json_match:
-                dados_json = json.loads(json_match.group())
-            else:
-                dados_json = {"erro": "JSON não detectado", "texto_bruto": resposta_bruta}
-        except Exception as e:
-            dados_json = {"erro": f"Falha no processamento: {str(e)}", "raw": resposta_bruta}
 
-        return {
-            "status": "sucesso",
-            "dados_extraidos": dados_json,
-            "mensagem_usuario": "Interpretei seu pedido. Verificando as regras de negócio do SIGSAS..."
-        }
+        resposta_bruta = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+        # Limpeza do JSON
+        try:
+            # Remover tokens especiais
+            resposta_bruta = resposta_bruta.replace("<|assistant|>", "").replace("<|system|>", "").replace("<|user|>", "")
+
+            # Procurar JSON com multiline mais tolerante
+            match = re.findall(r"\{[\s\S]*\}", resposta_bruta)
+
+            if not match:
+                dados_json = {"erro": "JSON não encontrado", "bruto": resposta_bruta}
+            else:
+                try:
+                    dados_json = json.loads(match[-1])
+                except Exception:
+                    dados_json = {"erro": "Falha ao decodificar JSON", "bruto": resposta_bruta}
+
+            # retorno compatível com o Chat Inteligente
+            return {
+                "dados_extraidos": dados_json,
+                "mensagem_amigavel": "Interpretei seu pedido. Validando regras de negócio...",
+            }
+        except Exception as e:
+            return {
+                "erro": f"Erro ao processar resposta: {str(e)}"
+            }

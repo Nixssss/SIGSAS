@@ -1,8 +1,8 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
 import os
 import re
 import json
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 class LocalAIProcessor:
 
@@ -17,7 +17,8 @@ class LocalAIProcessor:
                 load_in_4bit=True,
                 bnb_4bit_use_double_quant=True,
                 bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16
+                bnb_4bit_compute_dtype=torch.float16,
+                llm_int8_enable_fp32_cpu_offload=True
             )
 
             print("[SIGSAS DEBUG] 2. Configuração de 4-bit aplicada.", flush=True)
@@ -28,7 +29,7 @@ class LocalAIProcessor:
 
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_id,
-                device_map="auto",
+                device_map="auto",  
                 quantization_config=bnb_config,
                 attn_implementation="eager",
                 low_cpu_mem_usage=True,
@@ -43,6 +44,7 @@ class LocalAIProcessor:
         except Exception as e:
             print(f"[ERRO CRÍTICO] Falha ao carregar IA: {str(e)}", flush=True)
             self.model = None
+
     # PROCESSADOR
     def processar_agendamento(self, mensagem: str, db=None):
 
@@ -52,7 +54,7 @@ class LocalAIProcessor:
             }
 
         prompt = f"""
-&lt;|system|>
+<|system|>
 Você é a IA de agendamentos oficial do SIGSAS. Sua função é transformar mensagens em
 dados estruturados de agendamento. Siga as regras com rigor absoluto:
 
@@ -66,13 +68,13 @@ REGRAS GERAIS (NUNCA viole):
 7. Nunca retorne duas estruturas JSON — apenas uma.
 
 ESTRUTURA OBRIGATÓRIA DO JSON:
-{
+{{
  "intencao": "reservar" | "cancelar" | "consultar" | null,
  "sala_tipo": "laboratorio" | "sala_aula" | "auditorio" | null,
  "capacidade_estimada": int | null,
  "data": "YYYY-MM-DD" | null,
  "horario": "HH:MM" | null
-}
+}}
 
 NORMALIZAÇÕES:
 - Converta “sala de aula” → "sala_aula"
@@ -90,128 +92,127 @@ EXEMPLO 1:
 Entrada:
 "Quero reservar um laboratório amanhã às 10h para 20 alunos"
 Saída:
-{
+{{
  "intencao": "reservar",
  "sala_tipo": "laboratorio",
  "capacidade_estimada": 20,
  "data": null,
  "horario": "10:00"
-}
+}}
 
 EXEMPLO 2:
 Entrada:
 "Preciso de um auditório quinta à tarde"
 Saída:
-{
+{{
  "intencao": "reservar",
  "sala_tipo": "auditorio",
  "capacidade_estimada": null,
  "data": null,
  "horario": null
-}
+}}
 
 EXEMPLO 3:
 Entrada:
 "Agendar sala de aula dia 2025-03-19 às 14"
 Saída:
-{
+{{
  "intencao": "reservar",
  "sala_tipo": "sala_aula",
  "capacidade_estimada": null,
  "data": "2025-03-19",
  "horario": "14:00"
-}
+}}
 
 EXEMPLO 4:
 Entrada:
 "Quero cancelar a reserva de laboratório das 8h"
 Saída:
-{
+{{
  "intencao": "cancelar",
  "sala_tipo": "laboratorio",
  "capacidade_estimada": null,
  "data": null,
  "horario": "08:00"
-}
+}}
 
 EXEMPLO 5:
 Entrada:
 "Tem sala disponível para 40 pessoas?"
 Saída:
-{
+{{
  "intencao": "consultar",
  "sala_tipo": null,
  "capacidade_estimada": 40,
  "data": null,
  "horario": null
-}
+}}
 
 EXEMPLO 6:
 Entrada:
 "Quero reservar um laboratório grande, umas 35 pessoas"
 Saída:
-{
+{{
  "intencao": "reservar",
  "sala_tipo": "laboratorio",
  "capacidade_estimada": 35,
  "data": null,
  "horario": null
-}
+}}
 
 EXEMPLO 7:
 Entrada:
 "Reservar sala de aula 2025-12-01 09:30"
 Saída:
-{
+{{
  "intencao": "reservar",
  "sala_tipo": "sala_aula",
  "capacidade_estimada": null,
  "data": "2025-12-01",
  "horario": "09:30"
-}
+}}
 
 EXEMPLO 8:
 Entrada:
 "Quero usar o auditório hoje mais tarde"
 Saída:
-{
+{{
  "intencao": "reservar",
  "sala_tipo": "auditorio",
  "capacidade_estimada": null,
  "data": null,
  "horario": null
-}
+}}
 
 EXEMPLO 9:
 Entrada:
 "Cancelar sala de aula marcada para as 11"
 Saída:
-{
+{{
  "intencao": "cancelar",
  "sala_tipo": "sala_aula",
  "capacidade_estimada": null,
  "data": null,
  "horario": "11:00"
-}
+}}
 
 EXEMPLO 10:
 Entrada:
 "Preciso de qualquer sala às 15h"
 Saída:
-{
+{{
  "intencao": "reservar",
  "sala_tipo": null,
  "capacidade_estimada": null,
  "data": null,
  "horario": "15:00"
-}
+}}
 
-
-
-&lt;|user|>
+<|user|>
 Mensagem: "{mensagem}"
-&lt;|end|>
-&lt;|assistant|>
+<|end|>
+<|assistant|>
+"""
 
         inputs = self.tokenizer(prompt, return_tensors="pt")
         inputs = {k: v.to(self.model.device, dtype=torch.long) for k, v in inputs.items()}

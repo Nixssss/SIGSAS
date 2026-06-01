@@ -1,29 +1,27 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from datetime import datetime
-
+from datetime import date, time
 
 class ReservaBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    usuario_id: int
     sala_id: int
-    data_inicio: datetime
-    data_fim: datetime
-    status_reserva_id: Optional[int] = None
-
+    data: date
+    horario_inicio: time
+    horario_fim: time
+    proposito: str
+    status: str = "pendente"
 
 class ReservaCreate(ReservaBase):
     pass
 
-
 class ReservaUpdate(BaseModel):
-    usuario_id: Optional[int] = None
     sala_id: Optional[int] = None
-    data_inicio: Optional[datetime] = None
-    data_fim: Optional[datetime] = None
-    status_reserva_id: Optional[int] = None
-
+    data: Optional[date] = None
+    horario_inicio: Optional[time] = None
+    horario_fim: Optional[time] = None
+    proposito: Optional[str] = None
+    status: Optional[str] = None
 
 class Reserva(ReservaBase):
     id: int

@@ -1,7 +1,5 @@
 from fastapi import APIRouter
 
-router = APIRouter()
-
 from app.api.usuario_router import router as usuarios_router
 from app.api.sala_router import router as salas_router
 from app.api.reserva import router as reservas_router
@@ -19,6 +17,8 @@ from app.api.palavras_router import router as palavras_router
 from app.api.peso_palavra import router as pesos_palavra_router
 from app.api.erro_palavras import router as erros_palavra_router
 
+router = APIRouter()
+
 router.include_router(usuarios_router)
 router.include_router(salas_router)
 router.include_router(reservas_router)
@@ -35,6 +35,3 @@ router.include_router(assuntos_router)
 router.include_router(palavras_router)
 router.include_router(pesos_palavra_router)
 router.include_router(erros_palavra_router)
-
-
-

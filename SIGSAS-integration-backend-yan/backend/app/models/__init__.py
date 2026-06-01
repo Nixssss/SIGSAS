@@ -14,3 +14,22 @@ from .status_reserva import StatusReserva
 from .tabela import Tabela
 from .tipo_sala import TipoSala
 from .usuario import Usuario
+
+__all__ = [
+    "Assunto",
+    "Cargo",
+    "Curso",
+    "ErroPalavra",
+    "Frase",
+    "Palavra",
+    "PesoPalavra",
+    "Recurso",
+    "Reserva",
+    "Resposta",
+    "SalaRecurso",
+    "Sala",
+    "StatusReserva",
+    "Tabela",
+    "TipoSala",
+    "Usuario"
+]

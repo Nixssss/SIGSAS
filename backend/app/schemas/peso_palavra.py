@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict, Field
-
+from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 class PesoPalavraBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -7,10 +7,12 @@ class PesoPalavraBase(BaseModel):
     palavra_id: int
     peso: float
 
-
 class PesoPalavraCreate(PesoPalavraBase):
     pass
 
+class PesoPalavraUpdate(BaseModel):
+    palavra_id: Optional[int] = None
+    peso: Optional[float] = None
 
-class PesoPalavraResponse(PesoPalavraBase):
+class PesoPalavra(PesoPalavraBase):
     id: int

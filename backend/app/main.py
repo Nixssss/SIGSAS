@@ -1,15 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.api_router import router as api_router
 from app.db.session import Base, engine
-import uvicorn
 
-# Cria as tabelas automaticamente
-Base.metadata.create_all(bind=engine)
+# 1. IMPORTAR OS MODELOS ANTES DO CREATE_ALL
+import app.models
+
+# Importando o router do lugar correto (schemas/chat.py)
+from app.schemas.chat import router as ia_router
+from app.api.api_router import router as api_router
 
 app = FastAPI(title="SIGSAS")
 
-# Configura CORS liberado
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,16 +19,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/api/v1/health")
-def health_check():
-    return {"status": "healthy"}
+# 2. AGORA SIM, CRIAR AS TABELAS
+Base.metadata.create_all(bind=engine)
 
+# 3. INCLUIR ROTAS
+app.include_router(ia_router)
 app.include_router(api_router, prefix="/api/v1")
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
-    )
+@app.get("/api/v1/health")
+def health_check():
+    return {"status": "ok"}

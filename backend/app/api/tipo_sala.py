@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from sqlalchemy.orm import Session
-from backend.app.db.session import get_db
-from backend.app.models.tipo_sala import TipoSala
-from backend.app.schemas.tipo_sala import TipoSala as Schema, TipoSalaCreate
+from app.db.session import get_db
+from app.models.tipo_sala import TipoSala
+from app.schemas.tipo_sala import TipoSala as Schema, TipoSalaCreate
 
 router = APIRouter(
     prefix="/tipo_sala",

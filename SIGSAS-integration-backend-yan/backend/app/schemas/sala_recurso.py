@@ -1,5 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
-
+from pydantic import BaseModel, ConfigDict
 
 class SalaRecursoBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -7,10 +6,8 @@ class SalaRecursoBase(BaseModel):
     sala_id: int
     recurso_id: int
 
-
 class SalaRecursoCreate(SalaRecursoBase):
     pass
-
 
 class SalaRecursoResponse(SalaRecursoBase):
     id: int
