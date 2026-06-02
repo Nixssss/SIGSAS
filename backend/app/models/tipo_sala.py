@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String
-from app.db.base import Base
+from app.db.session import Base
 
 class TipoSala(Base):
-    __tablename__ = 'tipos_sala'
+    __tablename__ = 'tipo_salas'
 
     id = Column(Integer, primary_key=True)
-    nome = Column(String(100), nullable=False)
+    nome = Column(String(50), nullable=False)
