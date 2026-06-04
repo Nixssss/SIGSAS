@@ -1,7 +1,20 @@
 import { useState } from "react"
-import "../App.css"
 import { login } from "../services/authService"
 import { jwtDecode } from "jwt-decode"
+import "../styles/Auth.css"
+
+function AuthLogo() {
+  return (
+    <div className="auth-logo-mark" aria-hidden="true">
+      <div className="auth-logo-hex">
+        <div className="auth-logo-core">
+          <div className="auth-logo-cube-top" />
+          <div className="auth-logo-cube-front" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function Login({ irCadastro, irEsqueci, irDashboard }) {
   const [email, setEmail] = useState("")
@@ -51,56 +64,129 @@ function Login({ irCadastro, irEsqueci, irDashboard }) {
   }
 
   return (
-    <div className="login-container">
-      <div className="login-left">
-        <div className="logo-area">
-          <span>SIGSAS</span>
-        </div>
+    <div className="auth-page">
+      <div className="auth-layout">
+        <section className="auth-left-panel">
+          <div className="auth-brand-row">
+            <AuthLogo />
 
-        <div className="left-content">
-          <h1>Gerencie suas salas</h1>
-          <p>Sistema inteligente de organização.</p>
-        </div>
+            <div className="auth-brand-text">
+              <h1>SIGSAS</h1>
+              <span>Gestão Inteligente de Salas</span>
+            </div>
+          </div>
 
-        <div className="copyright">© 2026</div>
-      </div>
+          <div className="auth-left-content">
+            <span className="auth-kicker">Plataforma acadêmica</span>
 
-      <div className="login-right">
-        <div className="login-card">
-          <h2>Login</h2>
+            <h2>
+              Controle de ambientes com organização, inteligência e segurança.
+            </h2>
 
-          <form onSubmit={fazerLogin}>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <p>
+              Centralize reservas, administração de salas, gestão de campi,
+              edifícios e acompanhamento de solicitações em um único sistema.
+            </p>
 
-            <label>Senha</label>
-            <input
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required
-            />
+            <div className="auth-feature-list">
+              <div className="auth-feature-item">
+                <strong>Reservas centralizadas</strong>
+                <span>
+                  Controle completo de solicitações e disponibilidade.
+                </span>
+              </div>
 
-            {erro && <p className="erro">{erro}</p>}
+              <div className="auth-feature-item">
+                <strong>Administração unificada</strong>
+                <span>
+                  Instituições, campi, edifícios e salas em um só lugar.
+                </span>
+              </div>
 
-            <button type="submit" disabled={carregando}>
-              {carregando ? "Entrando..." : "Entrar"}
-            </button>
-          </form>
+              <div className="auth-feature-item">
+                <strong>Fluxo inteligente</strong>
+                <span>
+                  Automação com chatbot e organização acadêmica moderna.
+                </span>
+              </div>
+            </div>
+          </div>
 
-          <p className="register">
-            <span onClick={irEsqueci}>Esqueci senha</span>
-          </p>
+          <div className="auth-left-footer">© 2026 SIGSAS</div>
+        </section>
 
-          <p className="register">
-            Não tem conta? <span onClick={irCadastro}>Cadastre-se</span>
-          </p>
-        </div>
+        <section className="auth-right-panel">
+          <div className="auth-card compact">
+            <div className="auth-card-header">
+              <div className="auth-logo-mark small" aria-hidden="true">
+                <div className="auth-logo-hex">
+                  <div className="auth-logo-core">
+                    <div className="auth-logo-cube-top" />
+                    <div className="auth-logo-cube-front" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <span className="auth-form-label">Acesso ao sistema</span>
+                <h3>Entrar</h3>
+                <p>Informe suas credenciais para acessar o SIGSAS.</p>
+              </div>
+            </div>
+
+            <form className="auth-form" onSubmit={fazerLogin}>
+              <div className="auth-field">
+                <label>Email</label>
+                <input
+                  type="email"
+                  placeholder="Digite seu email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="auth-field">
+                <label>Senha</label>
+                <input
+                  type="password"
+                  placeholder="Digite sua senha"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  required
+                />
+              </div>
+
+              {erro && <div className="auth-error-box">{erro}</div>}
+
+              <button
+                type="submit"
+                className="auth-main-button"
+                disabled={carregando}
+              >
+                {carregando ? "Entrando..." : "Entrar"}
+              </button>
+            </form>
+
+            <div className="auth-actions-links">
+              <button
+                type="button"
+                className="auth-text-link"
+                onClick={irEsqueci}
+              >
+                Esqueci senha
+              </button>
+
+              <button
+                type="button"
+                className="auth-text-link"
+                onClick={irCadastro}
+              >
+                Não tem conta? Cadastre-se
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )

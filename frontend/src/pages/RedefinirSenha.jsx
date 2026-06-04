@@ -1,9 +1,24 @@
 import { useEffect, useState } from "react"
 import { redefinirSenha as redefinirSenhaApi } from "../services/authService"
-import "../App.css"
+import EsqueciSenha from "./EsqueciSenha"
+import "../styles/Auth.css"
+
+function AuthLogo() {
+  return (
+    <div className="auth-logo-mark" aria-hidden="true">
+      <div className="auth-logo-hex">
+        <div className="auth-logo-core">
+          <div className="auth-logo-cube-top" />
+          <div className="auth-logo-cube-front" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function RedefinirSenha({ irLogin }) {
   const [tokenValido, setTokenValido] = useState(false)
+  const [tokenNaoInformado, setTokenNaoInformado] = useState(false)
   const [mensagem, setMensagem] = useState("Validando token...")
   const [email, setEmail] = useState("")
   const [tokenAtual, setTokenAtual] = useState("")
@@ -33,16 +48,17 @@ function RedefinirSenha({ irLogin }) {
 
     if (!tokenUrl) {
       setTokenValido(false)
+      setTokenNaoInformado(true)
       setMensagem("Token não informado.")
       return
     }
 
+    setTokenNaoInformado(false)
+
     const tokensSalvos =
       JSON.parse(localStorage.getItem("tokensRecuperacaoSenha")) || []
 
-    const tokenEncontrado = tokensSalvos.find(
-      (item) => item.token === tokenUrl
-    )
+    const tokenEncontrado = tokensSalvos.find((item) => item.token === tokenUrl)
 
     if (!tokenEncontrado) {
       setTokenValido(false)
@@ -143,76 +159,197 @@ function RedefinirSenha({ irLogin }) {
     }
   }
 
+  if (tokenNaoInformado) {
+    return <EsqueciSenha irLogin={irLogin} />
+  }
+
   if (!tokenValido) {
     return (
-      <div className="center-container">
-        <div className="login-card">
-          <h2>Redefinir senha</h2>
-          <p className="subtitle">{mensagem}</p>
+      <div className="auth-page">
+        <div className="auth-layout">
+          <section className="auth-left-panel">
+            <div className="auth-brand-row">
+              <AuthLogo />
 
-          <button type="button" onClick={irLogin}>
-            Voltar para login
-          </button>
+              <div className="auth-brand-text">
+                <h1>SIGSAS</h1>
+                <span>Gestão Inteligente de Salas</span>
+              </div>
+            </div>
+
+            <div className="auth-left-content">
+              <span className="auth-kicker">Redefinição de senha</span>
+
+              <h2>Não foi possível validar seu link.</h2>
+
+              <p>
+                O link pode estar expirado, já utilizado ou não corresponder a
+                uma solicitação válida.
+              </p>
+            </div>
+
+            <div className="auth-left-footer">© 2026 SIGSAS</div>
+          </section>
+
+          <section className="auth-right-panel">
+            <div className="auth-card compact">
+              <div className="auth-card-header">
+                <div className="auth-logo-mark small" aria-hidden="true">
+                  <div className="auth-logo-hex">
+                    <div className="auth-logo-core">
+                      <div className="auth-logo-cube-top" />
+                      <div className="auth-logo-cube-front" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="auth-form-label">Token inválido</span>
+                  <h3>Redefinir senha</h3>
+                  <p>{mensagem}</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="auth-main-button"
+                onClick={irLogin}
+              >
+                Voltar para login
+              </button>
+            </div>
+          </section>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="center-container">
-      <div className="login-card">
-        <h2>Redefinir senha</h2>
-        <p className="subtitle">Informe sua nova senha de acesso</p>
+    <div className="auth-page">
+      <div className="auth-layout">
+        <section className="auth-left-panel">
+          <div className="auth-brand-row">
+            <AuthLogo />
 
-        <div className="token-box">
-          <p>
-            <strong>Email:</strong> {email}
-          </p>
+            <div className="auth-brand-text">
+              <h1>SIGSAS</h1>
+              <span>Gestão Inteligente de Salas</span>
+            </div>
+          </div>
 
-          <p>
-            <strong>Token:</strong> {tokenMascarado}
-          </p>
-        </div>
+          <div className="auth-left-content">
+            <span className="auth-kicker">Nova senha</span>
 
-        <form onSubmit={handleRedefinirSenha}>
-          <label>Nova senha</label>
-          <input
-            type="password"
-            placeholder="Digite a nova senha"
-            value={novaSenha}
-            onChange={(e) => setNovaSenha(e.target.value)}
-            required
-          />
+            <h2>Defina uma nova senha para sua conta.</h2>
 
-          <label>Confirmar nova senha</label>
-          <input
-            type="password"
-            placeholder="Repita a nova senha"
-            value={confirmarSenha}
-            onChange={(e) => setConfirmarSenha(e.target.value)}
-            required
-          />
+            <p>
+              Escolha uma senha segura para recuperar o acesso ao SIGSAS e
+              continuar utilizando o sistema.
+            </p>
 
-          {erro && <p className="erro">{erro}</p>}
+            <div className="auth-feature-list">
+              <div className="auth-feature-item">
+                <strong>Senha segura</strong>
+                <span>Use no mínimo 6 caracteres para prosseguir.</span>
+              </div>
 
-          <button type="submit" disabled={carregando}>
-            {carregando ? "Redefinindo..." : "Redefinir senha"}
-          </button>
-        </form>
+              <div className="auth-feature-item">
+                <strong>Token validado</strong>
+                <span>O link atual está autorizado para redefinição.</span>
+              </div>
 
-        <p className="register">
-          <span onClick={irLogin}>Voltar para login</span>
-        </p>
+              <div className="auth-feature-item">
+                <strong>Acesso restaurado</strong>
+                <span>Após salvar, você será direcionado ao login.</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="auth-left-footer">© 2026 SIGSAS</div>
+        </section>
+
+        <section className="auth-right-panel">
+          <div className="auth-card compact">
+            <div className="auth-card-header">
+              <div className="auth-logo-mark small" aria-hidden="true">
+                <div className="auth-logo-hex">
+                  <div className="auth-logo-core">
+                    <div className="auth-logo-cube-top" />
+                    <div className="auth-logo-cube-front" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <span className="auth-form-label">Redefinição autorizada</span>
+                <h3>Redefinir senha</h3>
+                <p>Informe sua nova senha de acesso.</p>
+              </div>
+            </div>
+
+            <div className="auth-token-box">
+              <p>
+                <strong>Email:</strong> {email}
+              </p>
+
+              <p>
+                <strong>Token:</strong> {tokenMascarado}
+              </p>
+            </div>
+
+            <form className="auth-form" onSubmit={handleRedefinirSenha}>
+              <div className="auth-field">
+                <label>Nova senha</label>
+                <input
+                  type="password"
+                  placeholder="Digite a nova senha"
+                  value={novaSenha}
+                  onChange={(e) => setNovaSenha(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="auth-field">
+                <label>Confirmar nova senha</label>
+                <input
+                  type="password"
+                  placeholder="Repita a nova senha"
+                  value={confirmarSenha}
+                  onChange={(e) => setConfirmarSenha(e.target.value)}
+                  required
+                />
+              </div>
+
+              {erro && <div className="auth-error-box">{erro}</div>}
+
+              <button
+                type="submit"
+                className="auth-main-button"
+                disabled={carregando}
+              >
+                {carregando ? "Redefinindo..." : "Redefinir senha"}
+              </button>
+            </form>
+
+            <div className="auth-actions-links">
+              <button
+                type="button"
+                className="auth-text-link"
+                onClick={irLogin}
+              >
+                Voltar para login
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
 
       {sucesso && (
-        <div className="popup">
-          <div className="popup-box">
-            <div className="check">✔</div>
+        <div className="auth-popup">
+          <div className="auth-popup-box">
+            <div className="auth-check">✔</div>
             <h3>Senha redefinida com sucesso!</h3>
-            <p style={{ color: "#64748b", fontSize: "14px" }}>
-              Redirecionando para login...
-            </p>
+            <p>Redirecionando para login...</p>
           </div>
         </div>
       )}

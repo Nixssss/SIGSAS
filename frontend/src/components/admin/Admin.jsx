@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import Toast from "../Toast"
 import SalasAdmin from "./SalasAdmin"
-
 import AdminResumo from "./AdminResumo"
 import AdminBusca from "./AdminBusca"
 import CadastroAdmin from "./CadastroAdmin"
@@ -9,6 +9,10 @@ import InstituicoesAdmin from "./InstituicoesAdmin"
 import CampiAdmin from "./CampiAdmin"
 import EdificiosAdmin from "./EdificiosAdmin"
 import ReservasAdmin from "./ReservasAdmin"
+import UsuariosAdmin from "./UsuariosAdmin"
+import AuditoriaAdmin from "./AuditoriaAdmin"
+import ReportesProblemasAdmin from "./ReportesProblemasAdmin"
+import SugestoesMelhoriasAdmin from "./SugestoesMelhoriasAdmin"
 
 import {
   instituicoesService,
@@ -36,10 +40,10 @@ function Admin({ adminTela }) {
           salasService.listar(),
         ])
 
-      setInstituicoes(instituicoesApi)
-      setCampi(campiApi)
-      setEdificios(edificiosApi)
-      setSalas(salasApi)
+      setInstituicoes(Array.isArray(instituicoesApi) ? instituicoesApi : [])
+      setCampi(Array.isArray(campiApi) ? campiApi : [])
+      setEdificios(Array.isArray(edificiosApi) ? edificiosApi : [])
+      setSalas(Array.isArray(salasApi) ? salasApi : [])
     } catch (error) {
       console.error("Erro ao carregar dados administrativos:", error)
       showToast("Erro ao carregar dados administrativos", "erro")
@@ -48,11 +52,35 @@ function Admin({ adminTela }) {
 
   useEffect(() => {
     carregarDadosAdmin()
+
+    function atualizarAdmin() {
+      carregarDadosAdmin()
+    }
+
+    window.addEventListener("instituicoes-atualizadas", atualizarAdmin)
+    window.addEventListener("campi-atualizados", atualizarAdmin)
+    window.addEventListener("edificios-atualizados", atualizarAdmin)
+    window.addEventListener("salas-atualizadas", atualizarAdmin)
+
+    return () => {
+      window.removeEventListener("instituicoes-atualizadas", atualizarAdmin)
+      window.removeEventListener("campi-atualizados", atualizarAdmin)
+      window.removeEventListener("edificios-atualizados", atualizarAdmin)
+      window.removeEventListener("salas-atualizadas", atualizarAdmin)
+    }
   }, [])
 
   function showToast(mensagem, tipo = "sucesso") {
     const id = Date.now() + Math.random()
-    setToasts((prev) => [...prev, { id, mensagem, tipo }])
+
+    setToasts((prev) => [
+      ...prev,
+      {
+        id,
+        mensagem,
+        tipo,
+      },
+    ])
   }
 
   function removeToast(id) {
@@ -60,7 +88,7 @@ function Admin({ adminTela }) {
   }
 
   function normalizarTexto(texto) {
-    return (texto || "")
+    return String(texto || "")
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -70,28 +98,57 @@ function Admin({ adminTela }) {
   const termoBusca = normalizarTexto(busca)
 
   const instituicoesFiltradas = instituicoes.filter((i) =>
-    normalizarTexto(i.nome).includes(termoBusca)
+    normalizarTexto(i.nome || i.nomeInstituicao || i.sigla).includes(termoBusca)
   )
 
   const campiFiltrados = campi.filter((c) =>
-    normalizarTexto(c.nome).includes(termoBusca)
+    normalizarTexto(c.nome || c.nomeCampus).includes(termoBusca)
   )
 
   const edificiosFiltrados = edificios.filter((e) =>
-    normalizarTexto(e.nome).includes(termoBusca)
+    normalizarTexto(e.nome || e.nomeEdificio).includes(termoBusca)
   )
 
+  function getIdInstituicao(instituicao) {
+    return (
+      instituicao?.id ||
+      instituicao?.idInstituicao ||
+      instituicao?.id_instituicao
+    )
+  }
+
   function getNomeInstituicao(id) {
-    return instituicoes.find((i) => i.id === Number(id))?.nome || "?"
+    return (
+      instituicoes.find(
+        (i) => String(getIdInstituicao(i)) === String(id)
+      )?.nome ||
+      instituicoes.find(
+        (i) => String(getIdInstituicao(i)) === String(id)
+      )?.nomeInstituicao ||
+      instituicoes.find(
+        (i) => String(getIdInstituicao(i)) === String(id)
+      )?.sigla ||
+      "?"
+    )
+  }
+
+  function getIdCampus(campus) {
+    return campus?.id || campus?.idCampus || campus?.id_campus
   }
 
   function getNomeCampus(id) {
-    return campi.find((c) => c.id === Number(id))?.nome || "?"
+    return (
+      campi.find((c) => String(getIdCampus(c)) === String(id))?.nome ||
+      campi.find((c) => String(getIdCampus(c)) === String(id))?.nomeCampus ||
+      "?"
+    )
   }
 
   function renderToasts() {
-    return (
-      <div className="toast-container">
+    if (!toasts.length) return null
+
+    return createPortal(
+      <div className="toast-container toast-container-global">
         {toasts.map((t) => (
           <Toast
             key={t.id}
@@ -101,7 +158,8 @@ function Admin({ adminTela }) {
             onClose={removeToast}
           />
         ))}
-      </div>
+      </div>,
+      document.body
     )
   }
 
@@ -171,6 +229,7 @@ function Admin({ adminTela }) {
           edificios={edificios}
           setEdificios={setEdificios}
           campi={campi}
+          setCampi={setCampi}
           salas={salas}
           setSalas={setSalas}
           getNomeCampus={getNomeCampus}
@@ -194,6 +253,42 @@ function Admin({ adminTela }) {
       <div className="admin-page">
         {renderToasts()}
         <CadastroAdmin showToast={showToast} />
+      </div>
+    )
+  }
+
+  if (adminTela === "usuarios") {
+    return (
+      <div className="admin-page">
+        {renderToasts()}
+        <UsuariosAdmin showToast={showToast} />
+      </div>
+    )
+  }
+
+  if (adminTela === "auditoria") {
+    return (
+      <div className="admin-page">
+        {renderToasts()}
+        <AuditoriaAdmin showToast={showToast} />
+      </div>
+    )
+  }
+
+  if (adminTela === "problemas") {
+    return (
+      <div className="admin-page">
+        {renderToasts()}
+        <ReportesProblemasAdmin showToast={showToast} />
+      </div>
+    )
+  }
+
+  if (adminTela === "sugestoes") {
+    return (
+      <div className="admin-page">
+        {renderToasts()}
+        <SugestoesMelhoriasAdmin showToast={showToast} />
       </div>
     )
   }
@@ -243,6 +338,7 @@ function Admin({ adminTela }) {
           edificios={edificiosFiltrados}
           setEdificios={setEdificios}
           campi={campi}
+          setCampi={setCampi}
           salas={salas}
           setSalas={setSalas}
           getNomeCampus={getNomeCampus}

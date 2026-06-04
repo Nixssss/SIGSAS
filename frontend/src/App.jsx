@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Login from "./pages/Login"
 import Cadastro from "./pages/Cadastro"
 import EsqueciSenha from "./pages/EsqueciSenha"
@@ -14,6 +14,10 @@ function App() {
       return "cadastro"
     }
 
+    if (caminho === "/esqueci-senha") {
+      return "esqueciSenha"
+    }
+
     if (caminho === "/redefinir-senha") {
       return "redefinirSenha"
     }
@@ -22,6 +26,18 @@ function App() {
   }
 
   const [pagina, setPagina] = useState(verificarPaginaInicial)
+
+  useEffect(() => {
+    function atualizarPagina() {
+      setPagina(verificarPaginaInicial())
+    }
+
+    window.addEventListener("popstate", atualizarPagina)
+
+    return () => {
+      window.removeEventListener("popstate", atualizarPagina)
+    }
+  }, [])
 
   function irLogin() {
     window.history.pushState({}, "", "/")
@@ -35,7 +51,7 @@ function App() {
 
   function irEsqueci() {
     window.history.pushState({}, "", "/esqueci-senha")
-    setPagina("esqueci")
+    setPagina("esqueciSenha")
   }
 
   function irDashboard() {
@@ -57,7 +73,7 @@ function App() {
         <Cadastro irLogin={irLogin} />
       )}
 
-      {pagina === "esqueci" && (
+      {pagina === "esqueciSenha" && (
         <EsqueciSenha irLogin={irLogin} />
       )}
 
