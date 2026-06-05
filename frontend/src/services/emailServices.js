@@ -5,6 +5,14 @@ const TEMPLATE_CADASTRO_ID = "template_asfnmyo"
 const TEMPLATE_RECUPERACAO_ID = "template_wvlgf3o"
 const PUBLIC_KEY = "QkSq_RABcKp0kHjjI"
 
+function obterUrlFrontend() {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin
+  }
+
+  return "https://sigsas-frontend.netlify.app"
+}
+
 function gerarNomePeloEmail(email) {
   const parteAntesDoArroba = email.split("@")[0]
 
@@ -18,7 +26,10 @@ function gerarNomePeloEmail(email) {
 
 export async function enviarConvite(email, token, linkCadastro) {
   const nomeUsuario = gerarNomePeloEmail(email)
-  const link = linkCadastro || `http://localhost:5173/cadastro?token=${token}`
+
+  const link =
+    linkCadastro ||
+    `${obterUrlFrontend()}/cadastro?token=${encodeURIComponent(token)}`
 
   return emailjs.send(
     SERVICE_ID,
@@ -35,7 +46,10 @@ export async function enviarConvite(email, token, linkCadastro) {
 
 export async function enviarRecuperacaoSenha(email, token) {
   const nomeUsuario = gerarNomePeloEmail(email)
-  const link = `http://localhost:5173/redefinir-senha?token=${token}`
+
+  const link = `${obterUrlFrontend()}/redefinir-senha?token=${encodeURIComponent(
+    token
+  )}`
 
   return emailjs.send(
     SERVICE_ID,
