@@ -1,65 +1,36 @@
-import emailjs from "@emailjs/browser"
+import api from "./api"
 
-const SERVICE_ID = "SIGSAS"
-const TEMPLATE_CADASTRO_ID = "template_asfnmyo"
-const TEMPLATE_RECUPERACAO_ID = "template_wvlgf3o"
-const PUBLIC_KEY = "QkSq_RABcKp0kHjjI"
+async function tentarPost(rotas, payload) {
+  let ultimoErro = null
 
-function obterUrlFrontend() {
-  if (typeof window !== "undefined" && window.location?.origin) {
-    return window.location.origin
+  for (const rota of rotas) {
+    try {
+      const response = await api.post(rota, payload)
+      return response.data
+    } catch (error) {
+      ultimoErro = error
+
+      const status = error?.response?.status
+
+      if (status !== 404 && status !== 405) {
+        throw error
+      }
+    }
   }
 
-  return "https://sigsas-frontend.netlify.app"
+  throw ultimoErro
 }
 
-function gerarNomePeloEmail(email) {
-  const parteAntesDoArroba = email.split("@")[0]
-
-  return parteAntesDoArroba
-    .replace(/[._-]/g, " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((nome) => nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase())
-    .join(" ")
-}
-
-export async function enviarConvite(email, token, linkCadastro) {
-  const nomeUsuario = gerarNomePeloEmail(email)
-
-  const link =
-    linkCadastro ||
-    `${obterUrlFrontend()}/cadastro?token=${encodeURIComponent(token)}`
-
-  return emailjs.send(
-    SERVICE_ID,
-    TEMPLATE_CADASTRO_ID,
+export async function enviarRecuperacaoSenha(email) {
+  return tentarPost(
+    [
+      "/auth/esqueci-senha",
+      "/esqueci-senha",
+      "/recuperar-senha",
+      "/auth/recuperar-senha",
+    ],
     {
-      email_destino: email,
-      nome_usuario: nomeUsuario,
-      link_cadastro: link,
-      token_usuario: token,
-    },
-    PUBLIC_KEY
-  )
-}
-
-export async function enviarRecuperacaoSenha(email, token) {
-  const nomeUsuario = gerarNomePeloEmail(email)
-
-  const link = `${obterUrlFrontend()}/redefinir-senha?token=${encodeURIComponent(
-    token
-  )}`
-
-  return emailjs.send(
-    SERVICE_ID,
-    TEMPLATE_RECUPERACAO_ID,
-    {
-      email_destino: email,
-      nome_usuario: nomeUsuario,
-      link_recuperacao: link,
-      token_recuperacao: token,
-    },
-    PUBLIC_KEY
+      email,
+    }
   )
 }

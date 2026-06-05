@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import api from "../../services/api"
 import { convitesService } from "../../services/conviteService"
-import { enviarConvite } from "../../services/emailServices"
 
 const perfis = ["Administrador", "Coordenador", "Professor"]
 
@@ -185,15 +184,13 @@ function CadastroAdmin({ showToast }) {
         cursosPayload = []
       }
 
-      const convite = await convitesService.criar({
+      await convitesService.criar({
         email: email.trim().toLowerCase(),
         validadeHoras: Number(validadeHoras),
         criadoPor: getUsuarioLogadoId(),
         perfilConvidado,
         cursos: cursosPayload,
       })
-
-      await enviarConvite(convite.email, convite.token, convite.linkCadastro)
 
       setEmail("")
       setValidadeHoras(48)
@@ -230,12 +227,16 @@ function CadastroAdmin({ showToast }) {
     try {
       setCarregando(true)
 
-      await enviarConvite(convite.email, convite.token, convite.linkCadastro)
+      await convitesService.reenviar(convite.idConvite)
 
       showToast?.("Convite reenviado por email", "sucesso")
     } catch (error) {
       console.error("Erro ao reenviar convite:", error)
-      showToast?.("Erro ao reenviar convite", "erro")
+
+      showToast?.(
+        error?.response?.data?.detail || "Erro ao reenviar convite",
+        "erro"
+      )
     } finally {
       setCarregando(false)
     }
@@ -360,6 +361,7 @@ function CadastroAdmin({ showToast }) {
                   checked={cursoEstaSelecionado(curso.id)}
                   onChange={() => selecionarCursoCoordenador(curso.id)}
                 />
+
                 <span>{curso.nome}</span>
               </label>
             ))}
@@ -399,6 +401,7 @@ function CadastroAdmin({ showToast }) {
                 checked={cursoEstaSelecionado(curso.id)}
                 onChange={() => alternarCursoProfessor(curso.id)}
               />
+
               <span>{curso.nome}</span>
             </label>
           ))}
@@ -419,6 +422,7 @@ function CadastroAdmin({ showToast }) {
         <div className="convite-admin-header">
           <div>
             <h3>Gerar convite de cadastro</h3>
+
             <p>
               Defina o perfil e os cursos antes de enviar o link de cadastro.
             </p>
@@ -428,6 +432,7 @@ function CadastroAdmin({ showToast }) {
         <form onSubmit={gerarConvite} className="convite-admin-form">
           <label>
             E-mail do convidado
+
             <input
               type="email"
               placeholder="email@exemplo.com"
@@ -439,6 +444,7 @@ function CadastroAdmin({ showToast }) {
 
           <label>
             Validade em horas
+
             <input
               type="number"
               placeholder="Validade em horas"
@@ -451,6 +457,7 @@ function CadastroAdmin({ showToast }) {
 
           <label>
             Perfil do convidado
+
             <select
               value={perfilConvidado}
               onChange={(e) => alterarPerfil(e.target.value)}

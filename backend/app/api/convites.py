@@ -68,11 +68,7 @@ def normalizar_tipo_vinculo(tipo: str | None, perfil: str):
 
 
 def buscar_curso_dono(db: Session):
-    curso = (
-        db.query(Curso)
-        .filter(Curso.nome.ilike("DONO"))
-        .first()
-    )
+    curso = db.query(Curso).filter(Curso.nome.ilike("DONO")).first()
 
     if not curso:
         curso = Curso(nome="DONO")
@@ -228,15 +224,22 @@ def buscar_convite_por_token_com_cursos(db: Session, token: str):
     )
 
 
-def tentar_enviar_email_convite(convite: Convite):
+def enviar_email_convite_ou_erro(convite: Convite):
     try:
+        convite_read = montar_convite_read(convite)
+
         enviar_email_convite(
             email=convite.email,
             token=convite.token,
-            link_cadastro=montar_convite_read(convite)["linkCadastro"],
+            link_cadastro=convite_read["linkCadastro"],
         )
     except Exception as error:
         print("Erro ao enviar convite pelo Resend:", str(error))
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Convite salvo, mas houve erro ao enviar o email pelo Resend.",
+        )
 
 
 @router.get("", response_model=list[ConviteRead])
@@ -262,7 +265,7 @@ def criar_convite(dados: ConviteCreate, db: Session = Depends(get_db)):
 
     if usuario_existente:
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Já existe um usuário cadastrado com este email",
         )
 
@@ -292,7 +295,8 @@ def criar_convite(dados: ConviteCreate, db: Session = Depends(get_db)):
         db.commit()
 
         convite_ativo = buscar_convite_com_cursos(db, convite_ativo.idConvite)
-        tentar_enviar_email_convite(convite_ativo)
+
+        enviar_email_convite_ou_erro(convite_ativo)
 
         return montar_convite_read(convite_ativo)
 
@@ -317,7 +321,35 @@ def criar_convite(dados: ConviteCreate, db: Session = Depends(get_db)):
     db.refresh(convite)
 
     convite = buscar_convite_com_cursos(db, convite.idConvite)
-    tentar_enviar_email_convite(convite)
+
+    enviar_email_convite_ou_erro(convite)
+
+    return montar_convite_read(convite)
+
+
+@router.post("/{idConvite}/reenviar", response_model=ConviteRead)
+def reenviar_convite(idConvite: int, db: Session = Depends(get_db)):
+    convite = buscar_convite_com_cursos(db, idConvite)
+
+    if not convite:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Convite não encontrado",
+        )
+
+    if convite.usado:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Este convite já foi utilizado e não pode ser reenviado.",
+        )
+
+    if convite.expiraEm < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Este convite está expirado. Gere um novo convite.",
+        )
+
+    enviar_email_convite_ou_erro(convite)
 
     return montar_convite_read(convite)
 
@@ -380,13 +412,22 @@ def marcar_convite_como_usado(token: str, db: Session = Depends(get_db)):
     convite = buscar_convite_por_token_com_cursos(db, token)
 
     if not convite:
-        raise HTTPException(status_code=404, detail="Convite não encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Convite não encontrado",
+        )
 
     if convite.usado:
-        raise HTTPException(status_code=400, detail="Convite já utilizado")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Convite já utilizado",
+        )
 
     if convite.expiraEm < datetime.utcnow():
-        raise HTTPException(status_code=400, detail="Convite expirado")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Convite expirado",
+        )
 
     convite.usado = True
     convite.usadoEm = datetime.utcnow()
@@ -395,7 +436,6 @@ def marcar_convite_como_usado(token: str, db: Session = Depends(get_db)):
     db.refresh(convite)
 
     convite = buscar_convite_com_cursos(db, convite.idConvite)
-    tentar_enviar_email_convite(convite)
 
     return montar_convite_read(convite)
 
@@ -405,7 +445,10 @@ def excluir_convite(idConvite: int, db: Session = Depends(get_db)):
     convite = db.query(Convite).filter(Convite.idConvite == idConvite).first()
 
     if not convite:
-        raise HTTPException(status_code=404, detail="Convite não encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Convite não encontrado",
+        )
 
     db.delete(convite)
     db.commit()

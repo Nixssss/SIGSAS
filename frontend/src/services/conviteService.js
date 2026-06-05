@@ -21,6 +21,11 @@ export const convitesService = {
     return response.data
   },
 
+  reenviar: async (idConvite) => {
+    const response = await api.post(`/convites/${idConvite}/reenviar`)
+    return response.data
+  },
+
   excluir: async (idConvite) => {
     const response = await api.delete(`/convites/${idConvite}`)
     return response.data

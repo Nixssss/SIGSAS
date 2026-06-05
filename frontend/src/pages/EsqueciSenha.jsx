@@ -40,29 +40,11 @@ function EsqueciSenha({ irLogin }) {
       return
     }
 
-    const token = crypto.randomUUID()
-
-    const novoToken = {
-      email: emailLimpo,
-      token,
-      criadoEm: new Date().toISOString(),
-      usado: false,
-      validadeHoras: 1,
-    }
-
     try {
       setLoading(true)
       setErro("")
 
-      await enviarRecuperacaoSenha(emailLimpo, token)
-
-      const tokensSalvos =
-        JSON.parse(localStorage.getItem("tokensRecuperacaoSenha")) || []
-
-      localStorage.setItem(
-        "tokensRecuperacaoSenha",
-        JSON.stringify([novoToken, ...tokensSalvos])
-      )
+      await enviarRecuperacaoSenha(emailLimpo)
 
       setLoading(false)
       setSucesso(true)
@@ -72,8 +54,13 @@ function EsqueciSenha({ irLogin }) {
       }, 2500)
     } catch (error) {
       console.error("Erro ao enviar recuperação:", error)
+
       setLoading(false)
-      setErro("Erro ao enviar email de recuperação.")
+
+      setErro(
+        error?.response?.data?.detail ||
+          "Erro ao enviar email de recuperação."
+      )
     }
   }
 
@@ -149,6 +136,7 @@ function EsqueciSenha({ irLogin }) {
             <form className="auth-form" onSubmit={recuperarSenha}>
               <div className="auth-field">
                 <label>E-mail</label>
+
                 <input
                   type="email"
                   placeholder="seu@email.com"
