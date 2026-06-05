@@ -8,7 +8,7 @@ import "./App.css"
 
 function App() {
   function verificarPaginaInicial() {
-    const caminho = window.location.pathname
+    const caminho = window.location.pathname.replace(/\/$/, "")
 
     if (caminho === "/cadastro") {
       return "cadastro"
@@ -22,10 +22,16 @@ function App() {
       return "redefinirSenha"
     }
 
+    const token = localStorage.getItem("token")
+
+    if (token && caminho === "/dashboard") {
+      return "dashboard"
+    }
+
     return "login"
   }
 
-  const [pagina, setPagina] = useState(verificarPaginaInicial)
+  const [pagina, setPagina] = useState(() => verificarPaginaInicial())
 
   useEffect(() => {
     function atualizarPagina() {
@@ -39,24 +45,29 @@ function App() {
     }
   }, [])
 
+  function navegarPara(caminho, novaPagina) {
+    window.history.pushState({}, "", caminho)
+    setPagina(novaPagina)
+  }
+
   function irLogin() {
-    window.history.pushState({}, "", "/")
-    setPagina("login")
+    navegarPara("/", "login")
   }
 
   function irCadastro() {
-    window.history.pushState({}, "", "/cadastro")
-    setPagina("cadastro")
+    navegarPara("/cadastro", "cadastro")
   }
 
   function irEsqueci() {
-    window.history.pushState({}, "", "/esqueci-senha")
-    setPagina("esqueciSenha")
+    navegarPara("/esqueci-senha", "esqueciSenha")
+  }
+
+  function irRedefinirSenha() {
+    navegarPara("/redefinir-senha", "redefinirSenha")
   }
 
   function irDashboard() {
-    window.history.pushState({}, "", "/")
-    setPagina("dashboard")
+    navegarPara("/dashboard", "dashboard")
   }
 
   return (
@@ -69,20 +80,24 @@ function App() {
         />
       )}
 
-      {pagina === "cadastro" && (
-        <Cadastro irLogin={irLogin} />
-      )}
+      {pagina === "cadastro" && <Cadastro irLogin={irLogin} />}
 
-      {pagina === "esqueciSenha" && (
-        <EsqueciSenha irLogin={irLogin} />
-      )}
+      {pagina === "esqueciSenha" && <EsqueciSenha irLogin={irLogin} />}
 
       {pagina === "redefinirSenha" && (
-        <RedefinirSenha irLogin={irLogin} />
+        <RedefinirSenha irLogin={irLogin} irEsqueci={irEsqueci} />
       )}
 
-      {pagina === "dashboard" && (
-        <Dashboard sair={irLogin} />
+      {pagina === "dashboard" && <Dashboard sair={irLogin} />}
+
+      {!["login", "cadastro", "esqueciSenha", "redefinirSenha", "dashboard"].includes(
+        pagina
+      ) && (
+        <Login
+          irCadastro={irCadastro}
+          irEsqueci={irEsqueci}
+          irDashboard={irDashboard}
+        />
       )}
     </>
   )
