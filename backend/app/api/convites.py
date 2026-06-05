@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -18,7 +19,12 @@ from app.schemas.convite import (
 router = APIRouter(prefix="/convites", tags=["Convites"])
 
 
-FRONTEND_CADASTRO_URL = "http://localhost:5173/cadastro"
+def obter_frontend_cadastro_url():
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    frontend_url = frontend_url.rstrip("/")
+
+    return f"{frontend_url}/cadastro"
+
 
 PERFIS_PERMITIDOS = {
     "Administrador",
@@ -85,6 +91,8 @@ def montar_curso_convite_read(vinculo: ConviteCurso):
 
 
 def montar_convite_read(convite: Convite):
+    frontend_cadastro_url = obter_frontend_cadastro_url()
+
     return {
         "idConvite": convite.idConvite,
         "email": convite.email,
@@ -99,7 +107,7 @@ def montar_convite_read(convite: Convite):
             montar_curso_convite_read(vinculo)
             for vinculo in convite.cursos_vinculados
         ],
-        "linkCadastro": f"{FRONTEND_CADASTRO_URL}?token={convite.token}",
+        "linkCadastro": f"{frontend_cadastro_url}?token={convite.token}",
     }
 
 
