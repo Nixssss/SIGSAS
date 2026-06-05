@@ -25,11 +25,15 @@ function EsqueciSenha({ irLogin }) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
-  function obterMensagemErro(error) {
-    if (error?.mensagemTratada) {
-      return error.mensagemTratada
+  function gerarTokenRecuperacao() {
+    if (crypto?.randomUUID) {
+      return crypto.randomUUID()
     }
 
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+  }
+
+  function obterMensagemErro(error) {
     const detail = error?.response?.data?.detail
 
     if (typeof detail === "string") {
@@ -69,7 +73,9 @@ function EsqueciSenha({ irLogin }) {
       setErro("")
       setSucesso(false)
 
-      await enviarRecuperacaoSenha(emailLimpo)
+      const token = gerarTokenRecuperacao()
+
+      await enviarRecuperacaoSenha(emailLimpo, token)
 
       setSucesso(true)
 
@@ -78,7 +84,6 @@ function EsqueciSenha({ irLogin }) {
       }, 2500)
     } catch (error) {
       console.error("Erro ao enviar recuperação:", error)
-
       setErro(obterMensagemErro(error))
     } finally {
       setLoading(false)
