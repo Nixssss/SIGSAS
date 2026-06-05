@@ -14,6 +14,7 @@ from app.schemas.convite import (
     ConviteRead,
     ConviteValidacaoRead,
 )
+from app.services.email_resend_service import enviar_email_convite
 
 
 router = APIRouter(prefix="/convites", tags=["Convites"])
@@ -227,6 +228,17 @@ def buscar_convite_por_token_com_cursos(db: Session, token: str):
     )
 
 
+def tentar_enviar_email_convite(convite: Convite):
+    try:
+        enviar_email_convite(
+            email=convite.email,
+            token=convite.token,
+            link_cadastro=montar_convite_read(convite)["linkCadastro"],
+        )
+    except Exception as error:
+        print("Erro ao enviar convite pelo Resend:", str(error))
+
+
 @router.get("", response_model=list[ConviteRead])
 def listar_convites(db: Session = Depends(get_db)):
     convites = (
@@ -280,6 +292,7 @@ def criar_convite(dados: ConviteCreate, db: Session = Depends(get_db)):
         db.commit()
 
         convite_ativo = buscar_convite_com_cursos(db, convite_ativo.idConvite)
+        tentar_enviar_email_convite(convite_ativo)
 
         return montar_convite_read(convite_ativo)
 
@@ -304,6 +317,7 @@ def criar_convite(dados: ConviteCreate, db: Session = Depends(get_db)):
     db.refresh(convite)
 
     convite = buscar_convite_com_cursos(db, convite.idConvite)
+    tentar_enviar_email_convite(convite)
 
     return montar_convite_read(convite)
 
@@ -381,6 +395,7 @@ def marcar_convite_como_usado(token: str, db: Session = Depends(get_db)):
     db.refresh(convite)
 
     convite = buscar_convite_com_cursos(db, convite.idConvite)
+    tentar_enviar_email_convite(convite)
 
     return montar_convite_read(convite)
 

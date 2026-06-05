@@ -7,6 +7,7 @@ from sqlalchemy import text
 from app.db.session import get_db
 from app.models.reserva import Reserva
 from app.models.sala import Sala
+from app.models.usuario import Usuario
 from app.models.curso import Curso
 from app.models.usuario_curso import UsuarioCurso
 from app.schemas.reserva import (
@@ -16,9 +17,144 @@ from app.schemas.reserva import (
     ReservaRead,
 )
 from app.services.auditoria_service import registrar_log
+from app.services.email_resend_service import (
+    enviar_email_reserva_criada,
+    enviar_email_reserva_aprovada,
+    enviar_email_reserva_cancelada,
+)
 
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
+
+
+STATUS_EMAIL_RESERVA = {
+    1: "Pendente",
+    2: "Aprovada",
+    3: "Recusada",
+    4: "Cancelada",
+}
+
+
+def buscar_usuario_reserva(db: Session, reserva: Reserva):
+    if not reserva.idUsuarioReserva:
+        return None
+
+    return db.query(Usuario).filter(Usuario.id == reserva.idUsuarioReserva).first()
+
+
+def buscar_nome_sala(db: Session, id_sala: int | None):
+    if not id_sala:
+        return "Não informada"
+
+    sala = db.query(Sala).filter(Sala.idSala == id_sala).first()
+
+    if not sala:
+        return f"Sala #{id_sala}"
+
+    if sala.numero:
+        return f"{sala.nome} - nº {sala.numero}"
+
+    return sala.nome
+
+
+def montar_dados_email_reserva(db: Session, reserva: Reserva):
+    return {
+        "nome_sala": buscar_nome_sala(db, reserva.idSala),
+        "solicitante": reserva.nomeUsuarioReserva,
+        "matricula": reserva.matriculaUsuarioReserva,
+        "cargo": reserva.cargoUsuarioReserva,
+        "instituicao": reserva.instituicaoUsuarioReserva,
+        "curso": reserva.cursoUsuarioReserva,
+        "data_inicio": reserva.dataInicio,
+        "hora_inicio": reserva.horaInicio,
+        "data_fim": reserva.dataFim,
+        "hora_fim": reserva.horaFim,
+        "motivo": reserva.motivo,
+        "qtd_pessoas": reserva.qtdPessoas,
+    }
+
+
+def registrar_erro_email_reserva(
+    db: Session,
+    request: Request,
+    reserva: Reserva,
+    error: Exception,
+    acao: str,
+):
+    registrar_log(
+        db=db,
+        acao=acao,
+        modulo="Reservas",
+        etapa="email",
+        descricao=f"Erro ao enviar email da reserva #{reserva.idReserva}",
+        status="erro",
+        erro=str(error),
+        id_usuario=reserva.idUsuarioReserva,
+        request=request,
+    )
+
+
+def tentar_enviar_email_reserva_criada(
+    db: Session,
+    request: Request,
+    reserva: Reserva,
+):
+    usuario = buscar_usuario_reserva(db, reserva)
+
+    if not usuario or not usuario.email:
+        return
+
+    try:
+        enviar_email_reserva_criada(
+            email=usuario.email,
+            **montar_dados_email_reserva(db, reserva),
+        )
+    except Exception as error:
+        registrar_erro_email_reserva(
+            db=db,
+            request=request,
+            reserva=reserva,
+            error=error,
+            acao="EMAIL_RESERVA_CRIADA_ERRO",
+        )
+
+
+def tentar_enviar_email_status_reserva(
+    db: Session,
+    request: Request,
+    reserva: Reserva,
+):
+    usuario = buscar_usuario_reserva(db, reserva)
+
+    if not usuario or not usuario.email:
+        return
+
+    dados_email = montar_dados_email_reserva(db, reserva)
+    justificativa = reserva.justificativa or None
+
+    try:
+        if reserva.idStatusReserva == 2:
+            enviar_email_reserva_aprovada(
+                email=usuario.email,
+                justificativa=justificativa,
+                **dados_email,
+            )
+
+        elif reserva.idStatusReserva in [3, 4]:
+            enviar_email_reserva_cancelada(
+                email=usuario.email,
+                justificativa=justificativa,
+                **dados_email,
+            )
+
+    except Exception as error:
+        registrar_erro_email_reserva(
+            db=db,
+            request=request,
+            reserva=reserva,
+            error=error,
+            acao="EMAIL_STATUS_RESERVA_ERRO",
+        )
 
 
 
@@ -281,6 +417,12 @@ def criar_reserva(
         db.commit()
         db.refresh(nova_reserva)
 
+        tentar_enviar_email_reserva_criada(
+            db=db,
+            request=request,
+            reserva=nova_reserva,
+        )
+
         registrar_log(
             db=db,
             acao="RESERVA_MANUAL_CONCLUIDA",
@@ -442,6 +584,12 @@ def atualizar_status_reserva(
             3: "recusada",
             4: "cancelada",
         }
+
+        tentar_enviar_email_status_reserva(
+            db=db,
+            request=request,
+            reserva=reserva,
+        )
 
         registrar_log(
             db=db,

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 
 from app.db.session import get_db
@@ -19,6 +20,7 @@ from app.core.security import (
     get_password_hash,
 )
 from app.services.auditoria_service import registrar_log
+from app.services.email_resend_service import enviar_email_recuperacao_senha
 
 
 router = APIRouter()
@@ -29,6 +31,11 @@ PERFIS_PERMITIDOS = {
     "Coordenador",
     "Professor",
 }
+
+
+class RecuperacaoSenhaEmailRequest(BaseModel):
+    email: str
+    token: str
 
 
 def normalizar_perfil(perfil: str | None):
@@ -449,6 +456,91 @@ def registrar_usuario(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno ao cadastrar usuário",
+        )
+
+
+@router.post("/recuperacao-senha-email")
+def enviar_email_recuperacao(
+    data: RecuperacaoSenhaEmailRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    try:
+        email = data.email.lower().strip()
+        token = str(data.token or "").strip()
+
+        if not email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email não informado",
+            )
+
+        if not token:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Token não informado",
+            )
+
+        user = db.query(Usuario).filter(Usuario.email == email).first()
+
+        if not user:
+            registrar_log(
+                db=db,
+                acao="RECUPERACAO_SENHA_EMAIL_ERRO",
+                modulo="Autenticação",
+                etapa="recuperacao_senha_email",
+                descricao=f"Tentativa de recuperação de senha para usuário inexistente: {email}",
+                status="erro",
+                erro="Usuário não encontrado",
+                email_usuario=email,
+                request=request,
+            )
+
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuário não encontrado",
+            )
+
+        enviar_email_recuperacao_senha(
+            email=email,
+            token=token,
+        )
+
+        registrar_log(
+            db=db,
+            acao="RECUPERACAO_SENHA_EMAIL",
+            modulo="Autenticação",
+            etapa="recuperacao_senha_email",
+            descricao=f"Email de recuperação de senha enviado para {user.email}",
+            status="sucesso",
+            id_usuario=user.id,
+            request=request,
+        )
+
+        return {
+            "detail": "Email de recuperação enviado com sucesso",
+            "email": user.email,
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as error:
+        registrar_log(
+            db=db,
+            acao="RECUPERACAO_SENHA_EMAIL_ERRO_INTERNO",
+            modulo="Autenticação",
+            etapa="recuperacao_senha_email",
+            descricao="Erro interno ao enviar email de recuperação de senha",
+            status="erro",
+            erro=str(error),
+            email_usuario=data.email,
+            request=request,
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erro interno ao enviar email de recuperação de senha",
         )
 
 
