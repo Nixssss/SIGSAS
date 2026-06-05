@@ -26,11 +26,29 @@ function EsqueciSenha({ irLogin }) {
   }
 
   function gerarTokenRecuperacao() {
-    if (crypto?.randomUUID) {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
       return crypto.randomUUID()
     }
 
     return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+  }
+
+  function salvarTokenRecuperacao(emailLimpo, token) {
+    const novoToken = {
+      email: emailLimpo,
+      token,
+      criadoEm: new Date().toISOString(),
+      usado: false,
+      validadeHoras: 1,
+    }
+
+    const tokensSalvos =
+      JSON.parse(localStorage.getItem("tokensRecuperacaoSenha")) || []
+
+    localStorage.setItem(
+      "tokensRecuperacaoSenha",
+      JSON.stringify([novoToken, ...tokensSalvos])
+    )
   }
 
   function obterMensagemErro(error) {
@@ -76,6 +94,8 @@ function EsqueciSenha({ irLogin }) {
       const token = gerarTokenRecuperacao()
 
       await enviarRecuperacaoSenha(emailLimpo, token)
+
+      salvarTokenRecuperacao(emailLimpo, token)
 
       setSucesso(true)
 
