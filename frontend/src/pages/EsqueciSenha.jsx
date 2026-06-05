@@ -25,6 +25,30 @@ function EsqueciSenha({ irLogin }) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
+  function obterMensagemErro(error) {
+    if (error?.mensagemTratada) {
+      return error.mensagemTratada
+    }
+
+    const detail = error?.response?.data?.detail
+
+    if (typeof detail === "string") {
+      return detail
+    }
+
+    if (Array.isArray(detail)) {
+      return detail
+        .map((item) => item?.msg || item?.message || JSON.stringify(item))
+        .join(" | ")
+    }
+
+    if (detail && typeof detail === "object") {
+      return detail.msg || detail.message || JSON.stringify(detail)
+    }
+
+    return "Erro ao enviar email de recuperação."
+  }
+
   async function recuperarSenha(e) {
     e.preventDefault()
 
@@ -43,10 +67,10 @@ function EsqueciSenha({ irLogin }) {
     try {
       setLoading(true)
       setErro("")
+      setSucesso(false)
 
       await enviarRecuperacaoSenha(emailLimpo)
 
-      setLoading(false)
       setSucesso(true)
 
       setTimeout(() => {
@@ -55,12 +79,9 @@ function EsqueciSenha({ irLogin }) {
     } catch (error) {
       console.error("Erro ao enviar recuperação:", error)
 
+      setErro(obterMensagemErro(error))
+    } finally {
       setLoading(false)
-
-      setErro(
-        error?.response?.data?.detail ||
-          "Erro ao enviar email de recuperação."
-      )
     }
   }
 
