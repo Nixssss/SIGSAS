@@ -9,7 +9,6 @@ import SistemaResumo from "./SistemaResumo"
 import Admin from "../components/admin/Admin"
 import api from "../services/api"
 
-
 function ehPerfilAdmin(perfil) {
   const perfilNormalizado = String(perfil || "")
     .toLowerCase()
@@ -123,6 +122,48 @@ function Dashboard({ sair }) {
     notificacoes.reservasPendentes +
     notificacoes.problemasAbertos +
     notificacoes.sugestoesNovas
+
+  const gruposInstituicoesCampi = useMemo(() => {
+    const mapa = new Map()
+
+    instituicoesSidebar.forEach((instituicao) => {
+      const idInstituicao = getIdInstituicao(instituicao)
+      const nomeInstituicao = getNomeInstituicao(instituicao)
+
+      if (!idInstituicao && !nomeInstituicao) return
+
+      mapa.set(String(idInstituicao || nomeInstituicao), {
+        id: idInstituicao || nomeInstituicao,
+        nome: nomeInstituicao,
+        campi: [],
+      })
+    })
+
+    campiSidebar.forEach((campus) => {
+      const idInstituicaoCampus = getIdInstituicaoCampus(campus)
+      const nomeInstituicaoCampus = getNomeInstituicaoDoCampus(campus)
+
+      const chave = String(
+        idInstituicaoCampus ||
+          nomeInstituicaoCampus ||
+          "Instituição não informada"
+      )
+
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          id: chave,
+          nome: nomeInstituicaoCampus || "Instituição não informada",
+          campi: [],
+        })
+      }
+
+      mapa.get(chave).campi.push(campus)
+    })
+
+    return Array.from(mapa.values())
+      .filter((grupo) => grupo.campi.length > 0)
+      .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"))
+  }, [campiSidebar, instituicoesSidebar])
 
   function extrairListaDaResposta(response, chavePrincipal) {
     const dados = response?.data
@@ -593,6 +634,106 @@ function Dashboard({ sair }) {
     )
   }
 
+  function renderizarGruposInstituicoesMobile() {
+    if (carregandoCampi) {
+      return <span>Carregando instituições e campi...</span>
+    }
+
+    if (!gruposInstituicoesCampi.length) {
+      return <span>Nenhuma instituição com campi cadastrado.</span>
+    }
+
+    return gruposInstituicoesCampi.map((grupo) => (
+      <div className="mobile-instituicao-card" key={grupo.id}>
+        <div className="mobile-instituicao-header">
+          <strong>{grupo.nome}</strong>
+          <small>{grupo.campi.length} campi cadastrado(s)</small>
+        </div>
+
+        <div className="mobile-instituicao-campi-list">
+          {grupo.campi.map((campus) => {
+            const ativo = campusEstaAtivo(campus)
+
+            return (
+              <div className="mobile-instituicao-campus-row" key={getIdCampus(campus)}>
+                <div>
+                  <strong>{getNomeCampus(campus)}</strong>
+                  <small>{ativo ? "Online" : "Inativo"}</small>
+                </div>
+
+                <i className={ativo ? "online" : "offline"} />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    ))
+  }
+
+  function renderizarGruposInstituicoesSidebar() {
+    if (carregandoCampi) {
+      return (
+        <div className="sidebar-instituicao-card">
+          <div className="sidebar-instituicao-top">
+            <div>
+              <strong>Carregando...</strong>
+              <span>Buscando instituições e campi</span>
+            </div>
+
+            <div className="mini-pulse" />
+          </div>
+        </div>
+      )
+    }
+
+    if (!gruposInstituicoesCampi.length) {
+      return (
+        <div className="sidebar-instituicao-card">
+          <div className="sidebar-instituicao-top">
+            <div>
+              <strong>Nenhuma instituição</strong>
+              <span>Cadastrar no Admin</span>
+            </div>
+
+            <div className="mini-pulse offline" />
+          </div>
+        </div>
+      )
+    }
+
+    return gruposInstituicoesCampi.map((grupo) => (
+      <div className="sidebar-instituicao-card" key={grupo.id}>
+        <div className="sidebar-instituicao-top">
+          <div>
+            <strong>{grupo.nome}</strong>
+            <span>{grupo.campi.length} campi cadastrado(s)</span>
+          </div>
+
+          <div className="sidebar-instituicao-badge">
+            {grupo.campi.length}
+          </div>
+        </div>
+
+        <div className="sidebar-instituicao-campi-list">
+          {grupo.campi.map((campus) => {
+            const ativo = campusEstaAtivo(campus)
+
+            return (
+              <div className="sidebar-instituicao-campus-row" key={getIdCampus(campus)}>
+                <div>
+                  <strong>{getNomeCampus(campus)}</strong>
+                  <small>{ativo ? "Online" : "Inativo"}</small>
+                </div>
+
+                <i className={ativo ? "online" : "offline"} />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    ))
+  }
+
   const tituloTela = useMemo(() => {
     if (tela === "dashboard" && isAdmin) return "Dashboard"
     if (tela === "sistema") return "Visão do Sistema"
@@ -848,32 +989,12 @@ function Dashboard({ sair }) {
 
             <section className="mobile-campi-card">
               <div className="mobile-section-title">
-                <strong>Campi cadastrados</strong>
+                <strong>Instituições e campi</strong>
                 <button type="button" onClick={carregarCampiSidebar}>↻</button>
               </div>
 
-              <div className="mobile-campi-list">
-                {carregandoCampi && <span>Carregando campi...</span>}
-
-                {!carregandoCampi && campiSidebar.length === 0 && (
-                  <span>Nenhum campus cadastrado.</span>
-                )}
-
-                {!carregandoCampi &&
-                  campiSidebar.map((campus) => {
-                    const ativo = campusEstaAtivo(campus)
-
-                    return (
-                      <div className="mobile-campus-item" key={getIdCampus(campus)}>
-                        <div>
-                          <strong>{getNomeCampus(campus)}</strong>
-                          <small>{getNomeInstituicaoDoCampus(campus)}</small>
-                        </div>
-
-                        <i className={ativo ? "online" : "offline"} />
-                      </div>
-                    )
-                  })}
+              <div className="mobile-campi-list grouped">
+                {renderizarGruposInstituicoesMobile()}
               </div>
             </section>
 
@@ -943,141 +1064,37 @@ function Dashboard({ sair }) {
 
               {tela === "admin" && (
                 <div className="admin-submenu modern-submenu">
-                  <button
-                    className={adminTela === "resumo" ? "active" : ""}
-                    onClick={() => abrirAdmin("resumo")}
-                  >
-                    Resumo
-                  </button>
-
-                  <button
-                    className={adminTela === "instituicoes" ? "active" : ""}
-                    onClick={() => abrirAdmin("instituicoes")}
-                  >
-                    Instituições
-                  </button>
-
-                  <button
-                    className={adminTela === "campi" ? "active" : ""}
-                    onClick={() => abrirAdmin("campi")}
-                  >
-                    Campi
-                  </button>
-
-                  <button
-                    className={adminTela === "edificios" ? "active" : ""}
-                    onClick={() => abrirAdmin("edificios")}
-                  >
-                    Edifícios
-                  </button>
-
-                  <button
-                    className={adminTela === "salas" ? "active" : ""}
-                    onClick={() => abrirAdmin("salas")}
-                  >
-                    Salas Admin
-                  </button>
-
-                  <button
-                    className={adminTela === "reservas" ? "active" : ""}
-                    onClick={() => abrirAdmin("reservas")}
-                  >
-                    Reservas
-                  </button>
-
-                  <button
-                    className={adminTela === "usuarios" ? "active" : ""}
-                    onClick={() => abrirAdmin("usuarios")}
-                  >
-                    Usuários
-                  </button>
-
-                  <button
-                    className={adminTela === "auditoria" ? "active" : ""}
-                    onClick={() => abrirAdmin("auditoria")}
-                  >
-                    Auditoria
-                  </button>
-
-                  <button
-                    className={adminTela === "problemas" ? "active" : ""}
-                    onClick={() => abrirAdmin("problemas")}
-                  >
-                    Problemas
-                  </button>
-
-                  <button
-                    className={adminTela === "sugestoes" ? "active" : ""}
-                    onClick={() => abrirAdmin("sugestoes")}
-                  >
-                    Sugestões
-                  </button>
-
-                  <button
-                    className={adminTela === "cadastro" ? "active" : ""}
-                    onClick={() => abrirAdmin("cadastro")}
-                  >
-                    Cadastro
-                  </button>
+                  <button className={adminTela === "resumo" ? "active" : ""} onClick={() => abrirAdmin("resumo")}>Resumo</button>
+                  <button className={adminTela === "instituicoes" ? "active" : ""} onClick={() => abrirAdmin("instituicoes")}>Instituições</button>
+                  <button className={adminTela === "campi" ? "active" : ""} onClick={() => abrirAdmin("campi")}>Campi</button>
+                  <button className={adminTela === "edificios" ? "active" : ""} onClick={() => abrirAdmin("edificios")}>Edifícios</button>
+                  <button className={adminTela === "salas" ? "active" : ""} onClick={() => abrirAdmin("salas")}>Salas Admin</button>
+                  <button className={adminTela === "reservas" ? "active" : ""} onClick={() => abrirAdmin("reservas")}>Reservas</button>
+                  <button className={adminTela === "usuarios" ? "active" : ""} onClick={() => abrirAdmin("usuarios")}>Usuários</button>
+                  <button className={adminTela === "auditoria" ? "active" : ""} onClick={() => abrirAdmin("auditoria")}>Auditoria</button>
+                  <button className={adminTela === "problemas" ? "active" : ""} onClick={() => abrirAdmin("problemas")}>Problemas</button>
+                  <button className={adminTela === "sugestoes" ? "active" : ""} onClick={() => abrirAdmin("sugestoes")}>Sugestões</button>
+                  <button className={adminTela === "cadastro" ? "active" : ""} onClick={() => abrirAdmin("cadastro")}>Cadastro</button>
                 </div>
               )}
             </>
           )}
         </nav>
 
-        <div className="sidebar-campi-card">
+        <div className="sidebar-campi-card sidebar-instituicoes-card">
           <div className="sidebar-campi-header">
-            <strong>Campi cadastrados</strong>
+            <strong>Instituições e campi</strong>
 
             <button
               type="button"
               onClick={carregarCampiSidebar}
-              title="Atualizar campi"
+              title="Atualizar instituições e campi"
             >
               ↻
             </button>
           </div>
 
-          {carregandoCampi && (
-            <div className="sidebar-campus-card">
-              <div>
-                <strong>Carregando...</strong>
-                <span>Buscando campi</span>
-              </div>
-
-              <div className="mini-pulse" />
-            </div>
-          )}
-
-          {!carregandoCampi && campiSidebar.length === 0 && (
-            <div className="sidebar-campus-card">
-              <div>
-                <strong>Nenhum campus</strong>
-                <span>Cadastrar no Admin</span>
-              </div>
-
-              <div className="mini-pulse offline" />
-            </div>
-          )}
-
-          {!carregandoCampi &&
-            campiSidebar.map((campus) => {
-              const ativo = campusEstaAtivo(campus)
-
-              return (
-                <div className="sidebar-campus-card" key={getIdCampus(campus)}>
-                  <div>
-                    <strong>{getNomeCampus(campus)}</strong>
-                    <span className="campus-instituicao-sidebar">
-                      {getNomeInstituicaoDoCampus(campus)}
-                    </span>
-                    <small>{ativo ? "Online" : "Inativo"}</small>
-                  </div>
-
-                  <div className={ativo ? "mini-pulse" : "mini-pulse offline"} />
-                </div>
-              )
-            })}
+          {renderizarGruposInstituicoesSidebar()}
         </div>
 
         <div className="sidebar-wave-card">
@@ -1329,7 +1346,6 @@ function Dashboard({ sair }) {
             </div>
           </div>
         </div>
-
 
         {isAdmin && tela === "admin" && (
           <section className="mobile-admin-quickbar" aria-label="Atalhos administrativos">

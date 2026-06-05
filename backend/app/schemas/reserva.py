@@ -11,6 +11,9 @@ class ReservaBase(BaseModel):
     cargoUsuarioReserva: str | None = None
     instituicaoUsuarioReserva: str | None = None
 
+    idCursoReserva: int | None = None
+    cursoUsuarioReserva: str | None = None
+
     dataInicio: str
     horaInicio: str
     dataFim: str
@@ -32,6 +35,9 @@ class ReservaUpdate(BaseModel):
     matriculaUsuarioReserva: str | None = None
     cargoUsuarioReserva: str | None = None
     instituicaoUsuarioReserva: str | None = None
+
+    idCursoReserva: int | None = None
+    cursoUsuarioReserva: str | None = None
 
     idStatusReserva: int | None = None
 
@@ -62,6 +68,9 @@ class ReservaRead(BaseModel):
     matriculaUsuarioReserva: str | None = None
     cargoUsuarioReserva: str | None = None
     instituicaoUsuarioReserva: str | None = None
+
+    idCursoReserva: int | None = None
+    cursoUsuarioReserva: str | None = None
 
     idStatusReserva: int
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { campiService } from "../../services/adminService"
 
@@ -22,6 +22,8 @@ function CampiAdmin({
   const [idInstituicao, setIdInstituicao] = useState("")
   const [itemSelecionado, setItemSelecionado] = useState(null)
   const [carregando, setCarregando] = useState(false)
+
+  const [instituicaoAberta, setInstituicaoAberta] = useState(null)
 
   useEffect(() => {
     if (modalCadastro || modalEditar) {
@@ -123,6 +125,45 @@ function CampiAdmin({
 
     return instituicao ? getNomeInstituicaoLocal(instituicao) : "?"
   }
+
+  const gruposCampi = useMemo(() => {
+    const mapa = new Map()
+
+    instituicoes.forEach((instituicao) => {
+      const id = getIdInstituicao(instituicao)
+      const nome = getNomeInstituicaoLocal(instituicao)
+
+      if (!id && !nome) return
+
+      mapa.set(String(id || nome), {
+        id: id || nome,
+        nome,
+        campi: [],
+      })
+    })
+
+    campi.forEach((campus) => {
+      const idInstituicaoCampus = getIdInstituicaoCampus(campus)
+      const chave = String(idInstituicaoCampus || "sem-instituicao")
+
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          id: chave,
+          nome:
+            idInstituicaoCampus && nomeInstituicao(idInstituicaoCampus) !== "?"
+              ? nomeInstituicao(idInstituicaoCampus)
+              : "Instituição não informada",
+          campi: [],
+        })
+      }
+
+      mapa.get(chave).campi.push(campus)
+    })
+
+    return Array.from(mapa.values())
+      .filter((grupo) => grupo.campi.length > 0)
+      .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"))
+  }, [campi, instituicoes])
 
   function selecionarCampus(item) {
     setItemSelecionado(item)
@@ -268,6 +309,58 @@ function CampiAdmin({
     }
   }
 
+  function alternarInstituicao(id) {
+    setInstituicaoAberta((atual) =>
+      String(atual) === String(id) ? null : id
+    )
+  }
+
+  function renderizarCampiAgrupados() {
+    if (!gruposCampi.length) {
+      return <p>Nenhum campus cadastrado.</p>
+    }
+
+    return (
+      <div className="admin-accordion-list">
+        {gruposCampi.map((grupo) => {
+          const aberto = String(instituicaoAberta) === String(grupo.id)
+
+          return (
+            <div className="admin-accordion-group" key={grupo.id}>
+              <button
+                type="button"
+                className={`admin-accordion-header ${aberto ? "active" : ""}`}
+                onClick={() => alternarInstituicao(grupo.id)}
+              >
+                <div>
+                  <strong>{grupo.nome}</strong>
+                  <small>{grupo.campi.length} campi cadastrado(s)</small>
+                </div>
+
+                <span>{aberto ? "▲" : "▼"}</span>
+              </button>
+
+              {aberto && (
+                <div className="admin-accordion-body">
+                  {grupo.campi.map((campus) => (
+                    <div
+                      key={getIdCampus(campus) || getNomeCampus(campus)}
+                      className="admin-accordion-row"
+                    >
+                      <strong>{getNomeCampus(campus)}</strong>
+
+                      {campus.endereco && <small>{campus.endereco}</small>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   const modalCadastroPortal =
     modalCadastro &&
     createPortal(
@@ -377,7 +470,10 @@ function CampiAdmin({
                       const idInstituicaoItem = getIdInstituicao(i)
 
                       return (
-                        <option key={idInstituicaoItem} value={idInstituicaoItem}>
+                        <option
+                          key={idInstituicaoItem}
+                          value={idInstituicaoItem}
+                        >
                           {getNomeInstituicaoLocal(i)}
                         </option>
                       )
@@ -452,25 +548,7 @@ function CampiAdmin({
           )}
         </div>
 
-        {campi.map((c) => {
-          const idCampus = getIdCampus(c)
-          const idInstituicaoCampus = getIdInstituicaoCampus(c)
-
-          return (
-            <div
-              key={idCampus || getNomeCampus(c)}
-              className="list-row no-button-row"
-            >
-              <span>
-                <strong>{getNomeCampus(c)}</strong>
-                <br />
-                <small>Instituição: {nomeInstituicao(idInstituicaoCampus)}</small>
-              </span>
-            </div>
-          )
-        })}
-
-        {campi.length === 0 && <p>Nenhum campus cadastrado.</p>}
+        {renderizarCampiAgrupados()}
       </div>
 
       {modalCadastroPortal}

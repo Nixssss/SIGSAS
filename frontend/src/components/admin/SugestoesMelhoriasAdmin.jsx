@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import api from "../../services/api"
 import ConfirmModal from "../ConfirmModal"
 import SkeletonLoader from "../SkeletonLoader"
@@ -18,6 +19,18 @@ function SugestoesMelhoriasAdmin({ showToast }) {
   useEffect(() => {
     carregarSugestoes()
   }, [])
+
+  useEffect(() => {
+    if (selecionada) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [selecionada])
 
   async function carregarSugestoes() {
     setCarregando(true)
@@ -131,6 +144,99 @@ function SugestoesMelhoriasAdmin({ showToast }) {
   const categorias = [
     ...new Set(sugestoes.map((sugestao) => sugestao.categoria).filter(Boolean)),
   ]
+
+  function renderizarModalDetalhes() {
+    if (!selecionada) return null
+
+    return createPortal(
+      <div className="feedback-modal-overlay" onMouseDown={fecharDetalhes}>
+        <div
+          className="feedback-modal"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="feedback-modal-header">
+            <div>
+              <h3>{selecionada.titulo}</h3>
+              <p>Sugestão #{selecionada.id}</p>
+            </div>
+
+            <button type="button" onClick={fecharDetalhes}>
+              ×
+            </button>
+          </div>
+
+          <div className="feedback-modal-body">
+            <div className="feedback-detail-grid">
+              <p>
+                <b>Usuário:</b> {selecionada.nomeUsuario || "Não informado"}
+              </p>
+
+              <p>
+                <b>E-mail:</b> {selecionada.emailUsuario || "—"}
+              </p>
+
+              <p>
+                <b>Módulo:</b> {selecionada.modulo || "—"}
+              </p>
+
+              <p>
+                <b>Categoria:</b> {selecionada.categoria}
+              </p>
+
+              <p>
+                <b>Criado em:</b> {formatarData(selecionada.dataCriacao)}
+              </p>
+
+              <p>
+                <b>Atualizado em:</b>{" "}
+                {formatarData(selecionada.dataAtualizacao)}
+              </p>
+            </div>
+
+            <label>
+              Descrição da sugestão
+              <textarea value={selecionada.descricao} readOnly rows={6} />
+            </label>
+
+            <label>
+              Status
+              <select
+                value={novoStatus}
+                onChange={(e) => setNovoStatus(e.target.value)}
+              >
+                <option value="Nova">Nova</option>
+                <option value="Em análise">Em análise</option>
+                <option value="Aprovada">Aprovada</option>
+                <option value="Implementada">Implementada</option>
+                <option value="Recusada">Recusada</option>
+              </select>
+            </label>
+
+            <label>
+              Resposta da administração
+              <textarea
+                value={respostaAdmin}
+                onChange={(e) => setRespostaAdmin(e.target.value)}
+                rows={5}
+                placeholder="Informe uma resposta ou observação..."
+              />
+            </label>
+          </div>
+
+          <div className="feedback-modal-actions">
+            <button className="btn secondary" onClick={fecharDetalhes}>
+              Fechar
+            </button>
+
+            <button className="btn primary" onClick={salvarAtualizacao}>
+              Salvar atualização
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )
+  }
 
   if (carregando) {
     return (
@@ -272,84 +378,7 @@ function SugestoesMelhoriasAdmin({ showToast }) {
         </div>
       </section>
 
-      {selecionada && (
-        <div className="feedback-modal-overlay">
-          <div className="feedback-modal">
-            <div className="feedback-modal-header">
-              <div>
-                <h3>{selecionada.titulo}</h3>
-                <p>Sugestão #{selecionada.id}</p>
-              </div>
-
-              <button onClick={fecharDetalhes}>×</button>
-            </div>
-
-            <div className="feedback-modal-body">
-              <div className="feedback-detail-grid">
-                <p>
-                  <b>Usuário:</b>{" "}
-                  {selecionada.nomeUsuario || "Não informado"}
-                </p>
-                <p>
-                  <b>E-mail:</b> {selecionada.emailUsuario || "—"}
-                </p>
-                <p>
-                  <b>Módulo:</b> {selecionada.modulo || "—"}
-                </p>
-                <p>
-                  <b>Categoria:</b> {selecionada.categoria}
-                </p>
-                <p>
-                  <b>Criado em:</b> {formatarData(selecionada.dataCriacao)}
-                </p>
-                <p>
-                  <b>Atualizado em:</b>{" "}
-                  {formatarData(selecionada.dataAtualizacao)}
-                </p>
-              </div>
-
-              <label>
-                Descrição da sugestão
-                <textarea value={selecionada.descricao} readOnly rows={6} />
-              </label>
-
-              <label>
-                Status
-                <select
-                  value={novoStatus}
-                  onChange={(e) => setNovoStatus(e.target.value)}
-                >
-                  <option value="Nova">Nova</option>
-                  <option value="Em análise">Em análise</option>
-                  <option value="Aprovada">Aprovada</option>
-                  <option value="Implementada">Implementada</option>
-                  <option value="Recusada">Recusada</option>
-                </select>
-              </label>
-
-              <label>
-                Resposta da administração
-                <textarea
-                  value={respostaAdmin}
-                  onChange={(e) => setRespostaAdmin(e.target.value)}
-                  rows={5}
-                  placeholder="Informe uma resposta ou observação..."
-                />
-              </label>
-            </div>
-
-            <div className="feedback-modal-actions">
-              <button className="btn secondary" onClick={fecharDetalhes}>
-                Fechar
-              </button>
-
-              <button className="btn primary" onClick={salvarAtualizacao}>
-                Salvar atualização
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {renderizarModalDetalhes()}
 
       <ConfirmModal
         aberto={!!sugestaoExcluir}

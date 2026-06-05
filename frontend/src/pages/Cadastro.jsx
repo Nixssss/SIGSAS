@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import api from "../services/api"
 import { registrar } from "../services/authService"
 import {
   instituicoesService,
@@ -78,6 +79,11 @@ function Cadastro({ irLogin }) {
   const [instituicoes, setInstituicoes] = useState([])
   const [cargos, setCargos] = useState([])
 
+  const [perfilConvidado, setPerfilConvidado] = useState("Professor")
+  const [cursos, setCursos] = useState([])
+  const [cursosSelecionados, setCursosSelecionados] = useState([])
+  const [buscaCurso, setBuscaCurso] = useState("")
+
   const [erro, setErro] = useState("")
   const [sucesso, setSucesso] = useState(false)
   const [conviteValido, setConviteValido] = useState(false)
@@ -90,6 +96,7 @@ function Cadastro({ irLogin }) {
     validarConvite()
     carregarInstituicoes()
     carregarCargos()
+    carregarCursos()
   }, [])
 
   async function carregarInstituicoes() {
@@ -109,6 +116,16 @@ function Cadastro({ irLogin }) {
     } catch (error) {
       console.error("Erro ao carregar cargos:", error)
       setErro("Erro ao carregar cargos.")
+    }
+  }
+
+  async function carregarCursos() {
+    try {
+      const response = await api.get("/cursos")
+      setCursos(Array.isArray(response.data) ? response.data : [])
+    } catch (error) {
+      console.error("Erro ao carregar cursos:", error)
+      setErro("Erro ao carregar cursos.")
     }
   }
 
@@ -135,9 +152,20 @@ function Cadastro({ irLogin }) {
         return
       }
 
+      const perfil = resposta.perfilConvidado || "Professor"
+      const cursosConvite = Array.isArray(resposta.cursos)
+        ? resposta.cursos.map((curso) => ({
+            idCurso: Number(curso.idCurso),
+            tipoVinculo: curso.tipoVinculo || perfil,
+            nomeCurso: curso.nomeCurso,
+          }))
+        : []
+
       setConviteValido(true)
       setTokenConvite(tokenUrl)
       setEmail(resposta.email)
+      setPerfilConvidado(perfil)
+      setCursosSelecionados(cursosConvite)
       setMensagemConvite("")
     } catch (error) {
       console.error("Erro ao validar convite:", error)
@@ -148,12 +176,91 @@ function Cadastro({ irLogin }) {
     }
   }
 
+  function normalizarTexto(texto) {
+    return String(texto || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+  }
+
   function getId(item) {
     return item?.id || item?.idInstituicao || item?.idCargo
   }
 
   function getNome(item) {
     return item?.nome || item?.nomeInstituicao || item?.nomeCargo || "Sem nome"
+  }
+
+  function getCursosVisiveis() {
+    if (perfilConvidado === "Administrador") {
+      return cursos.filter((curso) => normalizarTexto(curso.nome) === "dono")
+    }
+
+    return cursos.filter((curso) => normalizarTexto(curso.nome) !== "dono")
+  }
+
+  function getCursosFiltrados() {
+    const cursosVisiveis = getCursosVisiveis()
+    const termo = normalizarTexto(buscaCurso)
+
+    if (!termo) return cursosVisiveis
+
+    return cursosVisiveis.filter((curso) =>
+      normalizarTexto(curso.nome).includes(termo)
+    )
+  }
+
+  function cursoEstaSelecionado(idCurso) {
+    return cursosSelecionados.some(
+      (curso) => Number(curso.idCurso) === Number(idCurso)
+    )
+  }
+
+  function alternarCursoProfessor(curso) {
+    setCursosSelecionados((atual) => {
+      const jaSelecionado = atual.some(
+        (item) => Number(item.idCurso) === Number(curso.id)
+      )
+
+      if (jaSelecionado) {
+        return atual.filter((item) => Number(item.idCurso) !== Number(curso.id))
+      }
+
+      return [
+        ...atual,
+        {
+          idCurso: Number(curso.id),
+          tipoVinculo: "Professor",
+          nomeCurso: curso.nome,
+        },
+      ]
+    })
+  }
+
+  function montarCursosPayload() {
+    if (perfilConvidado === "Administrador") {
+      return []
+    }
+
+    return cursosSelecionados.map((curso) => ({
+      idCurso: Number(curso.idCurso),
+      tipoVinculo: curso.tipoVinculo || perfilConvidado,
+    }))
+  }
+
+  function validarCursos() {
+    if (perfilConvidado === "Administrador") return true
+
+    if (perfilConvidado === "Coordenador") {
+      return cursosSelecionados.length === 1
+    }
+
+    if (perfilConvidado === "Professor") {
+      return cursosSelecionados.length > 0
+    }
+
+    return false
   }
 
   async function handleCadastro(e) {
@@ -195,6 +302,16 @@ function Cadastro({ irLogin }) {
       return
     }
 
+    if (!validarCursos()) {
+      if (perfilConvidado === "Coordenador") {
+        setErro("Coordenador deve estar vinculado a exatamente um curso.")
+      } else {
+        setErro("Selecione pelo menos um curso.")
+      }
+
+      return
+    }
+
     try {
       setCarregando(true)
 
@@ -202,10 +319,11 @@ function Cadastro({ irLogin }) {
         nome: nome.trim(),
         email: email.trim().toLowerCase(),
         senha,
-        perfil: "usuario",
+        perfil: perfilConvidado,
         matricula: matricula.trim(),
         cargo: cargo.trim(),
         idInstituicao: Number(idInstituicao),
+        cursos: montarCursosPayload(),
       })
 
       await convitesService.usar(tokenConvite)
@@ -222,6 +340,104 @@ function Cadastro({ irLogin }) {
     } finally {
       setCarregando(false)
     }
+  }
+
+  function renderizarCursosCadastro() {
+    const cursosFiltrados = getCursosFiltrados()
+    const cursosVisiveis = getCursosVisiveis()
+
+    if (perfilConvidado === "Administrador") {
+      return (
+        <div className="auth-cursos-box">
+          <div className="auth-cursos-header">
+            <strong>Perfil e permissão</strong>
+            <small>
+              Você foi convidado como Administrador. O acesso será vinculado ao
+              perfil geral DONO automaticamente.
+            </small>
+          </div>
+
+          <div className="auth-cursos-dono">DONO automático</div>
+        </div>
+      )
+    }
+
+    if (perfilConvidado === "Coordenador") {
+      return (
+        <div className="auth-cursos-box">
+          <div className="auth-cursos-header">
+            <strong>Curso coordenado</strong>
+            <small>
+              Este curso foi definido no convite. Coordenadores podem coordenar
+              somente um curso.
+            </small>
+          </div>
+
+          <div className="auth-cursos-grid">
+            {cursosSelecionados.map((curso) => (
+              <div
+                key={curso.idCurso}
+                className="auth-curso-option selecionado bloqueado"
+              >
+                <input type="radio" checked readOnly />
+                <span>{curso.nomeCurso || `Curso #${curso.idCurso}`}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="auth-cursos-box">
+        <div className="auth-cursos-header">
+          <strong>Cursos vinculados ao cadastro</strong>
+          <small>
+            Os cursos do convite já vêm selecionados. Marque ou desmarque os
+            cursos em que você dará aula.
+          </small>
+        </div>
+
+        <div className="auth-cursos-search">
+          <span className="auth-cursos-search-icon"></span>
+
+          <input
+            type="text"
+            value={buscaCurso}
+            onChange={(e) => setBuscaCurso(e.target.value)}
+            placeholder="Pesquisar curso..."
+          />
+
+          <small>
+            {cursosFiltrados.length}/{cursosVisiveis.length}
+          </small>
+        </div>
+
+        <div className="auth-cursos-grid">
+          {cursosFiltrados.map((curso) => (
+            <label
+              key={curso.id}
+              className={`auth-curso-option ${
+                cursoEstaSelecionado(curso.id) ? "selecionado" : ""
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={cursoEstaSelecionado(curso.id)}
+                onChange={() => alternarCursoProfessor(curso)}
+              />
+              <span>{curso.nome}</span>
+            </label>
+          ))}
+        </div>
+
+        {cursosFiltrados.length === 0 && (
+          <p className="auth-cursos-empty">
+            Nenhum curso encontrado para esta pesquisa.
+          </p>
+        )}
+      </div>
+    )
   }
 
   if (validando) {
@@ -319,7 +535,9 @@ function Cadastro({ irLogin }) {
               <div>
                 <span className="auth-form-label">Cadastro por convite</span>
                 <h3>Criar conta</h3>
-                <p>Preencha seus dados para concluir o acesso.</p>
+                <p>
+                  Você foi convidado como <strong>{perfilConvidado}</strong>.
+                </p>
               </div>
             </div>
 
@@ -404,6 +622,10 @@ function Cadastro({ irLogin }) {
                     onChange={(e) => setConfirmar(e.target.value)}
                     required
                   />
+                </div>
+
+                <div className="auth-field auth-field-full">
+                  {renderizarCursosCadastro()}
                 </div>
               </div>
 

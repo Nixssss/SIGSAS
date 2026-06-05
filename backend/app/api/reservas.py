@@ -1,9 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+from datetime import datetime, date
+
+from sqlalchemy import text
 
 from app.db.session import get_db
 from app.models.reserva import Reserva
 from app.models.sala import Sala
+from app.models.curso import Curso
+from app.models.usuario_curso import UsuarioCurso
 from app.schemas.reserva import (
     ReservaCreate,
     ReservaUpdate,
@@ -14,6 +19,70 @@ from app.services.auditoria_service import registrar_log
 
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
+
+
+
+def montar_datetime_reserva(data_reserva, hora_reserva):
+    if isinstance(data_reserva, datetime):
+        data_texto = data_reserva.date().isoformat()
+    elif isinstance(data_reserva, date):
+        data_texto = data_reserva.isoformat()
+    else:
+        data_texto = str(data_reserva or "").strip()[:10]
+
+    hora_texto = str(hora_reserva or "").strip()
+
+    if len(hora_texto) == 5:
+        hora_texto = f"{hora_texto}:00"
+
+    return datetime.fromisoformat(f"{data_texto}T{hora_texto}")
+
+
+def buscar_conflito_reserva(
+    db: Session,
+    id_sala: int,
+    data_inicio,
+    hora_inicio,
+    data_fim,
+    hora_fim,
+    ignorar_id_reserva: int | None = None,
+):
+    inicio_novo = montar_datetime_reserva(data_inicio, hora_inicio)
+    fim_novo = montar_datetime_reserva(data_fim or data_inicio, hora_fim)
+
+    if fim_novo <= inicio_novo:
+        raise HTTPException(
+            status_code=400,
+            detail="O horário final precisa ser maior que o horário inicial",
+        )
+
+    query = db.query(Reserva).filter(
+        Reserva.idSala == id_sala,
+        Reserva.idStatusReserva.in_([1, 2]),
+    )
+
+    if ignorar_id_reserva is not None:
+        query = query.filter(Reserva.idReserva != ignorar_id_reserva)
+
+    reservas = query.all()
+
+    for reserva_existente in reservas:
+        try:
+            inicio_existente = montar_datetime_reserva(
+                reserva_existente.dataInicio,
+                reserva_existente.horaInicio,
+            )
+            fim_existente = montar_datetime_reserva(
+                reserva_existente.dataFim or reserva_existente.dataInicio,
+                reserva_existente.horaFim,
+            )
+        except Exception:
+            continue
+
+        if inicio_novo < fim_existente and fim_novo > inicio_existente:
+            return reserva_existente
+
+    return None
 
 
 @router.get("", response_model=list[ReservaRead])
@@ -33,6 +102,57 @@ def listar_reservas(db: Session = Depends(get_db)):
         )
 
         raise HTTPException(status_code=500, detail="Erro ao listar reservas")
+
+
+@router.get("/coordenador/{idUsuario}", response_model=list[ReservaRead])
+def listar_reservas_coordenador(
+    idUsuario: int,
+    somente_pendentes: bool = True,
+    db: Session = Depends(get_db),
+):
+    try:
+        areas_resultado = (
+            db.query(Curso.id_area_curso)
+            .join(UsuarioCurso, UsuarioCurso.idCurso == Curso.id)
+            .filter(
+                UsuarioCurso.idUsuario == idUsuario,
+                Curso.id_area_curso.isnot(None),
+            )
+            .distinct()
+            .all()
+        )
+
+        ids_areas = [linha[0] for linha in areas_resultado if linha[0] is not None]
+
+        if not ids_areas:
+            return []
+
+        query = (
+            db.query(Reserva)
+            .join(Curso, Curso.id == Reserva.idCursoReserva)
+            .filter(Curso.id_area_curso.in_(ids_areas))
+        )
+
+        if somente_pendentes:
+            query = query.filter(Reserva.idStatusReserva == 1)
+
+        return query.order_by(Reserva.idReserva.desc()).all()
+
+    except Exception as error:
+        registrar_log(
+            db=db,
+            acao="LISTAR_RESERVAS_COORDENADOR_ERRO",
+            modulo="Reservas",
+            etapa="listar_coordenador",
+            descricao=f"Erro ao listar reservas do coordenador #{idUsuario}",
+            status="erro",
+            erro=str(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Erro ao listar reservas do coordenador",
+        )
 
 
 @router.get("/{idReserva}", response_model=ReservaRead)
@@ -101,15 +221,21 @@ def criar_reserva(
 
             raise HTTPException(status_code=404, detail="Sala não encontrada")
 
-        conflito = (
-            db.query(Reserva)
-            .filter(
-                Reserva.idSala == reserva.idSala,
-                Reserva.idStatusReserva.in_([1, 2]),
-                Reserva.dataInicio <= reserva.dataFim,
-                Reserva.dataFim >= reserva.dataInicio,
-            )
-            .first()
+        curso = None
+
+        if reserva.idCursoReserva:
+            curso = db.query(Curso).filter(Curso.id == reserva.idCursoReserva).first()
+
+            if not curso:
+                raise HTTPException(status_code=404, detail="Curso não encontrado")
+
+        conflito = buscar_conflito_reserva(
+            db=db,
+            id_sala=reserva.idSala,
+            data_inicio=reserva.dataInicio,
+            hora_inicio=reserva.horaInicio,
+            data_fim=reserva.dataFim,
+            hora_fim=reserva.horaFim,
         )
 
         if conflito:
@@ -140,6 +266,8 @@ def criar_reserva(
             matriculaUsuarioReserva=reserva.matriculaUsuarioReserva,
             cargoUsuarioReserva=reserva.cargoUsuarioReserva,
             instituicaoUsuarioReserva=reserva.instituicaoUsuarioReserva,
+            idCursoReserva=reserva.idCursoReserva,
+            cursoUsuarioReserva=reserva.cursoUsuarioReserva or (curso.nome if curso else None),
             idStatusReserva=1,
             dataInicio=reserva.dataInicio,
             horaInicio=reserva.horaInicio,
@@ -211,11 +339,41 @@ def atualizar_reserva(
 
             reserva.idSala = dados.idSala
 
+        if dados.idCursoReserva is not None:
+            curso = db.query(Curso).filter(Curso.id == dados.idCursoReserva).first()
+
+            if not curso:
+                raise HTTPException(status_code=404, detail="Curso não encontrado")
+
+            reserva.idCursoReserva = dados.idCursoReserva
+            reserva.cursoUsuarioReserva = dados.cursoUsuarioReserva or curso.nome
+
         campos = dados.dict(exclude_unset=True)
         campos.pop("idSala", None)
+        campos.pop("idCursoReserva", None)
+        campos.pop("cursoUsuarioReserva", None)
 
         for campo, valor in campos.items():
             setattr(reserva, campo, valor)
+
+        conflito = buscar_conflito_reserva(
+            db=db,
+            id_sala=reserva.idSala,
+            data_inicio=reserva.dataInicio,
+            hora_inicio=reserva.horaInicio,
+            data_fim=reserva.dataFim or reserva.dataInicio,
+            hora_fim=reserva.horaFim,
+            ignorar_id_reserva=reserva.idReserva,
+        )
+
+        if conflito:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "Já existe uma reserva pendente ou aprovada para essa sala "
+                    f"nesse horário. Conflito com a reserva #{conflito.idReserva}"
+                ),
+            )
 
         db.commit()
         db.refresh(reserva)

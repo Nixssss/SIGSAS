@@ -1,8 +1,9 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
-    chat,
     reservas,
     auth,
     chatfluxo_router,
@@ -20,6 +21,8 @@ from app.api import (
     auditoria,
     reportes_problemas,
     sugestoes_melhorias,
+    cursos,
+    usuario_cursos,
 )
 
 from app.db.session import Base, engine
@@ -39,13 +42,20 @@ from app.models.cargo import Cargo
 from app.models.auditoria import Auditoria
 from app.models.reporte_problema import ReporteProblema
 from app.models.sugestao_melhoria import SugestaoMelhoria
+from app.models.curso import Curso
+from app.models.usuario_curso import UsuarioCurso
+from app.models.convite_curso import ConviteCurso
 
 
 def create_db_tables():
     Base.metadata.create_all(bind=engine)
 
 
-create_db_tables()
+CREATE_DB_TABLES = os.getenv("CREATE_DB_TABLES", "true").lower() == "true"
+
+if CREATE_DB_TABLES:
+    create_db_tables()
+
 
 app = FastAPI(
     title="SIGSAS API",
@@ -53,19 +63,30 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "")
+
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+if FRONTEND_URL:
+    origins.append(FRONTEND_URL)
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(chat.router, prefix="/api/v1/ia", tags=["Chat Inteligente"])
+
 app.include_router(reservas.router, prefix="/api/v1", tags=["Reservas"])
 app.include_router(auth.router, prefix="/api/v1", tags=["Autenticação"])
 app.include_router(chatfluxo_router.router, prefix="/api/v1", tags=["Chatbot Fluxo"])
-
 app.include_router(instituicoes.router, prefix="/api/v1", tags=["Instituições"])
 app.include_router(campi.router, prefix="/api/v1", tags=["Campi"])
 app.include_router(edificios.router, prefix="/api/v1", tags=["Edifícios"])
@@ -80,8 +101,13 @@ app.include_router(usuarios.router, prefix="/api/v1", tags=["Usuários"])
 app.include_router(auditoria.router, prefix="/api/v1", tags=["Auditoria"])
 app.include_router(reportes_problemas.router, prefix="/api/v1", tags=["Reportes de Problemas"])
 app.include_router(sugestoes_melhorias.router, prefix="/api/v1", tags=["Sugestões de Melhorias"])
+app.include_router(cursos.router, prefix="/api/v1", tags=["Cursos"])
+app.include_router(usuario_cursos.router, prefix="/api/v1", tags=["Usuários - Cursos"])
 
 
 @app.get("/api/v1/health", tags=["Health Check"])
 def health_check():
-    return {"status": "ok", "message": "SIGSAS API is running!"}
+    return {
+        "status": "ok",
+        "message": "SIGSAS API is running!",
+    }

@@ -25,6 +25,31 @@ def obter_ip_request(request: Request | None = None):
     return None
 
 
+def obter_id_usuario_request(request: Request | None = None):
+    if not request:
+        return None
+
+    possiveis_headers = [
+        "x-user-id",
+        "x-id-usuario",
+        "idusuario",
+        "id-usuario",
+    ]
+
+    for header in possiveis_headers:
+        valor = request.headers.get(header)
+
+        if not valor:
+            continue
+
+        try:
+            return int(valor)
+        except ValueError:
+            continue
+
+    return None
+
+
 def registrar_log(
     db: Session,
     acao: str,
@@ -42,23 +67,24 @@ def registrar_log(
 ):
     try:
         usuario = None
+        id_usuario_final = id_usuario or obter_id_usuario_request(request)
 
-        if id_usuario:
-            usuario = db.query(Usuario).filter(Usuario.id == id_usuario).first()
+        if id_usuario_final:
+            usuario = db.query(Usuario).filter(Usuario.id == id_usuario_final).first()
 
         ip_final = ip_maquina or obter_ip_request(request)
 
         novo_log = Auditoria(
-            idUsuario=usuario.id if usuario else id_usuario,
+            idUsuario=usuario.id if usuario else id_usuario_final,
             nomeUsuario=usuario.nome if usuario else nome_usuario,
             emailUsuario=usuario.email if usuario else email_usuario,
             ipMaquina=ip_final,
             sessionId=session_id,
-            acao=acao,
-            modulo=modulo,
+            acao=str(acao or "").strip() or "ACAO_NAO_INFORMADA",
+            modulo=str(modulo or "").strip() or "Módulo não informado",
             etapa=etapa,
-            descricao=descricao,
-            status=status,
+            descricao=str(descricao or "").strip() or "Sem descrição informada",
+            status=str(status or "sucesso").strip().lower(),
             erro=erro,
         )
 

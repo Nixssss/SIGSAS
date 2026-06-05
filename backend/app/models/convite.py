@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta
 import secrets
 
@@ -20,6 +21,14 @@ class Convite(Base):
     usadoEm = Column(DateTime, nullable=True)
 
     criadoPor = Column(Integer, nullable=True)
+
+    perfilConvidado = Column(String, default="Professor", nullable=False)
+
+    cursos_vinculados = relationship(
+        "ConviteCurso",
+        back_populates="convite",
+        cascade="all, delete-orphan",
+    )
 
     @staticmethod
     def gerar_token():

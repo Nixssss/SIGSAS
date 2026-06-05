@@ -1,9 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
-import {
-  edificiosService,
-  campiService,
-} from "../../services/adminService"
+import { edificiosService, campiService } from "../../services/adminService"
 
 function EdificiosAdmin({
   modoResumo = false,
@@ -11,9 +8,11 @@ function EdificiosAdmin({
   setEdificios,
   campi = [],
   setCampi,
+  instituicoes = [],
   salas = [],
   setSalas,
   getNomeCampus,
+  getNomeInstituicao,
   showToast,
 }) {
   const [listaEdificios, setListaEdificios] = useState(edificios)
@@ -26,6 +25,9 @@ function EdificiosAdmin({
   const [idCampus, setIdCampus] = useState("")
   const [itemSelecionado, setItemSelecionado] = useState(null)
   const [carregando, setCarregando] = useState(false)
+
+  const [instituicaoAberta, setInstituicaoAberta] = useState(null)
+  const [campusAberto, setCampusAberto] = useState(null)
 
   useEffect(() => {
     setListaEdificios(Array.isArray(edificios) ? edificios : [])
@@ -167,7 +169,12 @@ function EdificiosAdmin({
   }
 
   function getIdCampusLocal(campus) {
-    return campus?.id || campus?.idCampus || campus?.id_campus || campus?.idcampus
+    return (
+      campus?.id ||
+      campus?.idCampus ||
+      campus?.id_campus ||
+      campus?.idcampus
+    )
   }
 
   function getNomeCampusLocal(campus) {
@@ -176,6 +183,36 @@ function EdificiosAdmin({
       campus?.nomeCampus ||
       campus?.nome_campus ||
       "Campus sem nome"
+    )
+  }
+
+  function getIdInstituicaoCampus(campus) {
+    return (
+      campus?.idInstituicao ||
+      campus?.id_instituicao ||
+      campus?.instituicaoId ||
+      campus?.instituicao_id ||
+      campus?.idInstituicaoFk ||
+      campus?.instituicao?.id ||
+      campus?.instituicao?.idInstituicao
+    )
+  }
+
+  function getIdInstituicaoLocal(instituicao) {
+    return (
+      instituicao?.id ||
+      instituicao?.idInstituicao ||
+      instituicao?.id_instituicao
+    )
+  }
+
+  function getNomeInstituicaoLocal(instituicao) {
+    return (
+      instituicao?.nome ||
+      instituicao?.nomeInstituicao ||
+      instituicao?.nome_instituicao ||
+      instituicao?.sigla ||
+      "Instituição sem nome"
     )
   }
 
@@ -188,6 +225,111 @@ function EdificiosAdmin({
 
     return campus ? getNomeCampusLocal(campus) : "Campus não informado"
   }
+
+  function nomeInstituicao(id) {
+    if (getNomeInstituicao) return getNomeInstituicao(id)
+
+    const instituicao = instituicoes.find(
+      (item) => String(getIdInstituicaoLocal(item)) === String(id)
+    )
+
+    return instituicao
+      ? getNomeInstituicaoLocal(instituicao)
+      : "Instituição não informada"
+  }
+
+  function getCampusPorId(idCampusBusca) {
+    return listaCampi.find(
+      (campus) => String(getIdCampusLocal(campus)) === String(idCampusBusca)
+    )
+  }
+
+  const gruposEdificios = useMemo(() => {
+    const mapa = new Map()
+
+    instituicoes.forEach((instituicao) => {
+      const idInstituicao = getIdInstituicaoLocal(instituicao)
+      const nomeInstituicao = getNomeInstituicaoLocal(instituicao)
+
+      if (!idInstituicao && !nomeInstituicao) return
+
+      mapa.set(String(idInstituicao || nomeInstituicao), {
+        id: idInstituicao || nomeInstituicao,
+        nome: nomeInstituicao,
+        campi: new Map(),
+      })
+    })
+
+    listaCampi.forEach((campus) => {
+      const idCampusItem = getIdCampusLocal(campus)
+      const idInstituicaoCampus = getIdInstituicaoCampus(campus)
+      const chaveInstituicao = String(
+        idInstituicaoCampus || "sem-instituicao"
+      )
+
+      if (!mapa.has(chaveInstituicao)) {
+        mapa.set(chaveInstituicao, {
+          id: chaveInstituicao,
+          nome:
+            idInstituicaoCampus && nomeInstituicao(idInstituicaoCampus) !== "?"
+              ? nomeInstituicao(idInstituicaoCampus)
+              : "Instituição não informada",
+          campi: new Map(),
+        })
+      }
+
+      mapa.get(chaveInstituicao).campi.set(String(idCampusItem), {
+        id: idCampusItem,
+        nome: getNomeCampusLocal(campus),
+        edificios: [],
+      })
+    })
+
+    listaEdificios.forEach((edificio) => {
+      const idCampusEdificio = getIdCampusEdificio(edificio)
+      const campus = getCampusPorId(idCampusEdificio)
+      const idInstituicaoCampus = campus
+        ? getIdInstituicaoCampus(campus)
+        : "sem-instituicao"
+
+      const chaveInstituicao = String(
+        idInstituicaoCampus || "sem-instituicao"
+      )
+
+      if (!mapa.has(chaveInstituicao)) {
+        mapa.set(chaveInstituicao, {
+          id: chaveInstituicao,
+          nome:
+            idInstituicaoCampus && nomeInstituicao(idInstituicaoCampus) !== "?"
+              ? nomeInstituicao(idInstituicaoCampus)
+              : "Instituição não informada",
+          campi: new Map(),
+        })
+      }
+
+      const chaveCampus = String(idCampusEdificio || "sem-campus")
+
+      if (!mapa.get(chaveInstituicao).campi.has(chaveCampus)) {
+        mapa.get(chaveInstituicao).campi.set(chaveCampus, {
+          id: chaveCampus,
+          nome: nomeCampus(idCampusEdificio),
+          edificios: [],
+        })
+      }
+
+      mapa.get(chaveInstituicao).campi.get(chaveCampus).edificios.push(edificio)
+    })
+
+    return Array.from(mapa.values())
+      .map((grupo) => ({
+        ...grupo,
+        campi: Array.from(grupo.campi.values())
+          .filter((campusGrupo) => campusGrupo.edificios.length > 0)
+          .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR")),
+      }))
+      .filter((grupo) => grupo.campi.length > 0)
+      .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"))
+  }, [listaEdificios, listaCampi, instituicoes])
 
   function selecionarEdificio(item) {
     setItemSelecionado(item)
@@ -310,6 +452,112 @@ function EdificiosAdmin({
     } finally {
       setCarregando(false)
     }
+  }
+
+  function alternarInstituicao(id) {
+    setInstituicaoAberta((atual) =>
+      String(atual) === String(id) ? null : id
+    )
+    setCampusAberto(null)
+  }
+
+  function alternarCampus(id) {
+    setCampusAberto((atual) => (String(atual) === String(id) ? null : id))
+  }
+
+  function renderizarEdificiosAgrupados() {
+    if (carregando && listaEdificios.length === 0) {
+      return <p>Carregando edifícios...</p>
+    }
+
+    if (!gruposEdificios.length) {
+      return <p>Nenhum edifício cadastrado.</p>
+    }
+
+    return (
+      <div className="admin-accordion-list">
+        {gruposEdificios.map((grupo) => {
+          const instituicaoEstaAberta =
+            String(instituicaoAberta) === String(grupo.id)
+
+          const totalEdificios = grupo.campi.reduce(
+            (total, campusGrupo) => total + campusGrupo.edificios.length,
+            0
+          )
+
+          return (
+            <div className="admin-accordion-group" key={grupo.id}>
+              <button
+                type="button"
+                className={`admin-accordion-header ${
+                  instituicaoEstaAberta ? "active" : ""
+                }`}
+                onClick={() => alternarInstituicao(grupo.id)}
+              >
+                <div>
+                  <strong>{grupo.nome}</strong>
+                  <small>
+                    {grupo.campi.length} campi • {totalEdificios} edifício(s)
+                  </small>
+                </div>
+
+                <span>{instituicaoEstaAberta ? "▲" : "▼"}</span>
+              </button>
+
+              {instituicaoEstaAberta && (
+                <div className="admin-accordion-body">
+                  {grupo.campi.map((campusGrupo) => {
+                    const campusEstaAberto =
+                      String(campusAberto) === String(campusGrupo.id)
+
+                    return (
+                      <div
+                        className="admin-accordion-subgroup"
+                        key={campusGrupo.id}
+                      >
+                        <button
+                          type="button"
+                          className={`admin-accordion-subgroup-button ${
+                            campusEstaAberto ? "active" : ""
+                          }`}
+                          onClick={() => alternarCampus(campusGrupo.id)}
+                        >
+                          <div>
+                            <strong>{campusGrupo.nome}</strong>
+                            <small>
+                              {campusGrupo.edificios.length} edifício(s)
+                            </small>
+                          </div>
+
+                          <span>{campusEstaAberto ? "▲" : "▼"}</span>
+                        </button>
+
+                        {campusEstaAberto && (
+                          <div className="admin-accordion-subgroup-body">
+                            {campusGrupo.edificios.map((edificio) => (
+                              <div
+                                key={
+                                  getIdEdificio(edificio) ||
+                                  getNomeEdificio(edificio)
+                                }
+                                className="admin-accordion-row"
+                              >
+                                <strong>{getNomeEdificio(edificio)}</strong>
+                                <small>Campus: {campusGrupo.nome}</small>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )
   }
 
   const modalCadastroPortal =
@@ -491,31 +739,7 @@ function EdificiosAdmin({
           )}
         </div>
 
-        {carregando && listaEdificios.length === 0 && (
-          <p>Carregando edifícios...</p>
-        )}
-
-        {listaEdificios.map((edificio) => {
-          const idEdificio = getIdEdificio(edificio)
-          const idCampusEdificio = getIdCampusEdificio(edificio)
-
-          return (
-            <div
-              key={idEdificio || getNomeEdificio(edificio)}
-              className="list-row no-button-row"
-            >
-              <span>
-                <strong>{getNomeEdificio(edificio)}</strong>
-                <br />
-                <small>Campus: {nomeCampus(idCampusEdificio)}</small>
-              </span>
-            </div>
-          )
-        })}
-
-        {!carregando && listaEdificios.length === 0 && (
-          <p>Nenhum edifício cadastrado.</p>
-        )}
+        {renderizarEdificiosAgrupados()}
       </div>
 
       {modalCadastroPortal}

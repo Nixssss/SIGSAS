@@ -12,7 +12,8 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     senha_hash = Column(String, nullable=False)
-    perfil = Column(String, default="usuario", nullable=False)
+
+    perfil = Column(String, default="Professor", nullable=False)
 
     matricula = Column(String, nullable=True)
     cargo = Column(String, nullable=True)
@@ -20,3 +21,9 @@ class Usuario(Base):
     idInstituicao = Column(Integer, ForeignKey("instituicoes.id"), nullable=True)
 
     instituicao = relationship("Instituicao")
+
+    cursos_vinculados = relationship(
+        "UsuarioCurso",
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+    )

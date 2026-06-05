@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   salasService,
   tiposSalaService,
@@ -35,6 +36,8 @@ function SalasAdmin({
   const [salaSelecionada, setSalaSelecionada] = useState(null)
   const [carregando, setCarregando] = useState(false)
 
+  const [instituicaoAbertaSalas, setInstituicaoAbertaSalas] = useState(null)
+
   const campiFiltradosCadastro = campi.filter(
     (c) => c.idInstituicao === Number(idInstituicao)
   )
@@ -52,6 +55,22 @@ function SalasAdmin({
   const edificiosFiltradosEdicao = salaSelecionada
     ? edificios.filter((e) => e.idCampus === Number(salaSelecionada.idCampus))
     : []
+
+  useEffect(() => {
+    carregarTiposERecursos()
+  }, [])
+
+  useEffect(() => {
+    if (modalEditar) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [modalEditar])
 
   async function carregarTiposERecursos() {
     try {
@@ -78,10 +97,6 @@ function SalasAdmin({
       showToast("Erro ao carregar tipos de sala e recursos", "erro")
     }
   }
-
-  useEffect(() => {
-    carregarTiposERecursos()
-  }, [])
 
   function getTipoSala(id) {
     return tiposSala.find((t) => t.id === Number(id))?.nome || "?"
@@ -165,6 +180,26 @@ function SalasAdmin({
     return instituicoes.find((i) => i.id === campus?.idInstituicao) || null
   }
 
+  function getIdInstituicao(instituicao) {
+    return (
+      instituicao?.id ||
+      instituicao?.idInstituicao ||
+      instituicao?.id_instituicao ||
+      instituicao?.codigo ||
+      instituicao?.nome
+    )
+  }
+
+  function getNomeInstituicaoLocal(instituicao) {
+    return (
+      instituicao?.nome ||
+      instituicao?.nomeInstituicao ||
+      instituicao?.nome_instituicao ||
+      instituicao?.sigla ||
+      "Instituição sem nome"
+    )
+  }
+
   function normalizarTexto(texto) {
     return (texto || "")
       .toLowerCase()
@@ -190,6 +225,51 @@ function SalasAdmin({
       normalizarTexto(nomesRecursos.join(" ")).includes(termoBusca)
     )
   })
+
+  const gruposSalasPorInstituicao = useMemo(() => {
+    const mapa = new Map()
+
+    instituicoes.forEach((instituicao) => {
+      const id = getIdInstituicao(instituicao)
+      const nome = getNomeInstituicaoLocal(instituicao)
+
+      if (!id && !nome) return
+
+      mapa.set(String(id || nome), {
+        id: id || nome,
+        nome,
+        salas: [],
+      })
+    })
+
+    salasFiltradas.forEach((sala) => {
+      const campus = getCampusPorEdificio(sala.idEdificio)
+      const instituicao = campus ? getInstituicaoPorCampus(campus.id) : null
+
+      const idInstituicaoGrupo =
+        getIdInstituicao(instituicao) || "sem-instituicao"
+
+      const nomeInstituicaoGrupo = instituicao
+        ? getNomeInstituicaoLocal(instituicao)
+        : "Instituição não informada"
+
+      const chave = String(idInstituicaoGrupo)
+
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          id: chave,
+          nome: nomeInstituicaoGrupo,
+          salas: [],
+        })
+      }
+
+      mapa.get(chave).salas.push(sala)
+    })
+
+    return Array.from(mapa.values())
+      .filter((grupo) => grupo.salas.length > 0)
+      .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"))
+  }, [salasFiltradas, instituicoes, campi, edificios, tiposSala, recursosDisponiveis])
 
   async function adicionarSala(e) {
     e.preventDefault()
@@ -342,6 +422,360 @@ function SalasAdmin({
     }
   }
 
+  function alternarInstituicaoSalas(id) {
+    setInstituicaoAbertaSalas((atual) =>
+      String(atual) === String(id) ? null : id
+    )
+  }
+
+  function renderizarSalasAgrupadas() {
+    if (salasFiltradas.length === 0) {
+      return <p style={{ marginTop: "12px" }}>Nenhuma sala cadastrada.</p>
+    }
+
+    return (
+      <div className="admin-accordion-list salas-accordion-list">
+        {gruposSalasPorInstituicao.map((grupo) => {
+          const aberto = String(instituicaoAbertaSalas) === String(grupo.id)
+
+          return (
+            <div className="admin-accordion-group" key={grupo.id}>
+              <button
+                type="button"
+                className={`admin-accordion-header ${aberto ? "active" : ""}`}
+                onClick={() => alternarInstituicaoSalas(grupo.id)}
+              >
+                <div>
+                  <strong>{grupo.nome}</strong>
+                  <small>{grupo.salas.length} sala(s) cadastrada(s)</small>
+                </div>
+
+                <span>{aberto ? "▲" : "▼"}</span>
+              </button>
+
+              {aberto && (
+                <div className="admin-accordion-body">
+                  {grupo.salas.map((s) => {
+                    const campus = getCampusPorEdificio(s.idEdificio)
+                    const instituicao = campus
+                      ? getInstituicaoPorCampus(campus.id)
+                      : null
+                    const recursosSala = getNomesRecursos(s.recursos || [])
+
+                    return (
+                      <div key={s.idSala} className="admin-accordion-row">
+                        <strong>{s.nome}</strong>
+
+                        <small>Tipo: {getTipoSala(s.idTipoSala)}</small>
+                        <small>Número: {s.numero}</small>
+                        <small>Capacidade: {s.capacidade}</small>
+                        <small>Metragem: {s.metragem} m²</small>
+                        <small>Andar: {s.andar}</small>
+                        <small>Status: {s.ativo ? "Ativo" : "Inativo"}</small>
+                        <small>
+                          Recursos:{" "}
+                          {recursosSala.length > 0
+                            ? recursosSala.join(", ")
+                            : "Nenhum recurso informado"}
+                        </small>
+                        <small>Instituição: {instituicao?.nome || "?"}</small>
+                        <small>Campus: {campus?.nome || "?"}</small>
+                        <small>Edifício: {getNomeEdificio(s.idEdificio)}</small>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
+  function renderizarModalEdicao() {
+    if (!modalEditar) return null
+
+    return createPortal(
+      <div className="salas-modal-overlay" onClick={fecharEditarSalas}>
+        <div className="salas-modal-box" onClick={(e) => e.stopPropagation()}>
+          <div className="salas-modal-header">
+            <div>
+              <h3>Editar salas</h3>
+              <p>Selecione uma sala na lista e altere as informações.</p>
+            </div>
+
+            <button
+              className="salas-modal-close"
+              type="button"
+              onClick={fecharEditarSalas}
+              disabled={carregando}
+              aria-label="Fechar modal"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="salas-modal-content">
+            <div className="salas-modal-list">
+              {salasFiltradas.length === 0 && (
+                <p className="salas-modal-empty">Nenhuma sala encontrada.</p>
+              )}
+
+              {salasFiltradas.map((s) => (
+                <button
+                  key={s.idSala}
+                  type="button"
+                  className={`salas-modal-list-item ${
+                    salaSelecionada?.idSala === s.idSala ? "active" : ""
+                  }`}
+                  onClick={() => selecionarSala(s)}
+                  disabled={carregando}
+                >
+                  <strong>{s.nome}</strong>
+                  <small>{getNomeEdificio(s.idEdificio)}</small>
+                </button>
+              ))}
+            </div>
+
+            <div className="salas-modal-editor">
+              {salaSelecionada ? (
+                <form onSubmit={salvarEdicaoSala} className="form-col">
+                  <input
+                    value={salaSelecionada.nome}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        nome: e.target.value,
+                      }))
+                    }
+                    placeholder="Nome da sala"
+                    required
+                  />
+
+                  <select
+                    value={salaSelecionada.idTipoSala}
+                    onChange={(e) => alterarTipoSalaEdicao(e.target.value)}
+                    required
+                  >
+                    <option value="">Selecione o tipo da sala</option>
+                    {tiposSala.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.nome}
+                      </option>
+                    ))}
+                  </select>
+
+                  {salaSelecionada.idTipoSala && (
+                    <div className="recursos-box">
+                      <strong>Recursos da sala</strong>
+
+                      <p
+                        style={{
+                          marginTop: "6px",
+                          color: "#64748b",
+                          fontSize: "13px",
+                        }}
+                      >
+                        Os recursos padrão do tipo selecionado já ficam
+                        marcados. Você pode marcar ou desmarcar qualquer recurso
+                        cadastrado.
+                      </p>
+
+                      <div className="recursos-grid">
+                        {recursosDisponiveis.map((recurso) => (
+                          <label key={recurso.id} className="checkbox-line">
+                            <input
+                              type="checkbox"
+                              checked={(salaSelecionada.recursos || []).includes(
+                                recurso.id
+                              )}
+                              onChange={() => toggleRecursoEdicao(recurso.id)}
+                            />
+                            <span>{recurso.nome}</span>
+                          </label>
+                        ))}
+                      </div>
+
+                      {recursosDisponiveis.length === 0 && (
+                        <p
+                          style={{
+                            marginTop: "8px",
+                            color: "#64748b",
+                            fontSize: "13px",
+                          }}
+                        >
+                          Nenhum recurso cadastrado no banco.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <input
+                    value={salaSelecionada.numero}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        numero: e.target.value,
+                      }))
+                    }
+                    placeholder="Número da sala"
+                    required
+                  />
+
+                  <input
+                    type="number"
+                    value={salaSelecionada.capacidade}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        capacidade: e.target.value,
+                      }))
+                    }
+                    placeholder="Capacidade"
+                    required
+                  />
+
+                  <input
+                    type="number"
+                    value={salaSelecionada.metragem}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        metragem: e.target.value,
+                      }))
+                    }
+                    placeholder="Metragem"
+                    required
+                  />
+
+                  <input
+                    type="number"
+                    value={salaSelecionada.andar}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        andar: e.target.value,
+                      }))
+                    }
+                    placeholder="Andar"
+                    required
+                  />
+
+                  <select
+                    value={salaSelecionada.idInstituicao}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        idInstituicao: e.target.value,
+                        idCampus: "",
+                        idEdificio: "",
+                      }))
+                    }
+                    required
+                  >
+                    <option value="">Selecione a instituição</option>
+                    {instituicoes.map((i) => (
+                      <option key={i.id} value={i.id}>
+                        {i.nome}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={salaSelecionada.idCampus}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        idCampus: e.target.value,
+                        idEdificio: "",
+                      }))
+                    }
+                    required
+                  >
+                    <option value="">Selecione o campus</option>
+                    {campiFiltradosEdicao.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nome}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={salaSelecionada.idEdificio}
+                    onChange={(e) =>
+                      setSalaSelecionada((prev) => ({
+                        ...prev,
+                        idEdificio: e.target.value,
+                      }))
+                    }
+                    required
+                  >
+                    <option value="">Selecione o edifício</option>
+                    {edificiosFiltradosEdicao.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.nome}
+                      </option>
+                    ))}
+                  </select>
+
+                  <label className="checkbox-line sala-ativa-option">
+                    <input
+                      type="checkbox"
+                      checked={salaSelecionada.ativo}
+                      onChange={(e) =>
+                        setSalaSelecionada((prev) => ({
+                          ...prev,
+                          ativo: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span>Sala ativa</span>
+                  </label>
+
+                  <div className="salas-modal-actions">
+                    <button
+                      className="btn primary"
+                      type="submit"
+                      disabled={carregando}
+                    >
+                      {carregando ? "Salvando..." : "Salvar"}
+                    </button>
+
+                    <button
+                      className="btn delete"
+                      type="button"
+                      onClick={excluirSalaSelecionada}
+                      disabled={carregando}
+                    >
+                      {carregando ? "Excluindo..." : "Excluir"}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="salas-modal-placeholder">
+                  Selecione uma sala para editar.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="salas-modal-footer">
+            <button
+              className="btn secondary"
+              type="button"
+              onClick={fecharEditarSalas}
+              disabled={carregando}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )
+  }
+
   return (
     <>
       <div className="card">
@@ -379,8 +813,8 @@ function SalasAdmin({
                   fontSize: "13px",
                 }}
               >
-                Os recursos padrão do tipo selecionado já ficam marcados.
-                Você pode marcar ou desmarcar qualquer recurso cadastrado.
+                Os recursos padrão do tipo selecionado já ficam marcados. Você
+                pode marcar ou desmarcar qualquer recurso cadastrado.
               </p>
 
               <div className="recursos-grid">
@@ -391,7 +825,7 @@ function SalasAdmin({
                       checked={recursos.includes(recurso.id)}
                       onChange={() => toggleRecursoCadastro(recurso.id)}
                     />
-                    {recurso.nome}
+                    <span>{recurso.nome}</span>
                   </label>
                 ))}
               </div>
@@ -489,13 +923,13 @@ function SalasAdmin({
             ))}
           </select>
 
-          <label className="checkbox-line">
+          <label className="checkbox-line sala-ativa-option">
             <input
               type="checkbox"
               checked={ativo}
               onChange={(e) => setAtivo(e.target.checked)}
             />
-            Sala ativa
+            <span>Sala ativa</span>
           </label>
 
           <button className="btn primary" type="submit" disabled={carregando}>
@@ -519,301 +953,10 @@ function SalasAdmin({
           onChange={(e) => setBusca(e.target.value)}
         />
 
-        {salasFiltradas.length === 0 && (
-          <p style={{ marginTop: "12px" }}>Nenhuma sala cadastrada.</p>
-        )}
-
-        {salasFiltradas.map((s) => {
-          const campus = getCampusPorEdificio(s.idEdificio)
-          const instituicao = campus ? getInstituicaoPorCampus(campus.id) : null
-          const recursosSala = getNomesRecursos(s.recursos || [])
-
-          return (
-            <div key={s.idSala} className="list-row no-button-row">
-              <span>
-                <strong>{s.nome}</strong>
-                <br />
-                <small>Tipo: {getTipoSala(s.idTipoSala)}</small>
-                <br />
-                <small>Número: {s.numero}</small>
-                <br />
-                <small>Capacidade: {s.capacidade}</small>
-                <br />
-                <small>Metragem: {s.metragem} m²</small>
-                <br />
-                <small>Andar: {s.andar}</small>
-                <br />
-                <small>Status: {s.ativo ? "Ativo" : "Inativo"}</small>
-                <br />
-                <small>
-                  Recursos:{" "}
-                  {recursosSala.length > 0
-                    ? recursosSala.join(", ")
-                    : "Nenhum recurso informado"}
-                </small>
-                <br />
-                <small>Instituição: {instituicao?.nome || "?"}</small>
-                <br />
-                <small>Campus: {campus?.nome || "?"}</small>
-                <br />
-                <small>Edifício: {getNomeEdificio(s.idEdificio)}</small>
-              </span>
-            </div>
-          )
-        })}
+        {renderizarSalasAgrupadas()}
       </div>
 
-      {modalEditar && (
-        <div className="popup">
-          <div className="modal-box modal-large">
-            <h3>Editar salas</h3>
-
-            <div className="modal-split">
-              <div className="modal-list">
-                {salasFiltradas.map((s) => (
-                  <button
-                    key={s.idSala}
-                    type="button"
-                    className={`modal-list-item ${
-                      salaSelecionada?.idSala === s.idSala ? "active" : ""
-                    }`}
-                    onClick={() => selecionarSala(s)}
-                    disabled={carregando}
-                  >
-                    {s.nome} - {getNomeEdificio(s.idEdificio)}
-                  </button>
-                ))}
-              </div>
-
-              <div className="modal-editor">
-                {salaSelecionada ? (
-                  <form onSubmit={salvarEdicaoSala} className="form-col">
-                    <input
-                      value={salaSelecionada.nome}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          nome: e.target.value,
-                        }))
-                      }
-                      placeholder="Nome da sala"
-                      required
-                    />
-
-                    <select
-                      value={salaSelecionada.idTipoSala}
-                      onChange={(e) => alterarTipoSalaEdicao(e.target.value)}
-                      required
-                    >
-                      <option value="">Selecione o tipo da sala</option>
-                      {tiposSala.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.nome}
-                        </option>
-                      ))}
-                    </select>
-
-                    {salaSelecionada.idTipoSala && (
-                      <div className="recursos-box">
-                        <strong>Recursos da sala</strong>
-
-                        <p
-                          style={{
-                            marginTop: "6px",
-                            color: "#64748b",
-                            fontSize: "13px",
-                          }}
-                        >
-                          Os recursos padrão do tipo selecionado já ficam
-                          marcados. Você pode marcar ou desmarcar qualquer
-                          recurso cadastrado.
-                        </p>
-
-                        <div className="recursos-grid">
-                          {recursosDisponiveis.map((recurso) => (
-                            <label key={recurso.id} className="checkbox-line">
-                              <input
-                                type="checkbox"
-                                checked={(
-                                  salaSelecionada.recursos || []
-                                ).includes(recurso.id)}
-                                onChange={() => toggleRecursoEdicao(recurso.id)}
-                              />
-                              {recurso.nome}
-                            </label>
-                          ))}
-                        </div>
-
-                        {recursosDisponiveis.length === 0 && (
-                          <p
-                            style={{
-                              marginTop: "8px",
-                              color: "#64748b",
-                              fontSize: "13px",
-                            }}
-                          >
-                            Nenhum recurso cadastrado no banco.
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    <input
-                      value={salaSelecionada.numero}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          numero: e.target.value,
-                        }))
-                      }
-                      placeholder="Número da sala"
-                      required
-                    />
-
-                    <input
-                      type="number"
-                      value={salaSelecionada.capacidade}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          capacidade: e.target.value,
-                        }))
-                      }
-                      placeholder="Capacidade"
-                      required
-                    />
-
-                    <input
-                      type="number"
-                      value={salaSelecionada.metragem}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          metragem: e.target.value,
-                        }))
-                      }
-                      placeholder="Metragem"
-                      required
-                    />
-
-                    <input
-                      type="number"
-                      value={salaSelecionada.andar}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          andar: e.target.value,
-                        }))
-                      }
-                      placeholder="Andar"
-                      required
-                    />
-
-                    <select
-                      value={salaSelecionada.idInstituicao}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          idInstituicao: e.target.value,
-                          idCampus: "",
-                          idEdificio: "",
-                        }))
-                      }
-                      required
-                    >
-                      <option value="">Selecione a instituição</option>
-                      {instituicoes.map((i) => (
-                        <option key={i.id} value={i.id}>
-                          {i.nome}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={salaSelecionada.idCampus}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          idCampus: e.target.value,
-                          idEdificio: "",
-                        }))
-                      }
-                      required
-                    >
-                      <option value="">Selecione o campus</option>
-                      {campiFiltradosEdicao.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.nome}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={salaSelecionada.idEdificio}
-                      onChange={(e) =>
-                        setSalaSelecionada((prev) => ({
-                          ...prev,
-                          idEdificio: e.target.value,
-                        }))
-                      }
-                      required
-                    >
-                      <option value="">Selecione o edifício</option>
-                      {edificiosFiltradosEdicao.map((e) => (
-                        <option key={e.id} value={e.id}>
-                          {e.nome}
-                        </option>
-                      ))}
-                    </select>
-
-                    <label className="checkbox-line">
-                      <input
-                        type="checkbox"
-                        checked={salaSelecionada.ativo}
-                        onChange={(e) =>
-                          setSalaSelecionada((prev) => ({
-                            ...prev,
-                            ativo: e.target.checked,
-                          }))
-                        }
-                      />
-                      Sala ativa
-                    </label>
-
-                    <button
-                      className="btn primary"
-                      type="submit"
-                      disabled={carregando}
-                    >
-                      {carregando ? "Salvando..." : "Salvar"}
-                    </button>
-
-                    <button
-                      className="btn delete"
-                      type="button"
-                      onClick={excluirSalaSelecionada}
-                      disabled={carregando}
-                    >
-                      {carregando ? "Excluindo..." : "Excluir"}
-                    </button>
-                  </form>
-                ) : (
-                  <p>Selecione uma sala para editar.</p>
-                )}
-              </div>
-            </div>
-
-            <button
-              className="btn secondary"
-              type="button"
-              onClick={fecharEditarSalas}
-              disabled={carregando}
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
+      {renderizarModalEdicao()}
     </>
   )
 }

@@ -37,8 +37,11 @@ function Login({ irCadastro, irEsqueci, irDashboard }) {
       const token = response.access_token
       const decoded = jwtDecode(token)
 
+      const perfil = decoded.perfil || "Professor"
+      const cursos = Array.isArray(decoded.cursos) ? decoded.cursos : []
+
       localStorage.setItem("token", token)
-      localStorage.setItem("perfil", decoded.perfil || "usuario")
+      localStorage.setItem("perfil", perfil)
 
       localStorage.setItem(
         "logado",
@@ -48,10 +51,11 @@ function Login({ irCadastro, irEsqueci, irDashboard }) {
           nome: decoded.nome || decoded.email || email,
           email: decoded.email || email,
           matricula: decoded.matricula || "Não informada",
-          cargo: decoded.cargo || decoded.perfil || "Não informado",
+          cargo: decoded.cargo || perfil || "Não informado",
           idInstituicao: decoded.idInstituicao || null,
           instituicao: decoded.instituicao || "Não informada",
-          perfil: decoded.perfil || "usuario",
+          perfil,
+          cursos,
         })
       )
 

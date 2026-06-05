@@ -18,6 +18,9 @@ class Reserva(Base):
     cargoUsuarioReserva = Column(String, nullable=True)
     instituicaoUsuarioReserva = Column(String, nullable=True)
 
+    idCursoReserva = Column(Integer, ForeignKey("cursos.id"), nullable=True)
+    cursoUsuarioReserva = Column(String, nullable=True)
+
     idStatusReserva = Column(Integer, nullable=False, default=1)
 
     dataInicio = Column(String, nullable=False)
@@ -34,3 +37,8 @@ class Reserva(Base):
     justificativa = Column(String, nullable=True)
 
     sala = relationship("Sala")
+
+    curso = relationship(
+        "Curso",
+        back_populates="reservas",
+    )

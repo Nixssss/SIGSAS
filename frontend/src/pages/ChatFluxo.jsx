@@ -5,14 +5,81 @@ const SESSION_KEY = "sigsas_chatbot_session_id"
 const MENSAGENS_KEY = "sigsas_chatbot_mensagens"
 
 const etapasReserva = [
+  "Instituição",
   "Data",
   "Campus",
-  "Turno",
+  "Horário",
   "Tipo",
-  "Pessoas",
+  "Capacidade",
   "Sala",
   "Confirmação",
 ]
+
+const HORARIO_MINIMO_RESERVA = "08:00"
+const HORARIO_MAXIMO_RESERVA = "22:30"
+const INTERVALO_HORARIO_MINUTOS = 15
+
+function horarioParaMinutos(horario) {
+  const partes = String(horario || "").split(":")
+  const horas = Number(partes[0])
+  const minutos = Number(partes[1])
+
+  if (Number.isNaN(horas) || Number.isNaN(minutos)) {
+    return null
+  }
+
+  return horas * 60 + minutos
+}
+
+function minutosParaHorario(totalMinutos) {
+  const horas = Math.floor(totalMinutos / 60)
+  const minutos = totalMinutos % 60
+
+  return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}`
+}
+
+function gerarHorariosDisponiveis(inicio, fim, intervalo = INTERVALO_HORARIO_MINUTOS) {
+  const horarios = []
+  const inicioMinutos = horarioParaMinutos(inicio)
+  const fimMinutos = horarioParaMinutos(fim)
+
+  if (inicioMinutos === null || fimMinutos === null || inicioMinutos > fimMinutos) {
+    return horarios
+  }
+
+  for (let atual = inicioMinutos; atual <= fimMinutos; atual += intervalo) {
+    horarios.push(minutosParaHorario(atual))
+  }
+
+  return horarios
+}
+
+function normalizarHorariosParaPicker(horarios) {
+  if (!Array.isArray(horarios)) return []
+
+  return horarios
+    .map((item) => {
+      if (typeof item === "string") {
+        return { horario: item, disponivel: true, motivo: "Disponível" }
+      }
+
+      const horario = item?.horario || item?.valor || item?.label
+
+      if (!horario) return null
+
+      return {
+        horario,
+        disponivel: item?.disponivel !== false && item?.bloqueado !== true,
+        motivo: item?.motivo || item?.motivoIndisponivel || "Horário indisponível",
+      }
+    })
+    .filter(Boolean)
+}
+
+function obterHorarioValidoDoTexto(texto) {
+  const match = String(texto || "").match(/\b([01]\d|2[0-3]):([0-5]\d)\b/)
+  return match ? match[0] : null
+}
 
 function obterSessionId() {
   let sessionId = localStorage.getItem(SESSION_KEY)
@@ -48,16 +115,40 @@ function salvarMensagens(mensagens) {
 
 function detectarEtapaPorResposta(resposta) {
   const tipo = resposta?.tipoInteracao
+  const texto = resposta?.resposta?.toLowerCase() || ""
 
-  if (tipo === "calendario") return 0
-  if (tipo === "botoes" && resposta?.resposta?.toLowerCase().includes("campus")) return 1
-  if (tipo === "turnos") return 2
-  if (tipo === "botoes" && resposta?.resposta?.toLowerCase().includes("tipo")) return 3
-  if (resposta?.resposta?.toLowerCase().includes("quantidade")) return 4
-  if (tipo === "lista-salas") return 5
-  if (resposta?.resposta?.toLowerCase().includes("digite sim")) return 6
+  if (tipo === "instituicoes") return 0
+  if (tipo === "calendario") return 1
+  if (tipo === "campi") return 2
+  if (tipo === "horario-manual") return 3
+  if (tipo === "botoes" && texto.includes("tipo")) return 4
+  if (tipo === "faixas-capacidade") return 5
+  if (tipo === "lista-salas") return 6
+  if (tipo === "confirmacao") return 7
+  if (texto.includes("deseja criar")) return 7
+  if (texto.includes("deseja confirmar")) return 7
+  if (texto.includes("deseja cancelar")) return 7
 
   return null
+}
+
+function montarOpcoesDaResposta(data) {
+  if (Array.isArray(data?.opcoes) && data.opcoes.length > 0) {
+    return data.opcoes
+  }
+
+  if (
+    data?.tipoInteracao === "instituicoes" &&
+    Array.isArray(data?.instituicoes) &&
+    data.instituicoes.length > 0
+  ) {
+    return data.instituicoes.map((instituicao) => ({
+      label: instituicao.nome,
+      valor: `INSTITUICAO:${instituicao.idInstituicao || instituicao.id}`,
+    }))
+  }
+
+  return []
 }
 
 function ChatFluxo() {
@@ -86,8 +177,11 @@ function ChatFluxo() {
 
   const [texto, setTexto] = useState("")
   const [carregando, setCarregando] = useState(false)
-  const [turnosSelecionados, setTurnosSelecionados] = useState([])
+  const [reservasSelecionadas, setReservasSelecionadas] = useState([])
   const [etapaAtual, setEtapaAtual] = useState(null)
+  const [timePickerAberto, setTimePickerAberto] = useState(null)
+  const [ultimoHorarioInicio, setUltimoHorarioInicio] = useState(null)
+  const [ultimoHorarioFim, setUltimoHorarioFim] = useState(null)
 
   const fimMensagensRef = useRef(null)
   const sessionIdRef = useRef(obterSessionId())
@@ -130,12 +224,23 @@ function ChatFluxo() {
       autor: "bot",
       texto: data.resposta || "Sem resposta do servidor.",
       tipoInteracao: data.tipoInteracao || null,
-      opcoes: data.opcoes || [],
+      opcoes: montarOpcoesDaResposta(data),
       meses: data.meses || [],
       dias: data.dias || [],
-      turnos: data.turnos || [],
+      instituicoes: data.instituicoes || [],
+      campi: data.campi || [],
       salas: data.salas || [],
+      reservas: data.reservas || [],
+      faixasCapacidade: data.faixasCapacidade || [],
+      horarios: data.horarios || [],
+      campoHorario: data.campoHorario || null,
+      acaoReservas: data.acaoReservas || null,
+      textoBotaoReservas: data.textoBotaoReservas || null,
     })
+
+    if (data.tipoInteracao === "checkbox-reservas") {
+      setReservasSelecionadas([])
+    }
   }
 
   async function enviarMensagemManual(e) {
@@ -203,24 +308,33 @@ function ChatFluxo() {
       })
 
       const data = response.data || {}
+      const opcoesMontadas = montarOpcoesDaResposta(data)
 
       const novasMensagens = [
         {
           autor: "bot",
           texto: data.resposta || "Fluxo reiniciado.",
           tipoInteracao: data.tipoInteracao || "menu",
-          opcoes: data.opcoes || [
-            { label: "1 - Reservar", valor: "1" },
-            { label: "2 - Cancelar reserva", valor: "2" },
-            { label: "3 - Confirmar reserva", valor: "3" },
-          ],
+          opcoes:
+            opcoesMontadas.length > 0
+              ? opcoesMontadas
+              : [
+                  { label: "1 - Reservar", valor: "1" },
+                  { label: "2 - Cancelar reserva", valor: "2" },
+                  { label: "3 - Confirmar reserva", valor: "3" },
+                ],
+          instituicoes: data.instituicoes || [],
+          campi: data.campi || [],
+          faixasCapacidade: data.faixasCapacidade || [],
         },
       ]
 
       setMensagens(novasMensagens)
       salvarMensagens(novasMensagens)
-      setTurnosSelecionados([])
+      setReservasSelecionadas([])
       setEtapaAtual(null)
+      setTimePickerAberto(null)
+      setUltimoHorarioInicio(null)
     } catch (error) {
       console.error(error)
 
@@ -239,7 +353,19 @@ function ChatFluxo() {
     }
   }
 
-  function limparChatLocal() {
+  async function limparChatLocal() {
+    const usuario = getUsuarioLogado()
+    const sessionIdAtual = sessionIdRef.current
+
+    try {
+      await api.post("/chatbot-fluxo/reset", {
+        session_id: sessionIdAtual,
+        idUsuario: usuario?.id || usuario?.idUsuario || null,
+      })
+    } catch (error) {
+      console.error("Erro ao registrar limpeza do chatbot:", error)
+    }
+
     localStorage.removeItem(MENSAGENS_KEY)
     localStorage.removeItem(SESSION_KEY)
 
@@ -263,43 +389,39 @@ function ChatFluxo() {
       },
     ])
 
-    setTurnosSelecionados([])
+    setReservasSelecionadas([])
     setEtapaAtual(null)
+    setTimePickerAberto(null)
+    setUltimoHorarioInicio(null)
   }
 
-  function selecionarTurno(valor) {
-    setTurnosSelecionados((atual) => {
-      if (valor === "dia_todo") {
-        return atual.includes("dia_todo") ? [] : ["dia_todo"]
+  function reservaEstaSelecionada(idReserva) {
+    return reservasSelecionadas.includes(Number(idReserva))
+  }
+
+  function alternarReservaSelecionada(idReserva) {
+    const id = Number(idReserva)
+
+    setReservasSelecionadas((atual) => {
+      if (atual.includes(id)) {
+        return atual.filter((item) => item !== id)
       }
 
-      if (atual.includes("dia_todo")) {
-        return [valor]
-      }
-
-      if (atual.includes(valor)) {
-        return atual.filter((item) => item !== valor)
-      }
-
-      if (atual.length >= 2) {
-        return atual
-      }
-
-      return [...atual, valor]
+      return [...atual, id]
     })
   }
 
-  async function confirmarTurnos() {
-    if (!turnosSelecionados.length) return
+  async function confirmarReservasSelecionadas(msg) {
+    if (!reservasSelecionadas.length || carregando) return
 
-    const labels = {
-      manha: "Manhã",
-      tarde: "Tarde",
-      noite: "Noite",
-      dia_todo: "Dia todo",
-    }
+    const acaoTexto = msg?.acaoReservas === "cancelar" ? "Cancelar" : "Confirmar"
 
-    const textoUsuario = turnosSelecionados.map((t) => labels[t]).join(", ")
+    const textoUsuario =
+      reservasSelecionadas.length === 1
+        ? `${acaoTexto} reserva #${reservasSelecionadas[0]}`
+        : `${acaoTexto} reservas ${reservasSelecionadas
+            .map((id) => `#${id}`)
+            .join(", ")}`
 
     adicionarMensagem({
       autor: "user",
@@ -309,18 +431,270 @@ function ChatFluxo() {
     setCarregando(true)
 
     try {
-      await enviarParaBackend(`HORARIO:${turnosSelecionados.join(",")}`)
-      setTurnosSelecionados([])
+      await enviarParaBackend(`RESERVAS:${reservasSelecionadas.join(",")}`)
+      setReservasSelecionadas([])
     } catch (error) {
       console.error(error)
 
       adicionarMensagem({
         autor: "bot",
-        texto: "Erro ao enviar os turnos selecionados.",
+        texto: "Erro ao enviar as reservas selecionadas.",
       })
     } finally {
       setCarregando(false)
     }
+  }
+
+  function obterUltimoHorarioAntesDaMensagem(indiceMensagem) {
+    for (let i = indiceMensagem - 1; i >= 0; i -= 1) {
+      const mensagem = mensagens[i]
+
+      if (mensagem?.autor === "user") {
+        const horario = obterHorarioValidoDoTexto(mensagem.texto)
+
+        if (horario) {
+          return horario
+        }
+      }
+    }
+
+    return null
+  }
+
+  async function enviarHorarioSelecionado(horario, campoHorario) {
+    if (carregando) return
+
+    setTimePickerAberto(null)
+
+    if (campoHorario === "inicio") {
+      setUltimoHorarioInicio(horario)
+      setUltimoHorarioFim(null)
+    }
+
+    if (campoHorario === "fim") {
+      setUltimoHorarioFim(horario)
+    }
+
+    await enviarMensagemRapida(horario, horario)
+  }
+
+  function existeMensagemHorarioDepois(indiceMensagem) {
+    return mensagens.some(
+      (mensagem, index) =>
+        index > indiceMensagem &&
+        mensagem?.autor === "bot" &&
+        mensagem?.tipoInteracao === "horario-manual"
+    )
+  }
+
+  function existeMensagemBotDepois(indiceMensagem) {
+    return mensagens.some(
+      (mensagem, index) => index > indiceMensagem && mensagem?.autor === "bot"
+    )
+  }
+
+  function obterPrimeiroHorarioDepoisDaMensagem(indiceMensagem) {
+    for (let i = indiceMensagem + 1; i < mensagens.length; i += 1) {
+      const mensagem = mensagens[i]
+
+      if (mensagem?.autor === "bot") {
+        break
+      }
+
+      if (mensagem?.autor === "user") {
+        const horario = obterHorarioValidoDoTexto(mensagem.texto)
+
+        if (horario) {
+          return horario
+        }
+      }
+    }
+
+    return null
+  }
+
+  function renderizarCampoHorario({
+    id,
+    titulo,
+    valor,
+    placeholder,
+    subtitulo,
+    ativo,
+    bloqueado,
+    horarios,
+    aoSelecionar,
+    alinhamento = "left",
+    travado = false,
+  }) {
+    const pickerEstaAberto = !travado && timePickerAberto === id
+
+    return (
+      <div className={`chatbot-time-field ${alinhamento}-field`}>
+        <label>{titulo}</label>
+
+        <button
+          type="button"
+          className={`chatbot-time-trigger ${pickerEstaAberto ? "active" : ""} ${
+            valor ? "selected" : ""
+          } ${travado ? "locked" : ""}`}
+          onClick={() => {
+            if (!ativo || bloqueado || travado) return
+
+            setTimePickerAberto((atual) => (atual === id ? null : id))
+          }}
+          disabled={!ativo || bloqueado || travado}
+        >
+          <span>{valor || placeholder}</span>
+          <strong>🕒</strong>
+          <i>⌄</i>
+        </button>
+
+        <small>{subtitulo}</small>
+
+        {pickerEstaAberto && ativo && !bloqueado && (
+          <div className="chatbot-time-popover">
+            <div className="chatbot-time-popover-header">
+              <strong>{titulo}</strong>
+              <span>08:00 - 22:30</span>
+            </div>
+
+            <div className="chatbot-time-list">
+              {horarios.map((item) => {
+                const horario = typeof item === "string" ? item : item.horario
+                const disponivel =
+                  typeof item === "string"
+                    ? true
+                    : item?.disponivel !== false && item?.bloqueado !== true
+                const motivo =
+                  typeof item === "string"
+                    ? "Disponível"
+                    : item?.motivo || "Horário indisponível"
+
+                return (
+                  <button
+                    key={horario}
+                    type="button"
+                    className={`chatbot-time-option ${
+                      horario === valor ? "selected" : ""
+                    } ${!disponivel ? "disabled" : ""}`}
+                    onClick={() => {
+                      if (!disponivel) return
+                      aoSelecionar(horario)
+                    }}
+                    disabled={carregando || !disponivel}
+                    title={motivo}
+                  >
+                    {horario}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  function renderizarSeletorHorario(msg, indiceMensagem) {
+    if (msg.tipoInteracao !== "horario-manual") return null
+
+    if (existeMensagemHorarioDepois(indiceMensagem)) {
+      return null
+    }
+
+    const textoMensagem = String(msg.texto || "").toLowerCase()
+    const campoHorario =
+      msg.campoHorario ||
+      (textoMensagem.includes("término") || textoMensagem.includes("termino")
+        ? "fim"
+        : "inicio")
+
+    const horarioInicioReferencia =
+      ultimoHorarioInicio || obterUltimoHorarioAntesDaMensagem(indiceMensagem)
+
+    const minimoHorarioFim = horarioInicioReferencia
+      ? minutosParaHorario(
+          horarioParaMinutos(horarioInicioReferencia) +
+            INTERVALO_HORARIO_MINUTOS
+        )
+      : HORARIO_MINIMO_RESERVA
+
+    const horariosBackend = normalizarHorariosParaPicker(msg.horarios)
+
+    const horariosInicio =
+      campoHorario === "inicio" && horariosBackend.length > 0
+        ? horariosBackend
+        : gerarHorariosDisponiveis(
+            HORARIO_MINIMO_RESERVA,
+            HORARIO_MAXIMO_RESERVA,
+            INTERVALO_HORARIO_MINUTOS
+          )
+
+    const horariosFim =
+      campoHorario === "fim" && horariosBackend.length > 0
+        ? horariosBackend
+        : gerarHorariosDisponiveis(
+            minimoHorarioFim,
+            HORARIO_MAXIMO_RESERVA,
+            INTERVALO_HORARIO_MINUTOS
+          )
+
+    const selecionandoFim = campoHorario === "fim"
+    const horarioFimSelecionado =
+      selecionandoFim
+        ? ultimoHorarioFim || obterPrimeiroHorarioDepoisDaMensagem(indiceMensagem)
+        : null
+    const fluxoJaAvancou = selecionandoFim && existeMensagemBotDepois(indiceMensagem)
+
+    return (
+      <div className="chatbot-time-box cascade-time-box">
+        <div className="chatbot-time-headline">
+          <strong>Escolha o horário da reserva</strong>
+          <span>Intervalos de 15 minutos</span>
+        </div>
+
+        <div className="chatbot-time-row cascade-time-row">
+          {renderizarCampoHorario({
+            id: `${indiceMensagem}-inicio`,
+            titulo: "Hora de início",
+            valor: selecionandoFim ? horarioInicioReferencia : null,
+            placeholder: "Selecionar início",
+            subtitulo: "Primeiro horário da reserva",
+            ativo: !selecionandoFim,
+            bloqueado: carregando,
+            travado: selecionandoFim,
+            horarios: horariosInicio,
+            alinhamento: "inicio",
+            aoSelecionar: (horario) => enviarHorarioSelecionado(horario, "inicio"),
+          })}
+
+          {renderizarCampoHorario({
+            id: `${indiceMensagem}-fim`,
+            titulo: "Hora de término",
+            valor: horarioFimSelecionado,
+            placeholder: "Selecionar término",
+            subtitulo: horarioFimSelecionado
+              ? "Horário final selecionado"
+              : horarioInicioReferencia
+              ? `Após ${horarioInicioReferencia}`
+              : "Liberado após escolher o início",
+            ativo: selecionandoFim && !!horarioInicioReferencia && !horarioFimSelecionado,
+            bloqueado: carregando || !horarioInicioReferencia || fluxoJaAvancou,
+            travado: !!horarioFimSelecionado || fluxoJaAvancou,
+            horarios: horariosFim,
+            alinhamento: "fim",
+            aoSelecionar: (horario) => enviarHorarioSelecionado(horario, "fim"),
+          })}
+        </div>
+
+        {selecionandoFim && !horarioInicioReferencia && (
+          <p className="chatbot-time-alert">
+            Escolha primeiro o horário de início para liberar os horários de
+            término.
+          </p>
+        )}
+      </div>
+    )
   }
 
   function renderizarProgresso() {
@@ -343,6 +717,18 @@ function ChatFluxo() {
 
   function renderizarBotoes(msg) {
     if (!msg.opcoes?.length) return null
+
+    const tiposComRenderProprio = [
+      "campi",
+      "faixas-capacidade",
+      "lista-salas",
+      "checkbox-reservas",
+      "calendario",
+    ]
+
+    if (tiposComRenderProprio.includes(msg.tipoInteracao)) {
+      return null
+    }
 
     return (
       <div className="chatbot-options premium-options">
@@ -412,15 +798,15 @@ function ChatFluxo() {
                       dia.disponivel ? "available" : "disabled"
                     }`}
                     onClick={() =>
-                      dia.disponivel
-                        ? enviarMensagemRapida(`DATA:${dia.dataIso}`, dia.dataBr)
-                        : enviarMensagemRapida(`DATA:${dia.dataIso}`, dia.dataBr)
+                      enviarMensagemRapida(`DATA:${dia.dataIso}`, dia.dataBr)
                     }
                     disabled={carregando}
                     title={dia.motivoIndisponivel || ""}
                   >
                     <span>{dia.dia}</span>
-                    <small>{String(dia.mes).padStart(2, "0")}/{dia.ano}</small>
+                    <small>
+                      {String(dia.mes).padStart(2, "0")}/{dia.ano}
+                    </small>
                   </button>
                 ))}
               </div>
@@ -431,60 +817,212 @@ function ChatFluxo() {
     )
   }
 
-  function renderizarTurnos(msg) {
-    if (msg.tipoInteracao !== "turnos") return null
+  function renderizarCampi(msg) {
+    if (msg.tipoInteracao !== "campi" || !msg.campi?.length) return null
 
-    const turnos = msg.turnos?.length
-      ? msg.turnos
-      : [
-          { label: "Manhã", valor: "manha" },
-          { label: "Tarde", valor: "tarde" },
-          { label: "Noite", valor: "noite" },
-          { label: "Dia todo", valor: "dia_todo" },
-        ]
+    const gridStyle = {
+      width: "100%",
+      marginTop: "16px",
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+      gap: "12px",
+    }
 
     return (
-      <div className="chatbot-turnos premium-turnos">
-        <p className="turnos-info">
-          Escolha até dois turnos. Se escolher Dia todo, os demais serão
-          desativados.
-        </p>
+      <div style={gridStyle}>
+        {msg.campi.map((campus) => {
+          const disponivel = campus.disponivel === true
 
-        <div className="turnos-grid">
-          {turnos.map((turno) => {
-            const selecionado = turnosSelecionados.includes(turno.valor)
-            const bloqueado =
-              carregando ||
-              (turnosSelecionados.includes("dia_todo") &&
-                turno.valor !== "dia_todo") ||
-              (!selecionado &&
-                !turnosSelecionados.includes("dia_todo") &&
-                turnosSelecionados.length >= 2 &&
-                turno.valor !== "dia_todo")
+          const cardStyle = {
+            width: "100%",
+            minHeight: "88px",
+            padding: "14px 16px",
+            borderRadius: "16px",
+            border: disponivel
+              ? "1px solid rgba(245, 158, 11, 0.42)"
+              : "1px solid rgba(148, 163, 184, 0.18)",
+            background: disponivel
+              ? "radial-gradient(circle at top left, rgba(245, 158, 11, 0.13), transparent 42%), rgba(2, 6, 23, 0.96)"
+              : "radial-gradient(circle at top left, rgba(148, 163, 184, 0.08), transparent 42%), rgba(15, 23, 42, 0.9)",
+            color: "#f8fafc",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            justifyContent: "center",
+            gap: "9px",
+            textAlign: "left",
+            cursor: disponivel && !carregando ? "pointer" : "not-allowed",
+            opacity: disponivel ? 1 : 0.72,
+            userSelect: "none",
+          }
 
-            return (
-              <button
-                key={turno.valor}
-                type="button"
-                className={`turno-card ${selecionado ? "selected" : ""}`}
-                disabled={bloqueado}
-                onClick={() => selecionarTurno(turno.valor)}
-              >
-                <span>{turno.valor === "dia_todo" ? "☀" : "◷"}</span>
-                <strong>{turno.label}</strong>
-              </button>
+          const headerStyle = {
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: "10px",
+          }
+
+          const nomeStyle = {
+            color: "#f8fafc",
+            fontSize: "14px",
+            fontWeight: 950,
+            lineHeight: 1.2,
+            wordBreak: "break-word",
+          }
+
+          const statusStyle = {
+            flexShrink: 0,
+            padding: "5px 9px",
+            borderRadius: "999px",
+            fontSize: "10px",
+            fontWeight: 950,
+            lineHeight: 1,
+            textTransform: "uppercase",
+            letterSpacing: "0.03em",
+            color: disponivel ? "#22c55e" : "#f59e0b",
+            background: disponivel
+              ? "rgba(34, 197, 94, 0.12)"
+              : "rgba(245, 158, 11, 0.12)",
+            border: disponivel
+              ? "1px solid rgba(34, 197, 94, 0.24)"
+              : "1px solid rgba(245, 158, 11, 0.26)",
+          }
+
+          const motivoStyle = {
+            color: "#94a3b8",
+            fontSize: "11px",
+            fontWeight: 800,
+            lineHeight: 1.35,
+          }
+
+          function selecionarCampus() {
+            if (!disponivel || carregando) return
+            enviarMensagemRapida(`CAMPUS:${campus.idCampus}`, campus.nome)
+          }
+
+          function selecionarComEnter(event) {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault()
+              selecionarCampus()
+            }
+          }
+
+          return (
+            <div
+              key={campus.idCampus}
+              role="button"
+              tabIndex={disponivel ? 0 : -1}
+              style={cardStyle}
+              onClick={selecionarCampus}
+              onKeyDown={selecionarComEnter}
+              title={campus.motivoIndisponivel || ""}
+            >
+              <div style={headerStyle}>
+                <strong style={nomeStyle}>{campus.nome}</strong>
+
+                <span style={statusStyle}>
+                  {disponivel ? "Disponível" : "Indisponível"}
+                </span>
+              </div>
+
+              {!disponivel && (
+                <small style={motivoStyle}>
+                  {campus.motivoIndisponivel ||
+                    "Não há salas disponíveis neste campus."}
+                </small>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
+  function renderizarFaixasCapacidade(msg) {
+    if (
+      msg.tipoInteracao !== "faixas-capacidade" ||
+      !msg.faixasCapacidade?.length
+    ) {
+      return null
+    }
+
+    const gridStyle = {
+      width: "100%",
+      marginTop: "16px",
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+      gap: "12px",
+    }
+
+    return (
+      <div style={gridStyle}>
+        {msg.faixasCapacidade.map((faixa) => {
+          const cardStyle = {
+            minHeight: "72px",
+            padding: "14px 16px",
+            borderRadius: "16px",
+            border: "1px solid rgba(245, 158, 11, 0.42)",
+            background:
+              "radial-gradient(circle at top left, rgba(245, 158, 11, 0.15), transparent 42%), rgba(2, 6, 23, 0.96)",
+            color: "#f8fafc",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "5px",
+            textAlign: "center",
+            cursor: carregando ? "not-allowed" : "pointer",
+            userSelect: "none",
+          }
+
+          const tituloStyle = {
+            color: "#f8fafc",
+            fontSize: "15px",
+            fontWeight: 950,
+            lineHeight: 1.1,
+          }
+
+          const subtituloStyle = {
+            color: "#f59e0b",
+            fontSize: "10px",
+            fontWeight: 950,
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+          }
+
+          function selecionarFaixa() {
+            if (carregando) return
+
+            enviarMensagemRapida(
+              `FAIXA_CAPACIDADE:${faixa.minimo}-${faixa.maximo}`,
+              `${faixa.minimo} a ${faixa.maximo} pessoas`
             )
-          })}
-        </div>
+          }
 
-        <button
-          type="button"
-          className="btn primary confirm-turnos"
-          onClick={confirmarTurnos}
-          disabled={!turnosSelecionados.length || carregando}
-        >
-          Confirmar horário
-        </button>
+          function selecionarComEnter(event) {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault()
+              selecionarFaixa()
+            }
+          }
+
+          return (
+            <div
+              key={`${faixa.minimo}-${faixa.maximo}`}
+              role="button"
+              tabIndex={carregando ? -1 : 0}
+              style={cardStyle}
+              onClick={selecionarFaixa}
+              onKeyDown={selecionarComEnter}
+            >
+              <strong style={tituloStyle}>
+                {faixa.minimo} a {faixa.maximo}
+              </strong>
+              <span style={subtituloStyle}>pessoas</span>
+            </div>
+          )
+        })}
       </div>
     )
   }
@@ -525,13 +1063,23 @@ function ChatFluxo() {
             </div>
 
             {!!sala.recursos?.length && (
-              <div className="chatbot-sala-recursos">
-                {sala.recursos.slice(0, 10).map((recurso) => (
-                  <span key={recurso}>{recurso}</span>
-                ))}
+              <div
+                className="chatbot-sala-recursos compacta"
+                title={sala.recursos.join(", ")}
+              >
+                {(sala.recursosResumo || sala.recursos.slice(0, 3)).map(
+                  (recurso) => (
+                    <span key={recurso}>{recurso}</span>
+                  )
+                )}
 
-                {sala.recursos.length > 10 && (
-                  <span>+{sala.recursos.length - 10} recursos</span>
+                {(sala.recursosRestantes ||
+                  Math.max(sala.recursos.length - 3, 0)) > 0 && (
+                  <span className="mais-recursos">
+                    +
+                    {sala.recursosRestantes ||
+                      Math.max(sala.recursos.length - 3, 0)}
+                  </span>
                 )}
               </div>
             )}
@@ -540,7 +1088,10 @@ function ChatFluxo() {
               type="button"
               className="btn primary escolher-sala-btn"
               onClick={() =>
-                enviarMensagemRapida(String(sala.numeroLista), `Sala ${sala.numeroLista}`)
+                enviarMensagemRapida(
+                  String(sala.numeroLista),
+                  `Sala ${sala.numeroLista}`
+                )
               }
               disabled={carregando}
             >
@@ -552,13 +1103,89 @@ function ChatFluxo() {
     )
   }
 
-  function renderizarInteracao(msg) {
+  function renderizarReservas(msg) {
+    if (msg.tipoInteracao !== "checkbox-reservas" || !msg.reservas?.length) {
+      return null
+    }
+
+    return (
+      <div className="chatbot-reservas-box premium-reservas-box">
+        <div className="chatbot-reservas-grid">
+          {msg.reservas.map((reserva) => {
+            const selecionada = reservaEstaSelecionada(reserva.idReserva)
+
+            return (
+              <label
+                key={reserva.idReserva}
+                className={`chatbot-reserva-card ${
+                  selecionada ? "selected" : ""
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={selecionada}
+                  onChange={() => alternarReservaSelecionada(reserva.idReserva)}
+                  disabled={carregando}
+                />
+
+                <div className="chatbot-reserva-content">
+                  <div className="chatbot-reserva-top">
+                    <strong>Reserva #{reserva.idReserva}</strong>
+                    <span>{reserva.status}</span>
+                  </div>
+
+                  <div className="chatbot-reserva-info">
+                    <p>
+                      <b>Sala:</b> {reserva.sala}
+                    </p>
+                    <p>
+                      <b>Data:</b> {reserva.data} das {reserva.horaInicio} às{" "}
+                      {reserva.horaFim}
+                    </p>
+                    <p>
+                      <b>Solicitante:</b> {reserva.solicitante}
+                    </p>
+                    <p>
+                      <b>Curso:</b> {reserva.curso || "Não informado"}
+                    </p>
+                    <p>
+                      <b>Motivo:</b> {reserva.motivo}
+                    </p>
+                  </div>
+                </div>
+              </label>
+            )
+          })}
+        </div>
+
+        <div className="chatbot-reservas-footer">
+          <div className="chatbot-reservas-counter">
+            {reservasSelecionadas.length} selecionada(s)
+          </div>
+
+          <button
+            type="button"
+            className="btn primary confirmar-reservas-btn"
+            onClick={() => confirmarReservasSelecionadas(msg)}
+            disabled={!reservasSelecionadas.length || carregando}
+          >
+            {msg.textoBotaoReservas || "Confirmar reservas selecionadas"}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  function renderizarInteracao(msg, indiceMensagem) {
     return (
       <>
         {renderizarBotoes(msg)}
         {renderizarCalendario(msg)}
-        {renderizarTurnos(msg)}
+        {renderizarCampi(msg)}
+        {renderizarSeletorHorario(msg, indiceMensagem)}
+        {renderizarFaixasCapacidade(msg)}
         {renderizarSalas(msg)}
+        {renderizarReservas(msg)}
       </>
     )
   }
@@ -573,8 +1200,8 @@ function ChatFluxo() {
             <span>Assistente acadêmico</span>
             <h1>Chatbot SIGSAS</h1>
             <p>
-              Reserva guiada com consulta de salas, campus, turnos e auditoria
-              em tempo real.
+              Reserva guiada com consulta de salas, campus, horário, capacidade
+              e auditoria em tempo real.
             </p>
           </div>
         </div>
@@ -611,7 +1238,7 @@ function ChatFluxo() {
 
               <p>{msg.texto}</p>
 
-              {msg.autor === "bot" && renderizarInteracao(msg)}
+              {msg.autor === "bot" && renderizarInteracao(msg, index)}
             </div>
           ))}
 
@@ -630,11 +1257,14 @@ function ChatFluxo() {
           <div ref={fimMensagensRef} />
         </div>
 
-        <form className="chatbot-form premium-chatbot-form" onSubmit={enviarMensagemManual}>
+        <form
+          className="chatbot-form premium-chatbot-form"
+          onSubmit={enviarMensagemManual}
+        >
           <input
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            placeholder="Digite sua resposta. Exemplo: 1, SIM, ou menu"
+            placeholder="Digite sua resposta. Exemplo: 08:00, SIM, ou menu"
             disabled={carregando}
           />
 

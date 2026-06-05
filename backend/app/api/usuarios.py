@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy.orm import Session, joinedload
 
 from app.db.session import get_db
 from app.models.usuario import Usuario
 from app.models.instituicao import Instituicao
+from app.models.curso import Curso
+from app.models.usuario_curso import UsuarioCurso
 from app.schemas.usuario_admin import (
     UsuarioAdminCreate,
     UsuarioAdminUpdate,
@@ -14,6 +16,178 @@ from app.services.auditoria_service import registrar_log
 
 
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
+
+
+PERFIS_PERMITIDOS = {
+    "Administrador",
+    "Coordenador",
+    "Professor",
+}
+
+
+def normalizar_perfil(perfil: str | None):
+    texto = str(perfil or "").strip().lower()
+
+    if texto in {"administrador", "admin", "dono"}:
+        return "Administrador"
+
+    if texto in {"coordenador", "coord"}:
+        return "Coordenador"
+
+    if texto in {"professor", "docente", "usuario", "usuário"}:
+        return "Professor"
+
+    return str(perfil or "").strip()
+
+
+def normalizar_tipo_vinculo(tipo: str | None, perfil: str):
+    if not tipo:
+        return perfil
+
+    texto = str(tipo or "").strip().lower()
+
+    if texto in {"administrador", "admin", "dono"}:
+        return "Administrador"
+
+    if texto in {"coordenador", "coord"}:
+        return "Coordenador"
+
+    if texto in {"professor", "docente", "usuario", "usuário"}:
+        return "Professor"
+
+    return str(tipo or "").strip()
+
+
+def buscar_curso_dono(db: Session):
+    curso = db.query(Curso).filter(Curso.nome.ilike("DONO")).first()
+
+    if not curso:
+        curso = Curso(nome="DONO")
+        db.add(curso)
+        db.flush()
+
+    return curso
+
+
+def validar_instituicao(db: Session, id_instituicao: int | None):
+    if id_instituicao is None:
+        return None
+
+    instituicao = (
+        db.query(Instituicao)
+        .filter(Instituicao.id == id_instituicao)
+        .first()
+    )
+
+    if not instituicao:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Instituição não encontrada",
+        )
+
+    return instituicao
+
+
+def validar_cursos_usuario(db: Session, perfil: str, cursos_recebidos: list):
+    if perfil not in PERFIS_PERMITIDOS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Perfil inválido. Use Administrador, Coordenador ou Professor.",
+        )
+
+    if perfil == "Administrador":
+        curso_dono = buscar_curso_dono(db)
+
+        return [
+            {
+                "idCurso": curso_dono.id,
+                "tipoVinculo": "Administrador",
+            }
+        ]
+
+    if perfil == "Coordenador":
+        if len(cursos_recebidos) != 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Coordenador deve estar vinculado a exatamente um curso.",
+            )
+
+    if perfil == "Professor":
+        if not cursos_recebidos:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Professor deve estar vinculado a pelo menos um curso.",
+            )
+
+    cursos_validados = []
+    chaves = set()
+
+    for item in cursos_recebidos:
+        curso = db.query(Curso).filter(Curso.id == item.idCurso).first()
+
+        if not curso:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Curso #{item.idCurso} não encontrado.",
+            )
+
+        tipo_vinculo = normalizar_tipo_vinculo(item.tipoVinculo, perfil)
+
+        if tipo_vinculo not in PERFIS_PERMITIDOS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Tipo de vínculo inválido. Use Administrador, Coordenador ou Professor.",
+            )
+
+        if perfil == "Coordenador":
+            tipo_vinculo = "Coordenador"
+
+        if perfil == "Professor":
+            tipo_vinculo = "Professor"
+
+        chave = (item.idCurso, tipo_vinculo)
+
+        if chave in chaves:
+            continue
+
+        chaves.add(chave)
+
+        cursos_validados.append(
+            {
+                "idCurso": item.idCurso,
+                "tipoVinculo": tipo_vinculo,
+            }
+        )
+
+    return cursos_validados
+
+
+def substituir_cursos_usuario(
+    db: Session,
+    usuario: Usuario,
+    cursos_validados: list[dict],
+):
+    db.query(UsuarioCurso).filter(
+        UsuarioCurso.idUsuario == usuario.id
+    ).delete()
+
+    for item in cursos_validados:
+        db.add(
+            UsuarioCurso(
+                idUsuario=usuario.id,
+                idCurso=item["idCurso"],
+                tipoVinculo=item["tipoVinculo"],
+            )
+        )
+
+
+def montar_curso_usuario_response(vinculo: UsuarioCurso):
+    return {
+        "id": vinculo.id,
+        "idCurso": vinculo.idCurso,
+        "nomeCurso": vinculo.curso.nome if vinculo.curso else None,
+        "tipoVinculo": vinculo.tipoVinculo,
+    }
 
 
 def montar_usuario_response(db: Session, usuario: Usuario):
@@ -29,6 +203,14 @@ def montar_usuario_response(db: Session, usuario: Usuario):
         if instituicao:
             nome_instituicao = instituicao.nome
 
+    vinculos = (
+        db.query(UsuarioCurso)
+        .options(joinedload(UsuarioCurso.curso))
+        .filter(UsuarioCurso.idUsuario == usuario.id)
+        .order_by(UsuarioCurso.tipoVinculo.asc(), UsuarioCurso.idCurso.asc())
+        .all()
+    )
+
     return {
         "id": usuario.id,
         "nome": usuario.nome,
@@ -38,6 +220,7 @@ def montar_usuario_response(db: Session, usuario: Usuario):
         "cargo": usuario.cargo,
         "idInstituicao": usuario.idInstituicao,
         "instituicao": nome_instituicao,
+        "cursos": [montar_curso_usuario_response(vinculo) for vinculo in vinculos],
     }
 
 
@@ -102,20 +285,24 @@ def buscar_usuario(idUsuario: int, db: Session = Depends(get_db)):
 )
 def criar_usuario_admin(
     dados: UsuarioAdminCreate,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     try:
-        email_existente = db.query(Usuario).filter(Usuario.email == dados.email).first()
+        email = dados.email.lower().strip()
+        perfil = normalizar_perfil(dados.perfil)
+
+        email_existente = db.query(Usuario).filter(Usuario.email == email).first()
 
         if email_existente:
             registrar_log(
                 db=db,
                 acao="CRIAR_USUARIO_ERRO",
                 modulo="Usuários",
-                descricao=f"Tentativa de criar usuário com e-mail já existente: {dados.email}",
+                descricao=f"Tentativa de criar usuário com e-mail já existente: {email}",
                 status="erro",
                 erro="E-mail já existente",
-                email_usuario=dados.email,
+                email_usuario=email,
             )
 
             raise HTTPException(
@@ -123,18 +310,7 @@ def criar_usuario_admin(
                 detail="Já existe um usuário com este e-mail",
             )
 
-        if dados.idInstituicao is not None:
-            instituicao = (
-                db.query(Instituicao)
-                .filter(Instituicao.id == dados.idInstituicao)
-                .first()
-            )
-
-            if not instituicao:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Instituição não encontrada",
-                )
+        validar_instituicao(db, dados.idInstituicao)
 
         if len(dados.senha) < 6:
             raise HTTPException(
@@ -142,17 +318,31 @@ def criar_usuario_admin(
                 detail="A senha deve ter no mínimo 6 caracteres",
             )
 
+        cursos_validados = validar_cursos_usuario(
+            db=db,
+            perfil=perfil,
+            cursos_recebidos=dados.cursos,
+        )
+
         usuario = Usuario(
-            nome=dados.nome,
-            email=dados.email,
+            nome=dados.nome.strip(),
+            email=email,
             senha_hash=get_password_hash(dados.senha),
-            perfil=dados.perfil,
-            matricula=dados.matricula,
-            cargo=dados.cargo,
+            perfil=perfil,
+            matricula=dados.matricula.strip() if dados.matricula else None,
+            cargo=dados.cargo.strip() if dados.cargo else None,
             idInstituicao=dados.idInstituicao,
         )
 
         db.add(usuario)
+        db.flush()
+
+        substituir_cursos_usuario(
+            db=db,
+            usuario=usuario,
+            cursos_validados=cursos_validados,
+        )
+
         db.commit()
         db.refresh(usuario)
 
@@ -168,6 +358,7 @@ def criar_usuario_admin(
         return montar_usuario_response(db, usuario)
 
     except HTTPException:
+        db.rollback()
         raise
 
     except Exception as error:
@@ -193,6 +384,7 @@ def criar_usuario_admin(
 def atualizar_usuario_admin(
     idUsuario: int,
     dados: UsuarioAdminUpdate,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     try:
@@ -204,11 +396,24 @@ def atualizar_usuario_admin(
                 detail="Usuário não encontrado",
             )
 
+        perfil_final = usuario.perfil
+
+        if dados.perfil is not None:
+            perfil_final = normalizar_perfil(dados.perfil)
+
+            if perfil_final not in PERFIS_PERMITIDOS:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Perfil inválido. Use Administrador, Coordenador ou Professor.",
+                )
+
         if dados.email is not None:
+            email = dados.email.lower().strip()
+
             email_existente = (
                 db.query(Usuario)
                 .filter(
-                    Usuario.email == dados.email,
+                    Usuario.email == email,
                     Usuario.id != idUsuario,
                 )
                 .first()
@@ -220,37 +425,26 @@ def atualizar_usuario_admin(
                     detail="Já existe outro usuário com este e-mail",
                 )
 
-            usuario.email = dados.email
+            usuario.email = email
 
         if dados.idInstituicao is not None:
-            instituicao = (
-                db.query(Instituicao)
-                .filter(Instituicao.id == dados.idInstituicao)
-                .first()
-            )
-
-            if not instituicao:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Instituição não encontrada",
-                )
-
+            validar_instituicao(db, dados.idInstituicao)
             usuario.idInstituicao = dados.idInstituicao
 
         if dados.idInstituicao is None and "idInstituicao" in dados.model_fields_set:
             usuario.idInstituicao = None
 
         if dados.nome is not None:
-            usuario.nome = dados.nome
+            usuario.nome = dados.nome.strip()
 
         if dados.perfil is not None:
-            usuario.perfil = dados.perfil
+            usuario.perfil = perfil_final
 
         if dados.matricula is not None:
-            usuario.matricula = dados.matricula
+            usuario.matricula = dados.matricula.strip() if dados.matricula else None
 
         if dados.cargo is not None:
-            usuario.cargo = dados.cargo
+            usuario.cargo = dados.cargo.strip() if dados.cargo else None
 
         if dados.senha is not None and dados.senha.strip():
             if len(dados.senha) < 6:
@@ -260,6 +454,19 @@ def atualizar_usuario_admin(
                 )
 
             usuario.senha_hash = get_password_hash(dados.senha)
+
+        if dados.cursos is not None:
+            cursos_validados = validar_cursos_usuario(
+                db=db,
+                perfil=perfil_final,
+                cursos_recebidos=dados.cursos,
+            )
+
+            substituir_cursos_usuario(
+                db=db,
+                usuario=usuario,
+                cursos_validados=cursos_validados,
+            )
 
         db.commit()
         db.refresh(usuario)
@@ -276,6 +483,7 @@ def atualizar_usuario_admin(
         return montar_usuario_response(db, usuario)
 
     except HTTPException:
+        db.rollback()
         raise
 
     except Exception as error:
@@ -299,6 +507,7 @@ def atualizar_usuario_admin(
 @router.delete("/{idUsuario}")
 def excluir_usuario_admin(
     idUsuario: int,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     try:
@@ -332,6 +541,7 @@ def excluir_usuario_admin(
         }
 
     except HTTPException:
+        db.rollback()
         raise
 
     except Exception as error:

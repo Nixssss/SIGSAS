@@ -230,9 +230,11 @@ function Admin({ adminTela }) {
           setEdificios={setEdificios}
           campi={campi}
           setCampi={setCampi}
+          instituicoes={instituicoes}
           salas={salas}
           setSalas={setSalas}
           getNomeCampus={getNomeCampus}
+          getNomeInstituicao={getNomeInstituicao}
           showToast={showToast}
         />
       </div>
@@ -339,9 +341,11 @@ function Admin({ adminTela }) {
           setEdificios={setEdificios}
           campi={campi}
           setCampi={setCampi}
+          instituicoes={instituicoes}
           salas={salas}
           setSalas={setSalas}
           getNomeCampus={getNomeCampus}
+          getNomeInstituicao={getNomeInstituicao}
           showToast={showToast}
         />
       </div>
