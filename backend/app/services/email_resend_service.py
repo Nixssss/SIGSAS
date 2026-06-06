@@ -24,6 +24,14 @@ def obter_frontend_url():
     return frontend_url.rstrip("/")
 
 
+def obter_template_reserva_aprovada():
+    return os.getenv("RESEND_TEMPLATE_RESERVA_APROVADA", "reserva_aprovada")
+
+
+def obter_template_reserva_recusada():
+    return os.getenv("RESEND_TEMPLATE_RESERVA_RECUSADA", "reserva_recusada")
+
+
 def enviar_email_resend(destinatario: str, assunto: str, html: str):
     configurar_resend()
 
@@ -32,6 +40,27 @@ def enviar_email_resend(destinatario: str, assunto: str, html: str):
         "to": [destinatario],
         "subject": assunto,
         "html": html,
+    }
+
+    return resend.Emails.send(params)
+
+
+def enviar_email_template_resend(
+    destinatario: str,
+    assunto: str,
+    template_id: str,
+    variaveis: dict,
+):
+    configurar_resend()
+
+    params: resend.Emails.SendParams = {
+        "from": obter_remetente(),
+        "to": [destinatario],
+        "subject": assunto,
+        "template": {
+            "id": template_id,
+            "variables": variaveis,
+        },
     }
 
     return resend.Emails.send(params)
@@ -101,6 +130,35 @@ def montar_bloco_reserva(
       {justificativa_html}
     </div>
     """
+
+
+def montar_dados_reserva_texto(
+    nome_sala: str | None = None,
+    solicitante: str | None = None,
+    matricula: str | None = None,
+    cargo: str | None = None,
+    instituicao: str | None = None,
+    curso: str | None = None,
+    data_inicio: str | None = None,
+    hora_inicio: str | None = None,
+    data_fim: str | None = None,
+    hora_fim: str | None = None,
+    motivo: str | None = None,
+    qtd_pessoas: int | None = None,
+):
+    return (
+        f"Sala: {nome_sala or 'Não informado'}\n"
+        f"Solicitante: {solicitante or 'Não informado'}\n"
+        f"Matrícula: {matricula or 'Não informado'}\n"
+        f"Cargo: {cargo or 'Não informado'}\n"
+        f"Instituição: {instituicao or 'Não informado'}\n"
+        f"Curso: {curso or 'Não informado'}\n"
+        f"Data: {data_inicio or 'Não informado'}\n"
+        f"Horário: {hora_inicio or 'Não informado'} às {hora_fim or 'Não informado'}\n"
+        f"Data final: {data_fim or data_inicio or 'Não informado'}\n"
+        f"Quantidade de pessoas: {qtd_pessoas or 'Não informado'}\n"
+        f"Motivo: {motivo or 'Não informado'}"
+    )
 
 
 def enviar_email_convite(
@@ -242,7 +300,7 @@ def enviar_email_reserva_aprovada(
     qtd_pessoas: int | None = None,
     justificativa: str | None = None,
 ):
-    bloco = montar_bloco_reserva(
+    dados_reserva = montar_dados_reserva_texto(
         nome_sala=nome_sala,
         solicitante=solicitante,
         matricula=matricula,
@@ -255,25 +313,59 @@ def enviar_email_reserva_aprovada(
         hora_fim=hora_fim,
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
-        status_reserva="Aprovada",
-        justificativa=justificativa,
     )
 
-    conteudo = f"""
-    <p style="color:#e5e7eb;">Boa notícia! Sua reserva foi aprovada.</p>
-    {bloco}
-    """
-
-    html = layout_email(
-        titulo="Reserva aprovada",
-        subtitulo="Sua reserva foi confirmada no SIGSAS.",
-        conteudo=conteudo,
-    )
-
-    return enviar_email_resend(
+    return enviar_email_template_resend(
         destinatario=email,
-        assunto="Reserva aprovada - SIGSAS",
-        html=html,
+        assunto="SIGSAS | Reserva aprovada",
+        template_id=obter_template_reserva_aprovada(),
+        variaveis={
+            "nome_usuario": solicitante or "usuário",
+            "dados_reserva": dados_reserva,
+        },
+    )
+
+
+def enviar_email_reserva_recusada(
+    email: str,
+    nome_sala: str | None = None,
+    solicitante: str | None = None,
+    matricula: str | None = None,
+    cargo: str | None = None,
+    instituicao: str | None = None,
+    curso: str | None = None,
+    data_inicio: str | None = None,
+    hora_inicio: str | None = None,
+    data_fim: str | None = None,
+    hora_fim: str | None = None,
+    motivo: str | None = None,
+    qtd_pessoas: int | None = None,
+    justificativa: str | None = None,
+):
+    dados_reserva = montar_dados_reserva_texto(
+        nome_sala=nome_sala,
+        solicitante=solicitante,
+        matricula=matricula,
+        cargo=cargo,
+        instituicao=instituicao,
+        curso=curso,
+        data_inicio=data_inicio,
+        hora_inicio=hora_inicio,
+        data_fim=data_fim,
+        hora_fim=hora_fim,
+        motivo=motivo,
+        qtd_pessoas=qtd_pessoas,
+    )
+
+    return enviar_email_template_resend(
+        destinatario=email,
+        assunto="SIGSAS | Reserva reprovada",
+        template_id=obter_template_reserva_recusada(),
+        variaveis={
+            "nome_usuario": solicitante or "usuário",
+            "dados_reserva": dados_reserva,
+            "motivo_recusa": justificativa or "Motivo não informado pelo coordenador.",
+        },
     )
 
 
@@ -306,12 +398,12 @@ def enviar_email_reserva_cancelada(
         hora_fim=hora_fim,
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
-        status_reserva="Cancelada/Recusada",
+        status_reserva="Cancelada",
         justificativa=justificativa,
     )
 
     conteudo = f"""
-    <p style="color:#e5e7eb;">Sua reserva foi cancelada ou recusada.</p>
+    <p style="color:#e5e7eb;">Sua reserva foi cancelada.</p>
     {bloco}
     """
 

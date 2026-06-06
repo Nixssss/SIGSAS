@@ -2,8 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from datetime import datetime, date
 
-from sqlalchemy import text
-
 from app.db.session import get_db
 from app.models.reserva import Reserva
 from app.models.sala import Sala
@@ -20,6 +18,7 @@ from app.services.auditoria_service import registrar_log
 from app.services.email_resend_service import (
     enviar_email_reserva_criada,
     enviar_email_reserva_aprovada,
+    enviar_email_reserva_recusada,
     enviar_email_reserva_cancelada,
 )
 
@@ -140,7 +139,14 @@ def tentar_enviar_email_status_reserva(
                 **dados_email,
             )
 
-        elif reserva.idStatusReserva in [3, 4]:
+        elif reserva.idStatusReserva == 3:
+            enviar_email_reserva_recusada(
+                email=usuario.email,
+                justificativa=justificativa,
+                **dados_email,
+            )
+
+        elif reserva.idStatusReserva == 4:
             enviar_email_reserva_cancelada(
                 email=usuario.email,
                 justificativa=justificativa,
@@ -155,7 +161,6 @@ def tentar_enviar_email_status_reserva(
             error=error,
             acao="EMAIL_STATUS_RESERVA_ERRO",
         )
-
 
 
 def montar_datetime_reserva(data_reserva, hora_reserva):
