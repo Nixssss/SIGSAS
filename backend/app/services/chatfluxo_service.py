@@ -17,6 +17,7 @@ from app.models.usuario_curso import UsuarioCurso
 from app.models.curso import Curso
 from app.services.auditoria_service import registrar_log
 from app.services.email_resend_service import (
+    enviar_email_reserva_criada,
     enviar_email_reserva_aprovada,
     enviar_email_reserva_cancelada,
 )
@@ -238,6 +239,25 @@ class ChatbotFluxoService:
         except Exception as error:
             print(
                 f"[SIGSAS EMAIL] Erro ao enviar email de aprovação da reserva #{reserva.idReserva}: {str(error)}"
+            )
+
+    def enviar_email_reserva_pendente_chatbot(self, db: Session, reserva: Reserva):
+        usuario = self.buscar_usuario_reserva_email(db, reserva)
+
+        if not usuario or not usuario.email:
+            print(
+                f"[SIGSAS EMAIL] Reserva #{reserva.idReserva} sem usuário/email para envio de pendência."
+            )
+            return
+
+        try:
+            enviar_email_reserva_criada(
+                email=usuario.email,
+                **self.montar_dados_email_reserva_chatbot(db, reserva),
+            )
+        except Exception as error:
+            print(
+                f"[SIGSAS EMAIL] Erro ao enviar email de pendência da reserva #{reserva.idReserva}: {str(error)}"
             )
 
     def enviar_email_reserva_cancelada_chatbot(self, db: Session, reserva: Reserva):
@@ -1522,6 +1542,11 @@ class ChatbotFluxoService:
                     f"Erro: {str(error)}"
                 )
             }
+
+        self.enviar_email_reserva_pendente_chatbot(
+            db=db,
+            reserva=nova_reserva,
+        )
 
         reservas_criadas = sessao.get("reservasCriadasFluxo", [])
 
