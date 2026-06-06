@@ -16,6 +16,10 @@ from app.models.recurso import Recurso
 from app.models.usuario_curso import UsuarioCurso
 from app.models.curso import Curso
 from app.services.auditoria_service import registrar_log
+from app.services.email_resend_service import (
+    enviar_email_reserva_aprovada,
+    enviar_email_reserva_cancelada,
+)
 
 
 sessoes: Dict[str, Dict[str, Any]] = {}
@@ -193,6 +197,68 @@ class ChatbotFluxoService:
             return None
 
         return db.query(Usuario).filter(Usuario.id == id_usuario).first()
+
+    def buscar_usuario_reserva_email(self, db: Session, reserva: Reserva):
+        if not reserva.idUsuarioReserva:
+            return None
+
+        return db.query(Usuario).filter(Usuario.id == reserva.idUsuarioReserva).first()
+
+    def montar_dados_email_reserva_chatbot(self, db: Session, reserva: Reserva):
+        return {
+            "nome_sala": self.get_nome_sala(db, reserva.idSala),
+            "solicitante": reserva.nomeUsuarioReserva,
+            "matricula": reserva.matriculaUsuarioReserva,
+            "cargo": reserva.cargoUsuarioReserva,
+            "instituicao": reserva.instituicaoUsuarioReserva,
+            "curso": reserva.cursoUsuarioReserva,
+            "data_inicio": reserva.dataInicio,
+            "hora_inicio": reserva.horaInicio,
+            "data_fim": reserva.dataFim,
+            "hora_fim": reserva.horaFim,
+            "motivo": reserva.motivo,
+            "qtd_pessoas": reserva.qtdPessoas,
+        }
+
+    def enviar_email_reserva_aprovada_chatbot(self, db: Session, reserva: Reserva):
+        usuario = self.buscar_usuario_reserva_email(db, reserva)
+
+        if not usuario or not usuario.email:
+            print(
+                f"[SIGSAS EMAIL] Reserva #{reserva.idReserva} sem usuário/email para envio de aprovação."
+            )
+            return
+
+        try:
+            enviar_email_reserva_aprovada(
+                email=usuario.email,
+                justificativa=reserva.justificativa or "Confirmada pelo chatbot",
+                **self.montar_dados_email_reserva_chatbot(db, reserva),
+            )
+        except Exception as error:
+            print(
+                f"[SIGSAS EMAIL] Erro ao enviar email de aprovação da reserva #{reserva.idReserva}: {str(error)}"
+            )
+
+    def enviar_email_reserva_cancelada_chatbot(self, db: Session, reserva: Reserva):
+        usuario = self.buscar_usuario_reserva_email(db, reserva)
+
+        if not usuario or not usuario.email:
+            print(
+                f"[SIGSAS EMAIL] Reserva #{reserva.idReserva} sem usuário/email para envio de cancelamento."
+            )
+            return
+
+        try:
+            enviar_email_reserva_cancelada(
+                email=usuario.email,
+                justificativa=reserva.justificativa or "Cancelada pelo chatbot",
+                **self.montar_dados_email_reserva_chatbot(db, reserva),
+            )
+        except Exception as error:
+            print(
+                f"[SIGSAS EMAIL] Erro ao enviar email de cancelamento da reserva #{reserva.idReserva}: {str(error)}"
+            )
 
     def get_vinculos_usuario(self, db: Session, id_usuario: int | None):
         if not id_usuario:
@@ -1771,6 +1837,12 @@ class ChatbotFluxoService:
         for reserva in reservas:
             db.refresh(reserva)
 
+        for reserva in reservas:
+            self.enviar_email_reserva_cancelada_chatbot(
+                db=db,
+                reserva=reserva,
+            )
+
         sessao["step"] = "menu"
         sessao.pop("idReservaCancelar", None)
         sessao.pop("idsReservasCancelar", None)
@@ -1994,6 +2066,12 @@ class ChatbotFluxoService:
 
         for reserva in reservas:
             db.refresh(reserva)
+
+        for reserva in reservas:
+            self.enviar_email_reserva_aprovada_chatbot(
+                db=db,
+                reserva=reserva,
+            )
 
         sessao["step"] = "menu"
         sessao.pop("idReservaConfirmar", None)
