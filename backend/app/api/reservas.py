@@ -57,19 +57,42 @@ def buscar_nome_sala(db: Session, id_sala: int | None):
 
 
 def montar_dados_email_reserva(db: Session, reserva: Reserva):
+    usuario = buscar_usuario_reserva(db, reserva)
+    status_reserva = STATUS_EMAIL_RESERVA.get(
+        reserva.idStatusReserva,
+        f"Status #{reserva.idStatusReserva}",
+    )
+
+    data_criacao = None
+
+    if reserva.dataCriacao:
+        try:
+            data_criacao = reserva.dataCriacao.strftime("%d/%m/%Y %H:%M")
+        except Exception:
+            data_criacao = str(reserva.dataCriacao)
+
     return {
+        "id_reserva": reserva.idReserva,
+        "id_sala": reserva.idSala,
         "nome_sala": buscar_nome_sala(db, reserva.idSala),
         "solicitante": reserva.nomeUsuarioReserva,
+        "email_solicitante": usuario.email if usuario else None,
         "matricula": reserva.matriculaUsuarioReserva,
         "cargo": reserva.cargoUsuarioReserva,
         "instituicao": reserva.instituicaoUsuarioReserva,
+        "id_curso": reserva.idCursoReserva,
         "curso": reserva.cursoUsuarioReserva,
+        "status_reserva": status_reserva,
         "data_inicio": reserva.dataInicio,
         "hora_inicio": reserva.horaInicio,
         "data_fim": reserva.dataFim,
         "hora_fim": reserva.horaFim,
         "motivo": reserva.motivo,
         "qtd_pessoas": reserva.qtdPessoas,
+        "id_usuario_reserva": reserva.idUsuarioReserva,
+        "id_usuario_aprovacao": reserva.idUsuarioAprovacao,
+        "data_criacao": data_criacao,
+        "justificativa": reserva.justificativa,
     }
 
 
