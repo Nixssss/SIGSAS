@@ -206,42 +206,19 @@ class ChatbotFluxoService:
         return db.query(Usuario).filter(Usuario.id == reserva.idUsuarioReserva).first()
 
     def montar_dados_email_reserva_chatbot(self, db: Session, reserva: Reserva):
-        usuario = self.buscar_usuario_reserva_email(db, reserva)
-        status_reserva = STATUS_RESERVA.get(
-            reserva.idStatusReserva,
-            f"Status #{reserva.idStatusReserva}",
-        )
-
-        data_criacao = None
-
-        if reserva.dataCriacao:
-            try:
-                data_criacao = reserva.dataCriacao.strftime("%d/%m/%Y %H:%M")
-            except Exception:
-                data_criacao = str(reserva.dataCriacao)
-
         return {
-            "id_reserva": reserva.idReserva,
-            "id_sala": reserva.idSala,
             "nome_sala": self.get_nome_sala(db, reserva.idSala),
             "solicitante": reserva.nomeUsuarioReserva,
-            "email_solicitante": usuario.email if usuario else None,
             "matricula": reserva.matriculaUsuarioReserva,
             "cargo": reserva.cargoUsuarioReserva,
             "instituicao": reserva.instituicaoUsuarioReserva,
-            "id_curso": reserva.idCursoReserva,
             "curso": reserva.cursoUsuarioReserva,
-            "status_reserva": status_reserva,
             "data_inicio": reserva.dataInicio,
             "hora_inicio": reserva.horaInicio,
             "data_fim": reserva.dataFim,
             "hora_fim": reserva.horaFim,
             "motivo": reserva.motivo,
             "qtd_pessoas": reserva.qtdPessoas,
-            "id_usuario_reserva": reserva.idUsuarioReserva,
-            "id_usuario_aprovacao": reserva.idUsuarioAprovacao,
-            "data_criacao": data_criacao,
-            "justificativa": reserva.justificativa,
         }
 
     def enviar_email_reserva_aprovada_chatbot(self, db: Session, reserva: Reserva):
@@ -249,19 +226,31 @@ class ChatbotFluxoService:
 
         if not usuario or not usuario.email:
             print(
-                f"[SIGSAS EMAIL] Reserva #{reserva.idReserva} sem usuário/email para envio de aprovação."
+                f"[SIGSAS EMAIL] Reserva #{reserva.idReserva} sem usuário/email para envio de aprovação.",
+                flush=True,
             )
             return
 
         try:
+            dados_email = self.montar_dados_email_reserva_chatbot(db, reserva)
+
+            # Evita erro: "got multiple values for keyword argument 'justificativa'".
+            justificativa = (
+                dados_email.pop("justificativa", None)
+                or reserva.justificativa
+                or "Confirmada pelo chatbot"
+            )
+
             enviar_email_reserva_aprovada(
                 email=usuario.email,
-                justificativa=reserva.justificativa or "Confirmada pelo chatbot",
-                **self.montar_dados_email_reserva_chatbot(db, reserva),
+                justificativa=justificativa,
+                **dados_email,
             )
+
         except Exception as error:
             print(
-                f"[SIGSAS EMAIL] Erro ao enviar email de aprovação da reserva #{reserva.idReserva}: {str(error)}"
+                f"[SIGSAS EMAIL] Erro ao enviar email de aprovação da reserva #{reserva.idReserva}: {str(error)}",
+                flush=True,
             )
 
     def enviar_email_reserva_pendente_chatbot(self, db: Session, reserva: Reserva):
@@ -288,19 +277,31 @@ class ChatbotFluxoService:
 
         if not usuario or not usuario.email:
             print(
-                f"[SIGSAS EMAIL] Reserva #{reserva.idReserva} sem usuário/email para envio de cancelamento."
+                f"[SIGSAS EMAIL] Reserva #{reserva.idReserva} sem usuário/email para envio de cancelamento.",
+                flush=True,
             )
             return
 
         try:
+            dados_email = self.montar_dados_email_reserva_chatbot(db, reserva)
+
+            # Evita erro: "got multiple values for keyword argument 'justificativa'".
+            justificativa = (
+                dados_email.pop("justificativa", None)
+                or reserva.justificativa
+                or "Cancelada pelo chatbot"
+            )
+
             enviar_email_reserva_cancelada(
                 email=usuario.email,
-                justificativa=reserva.justificativa or "Cancelada pelo chatbot",
-                **self.montar_dados_email_reserva_chatbot(db, reserva),
+                justificativa=justificativa,
+                **dados_email,
             )
+
         except Exception as error:
             print(
-                f"[SIGSAS EMAIL] Erro ao enviar email de cancelamento da reserva #{reserva.idReserva}: {str(error)}"
+                f"[SIGSAS EMAIL] Erro ao enviar email de cancelamento da reserva #{reserva.idReserva}: {str(error)}",
+                flush=True,
             )
 
     def get_vinculos_usuario(self, db: Session, id_usuario: int | None):
