@@ -101,68 +101,6 @@ def layout_email(titulo: str, subtitulo: str, conteudo: str):
     """
 
 
-def valor_texto(valor, padrao: str = "Não informado"):
-    if valor is None:
-        return padrao
-
-    texto = str(valor).strip()
-
-    if not texto:
-        return padrao
-
-    return texto
-
-
-def montar_dados_reserva_texto(
-    id_reserva: int | str | None = None,
-    id_sala: int | str | None = None,
-    nome_sala: str | None = None,
-    solicitante: str | None = None,
-    email_solicitante: str | None = None,
-    matricula: str | None = None,
-    cargo: str | None = None,
-    instituicao: str | None = None,
-    id_curso: int | str | None = None,
-    curso: str | None = None,
-    status_reserva: str | None = None,
-    data_inicio: str | None = None,
-    hora_inicio: str | None = None,
-    data_fim: str | None = None,
-    hora_fim: str | None = None,
-    motivo: str | None = None,
-    qtd_pessoas: int | str | None = None,
-    id_usuario_reserva: int | str | None = None,
-    id_usuario_aprovacao: int | str | None = None,
-    data_criacao: str | None = None,
-    justificativa: str | None = None,
-):
-    linhas = [
-        f"Reserva: #{valor_texto(id_reserva)}" if id_reserva else None,
-        f"Status: {valor_texto(status_reserva)}" if status_reserva else None,
-        f"Sala: {valor_texto(nome_sala)}",
-        f"ID da sala: {valor_texto(id_sala)}" if id_sala else None,
-        f"Solicitante: {valor_texto(solicitante)}",
-        f"Email do solicitante: {valor_texto(email_solicitante)}" if email_solicitante else None,
-        f"ID do solicitante: {valor_texto(id_usuario_reserva)}" if id_usuario_reserva else None,
-        f"Matrícula: {valor_texto(matricula)}",
-        f"Cargo: {valor_texto(cargo)}",
-        f"Instituição: {valor_texto(instituicao)}",
-        f"Curso: {valor_texto(curso)}",
-        f"ID do curso: {valor_texto(id_curso)}" if id_curso else None,
-        f"Data inicial: {valor_texto(data_inicio)}",
-        f"Horário inicial: {valor_texto(hora_inicio)}",
-        f"Data final: {valor_texto(data_fim or data_inicio)}",
-        f"Horário final: {valor_texto(hora_fim)}",
-        f"Quantidade de pessoas: {valor_texto(qtd_pessoas)}",
-        f"Motivo: {valor_texto(motivo)}",
-        f"Justificativa: {valor_texto(justificativa)}" if justificativa else None,
-        f"ID do responsável pela aprovação/cancelamento: {valor_texto(id_usuario_aprovacao)}" if id_usuario_aprovacao else None,
-        f"Data de criação: {valor_texto(data_criacao)}" if data_criacao else None,
-    ]
-
-    return "\n".join(linha for linha in linhas if linha)
-
-
 def montar_bloco_reserva(
     nome_sala: str | None = None,
     solicitante: str | None = None,
@@ -207,6 +145,35 @@ def montar_bloco_reserva(
       {justificativa_html}
     </div>
     """
+
+
+def montar_dados_reserva_texto(
+    nome_sala: str | None = None,
+    solicitante: str | None = None,
+    matricula: str | None = None,
+    cargo: str | None = None,
+    instituicao: str | None = None,
+    curso: str | None = None,
+    data_inicio: str | None = None,
+    hora_inicio: str | None = None,
+    data_fim: str | None = None,
+    hora_fim: str | None = None,
+    motivo: str | None = None,
+    qtd_pessoas: int | None = None,
+):
+    return (
+        f"Sala: {nome_sala or 'Não informado'}\n"
+        f"Solicitante: {solicitante or 'Não informado'}\n"
+        f"Matrícula: {matricula or 'Não informado'}\n"
+        f"Cargo: {cargo or 'Não informado'}\n"
+        f"Instituição: {instituicao or 'Não informado'}\n"
+        f"Curso: {curso or 'Não informado'}\n"
+        f"Data: {data_inicio or 'Não informado'}\n"
+        f"Horário: {hora_inicio or 'Não informado'} às {hora_fim or 'Não informado'}\n"
+        f"Data final: {data_fim or data_inicio or 'Não informado'}\n"
+        f"Quantidade de pessoas: {qtd_pessoas or 'Não informado'}\n"
+        f"Motivo: {motivo or 'Não informado'}"
+    )
 
 
 def enviar_email_convite(
@@ -284,49 +251,32 @@ def enviar_email_recuperacao_senha(
 
 def enviar_email_reserva_criada(
     email: str,
-    id_reserva: int | str | None = None,
-    id_sala: int | str | None = None,
     nome_sala: str | None = None,
     solicitante: str | None = None,
-    email_solicitante: str | None = None,
     matricula: str | None = None,
     cargo: str | None = None,
     instituicao: str | None = None,
-    id_curso: int | str | None = None,
     curso: str | None = None,
     data_inicio: str | None = None,
     hora_inicio: str | None = None,
     data_fim: str | None = None,
     hora_fim: str | None = None,
     motivo: str | None = None,
-    qtd_pessoas: int | str | None = None,
-    id_usuario_reserva: int | str | None = None,
-    id_usuario_aprovacao: int | str | None = None,
-    data_criacao: str | None = None,
-    justificativa: str | None = None,
+    qtd_pessoas: int | None = None,
 ):
     dados_reserva = montar_dados_reserva_texto(
-        id_reserva=id_reserva,
-        id_sala=id_sala,
         nome_sala=nome_sala,
         solicitante=solicitante,
-        email_solicitante=email_solicitante,
         matricula=matricula,
         cargo=cargo,
         instituicao=instituicao,
-        id_curso=id_curso,
         curso=curso,
-        status_reserva="Pendente",
         data_inicio=data_inicio,
         hora_inicio=hora_inicio,
         data_fim=data_fim,
         hora_fim=hora_fim,
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
-        id_usuario_reserva=id_usuario_reserva,
-        id_usuario_aprovacao=id_usuario_aprovacao,
-        data_criacao=data_criacao,
-        justificativa=justificativa,
     )
 
     return enviar_email_template_resend(
@@ -343,49 +293,33 @@ def enviar_email_reserva_criada(
 
 def enviar_email_reserva_aprovada(
     email: str,
-    id_reserva: int | str | None = None,
-    id_sala: int | str | None = None,
     nome_sala: str | None = None,
     solicitante: str | None = None,
-    email_solicitante: str | None = None,
     matricula: str | None = None,
     cargo: str | None = None,
     instituicao: str | None = None,
-    id_curso: int | str | None = None,
     curso: str | None = None,
     data_inicio: str | None = None,
     hora_inicio: str | None = None,
     data_fim: str | None = None,
     hora_fim: str | None = None,
     motivo: str | None = None,
-    qtd_pessoas: int | str | None = None,
-    id_usuario_reserva: int | str | None = None,
-    id_usuario_aprovacao: int | str | None = None,
-    data_criacao: str | None = None,
+    qtd_pessoas: int | None = None,
     justificativa: str | None = None,
 ):
     dados_reserva = montar_dados_reserva_texto(
-        id_reserva=id_reserva,
-        id_sala=id_sala,
         nome_sala=nome_sala,
         solicitante=solicitante,
-        email_solicitante=email_solicitante,
         matricula=matricula,
         cargo=cargo,
         instituicao=instituicao,
-        id_curso=id_curso,
         curso=curso,
-        status_reserva="Aprovada",
         data_inicio=data_inicio,
         hora_inicio=hora_inicio,
         data_fim=data_fim,
         hora_fim=hora_fim,
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
-        id_usuario_reserva=id_usuario_reserva,
-        id_usuario_aprovacao=id_usuario_aprovacao,
-        data_criacao=data_criacao,
-        justificativa=justificativa,
     )
 
     return enviar_email_template_resend(
@@ -402,51 +336,33 @@ def enviar_email_reserva_aprovada(
 
 def enviar_email_reserva_recusada(
     email: str,
-    id_reserva: int | str | None = None,
-    id_sala: int | str | None = None,
     nome_sala: str | None = None,
     solicitante: str | None = None,
-    email_solicitante: str | None = None,
     matricula: str | None = None,
     cargo: str | None = None,
     instituicao: str | None = None,
-    id_curso: int | str | None = None,
     curso: str | None = None,
     data_inicio: str | None = None,
     hora_inicio: str | None = None,
     data_fim: str | None = None,
     hora_fim: str | None = None,
     motivo: str | None = None,
-    qtd_pessoas: int | str | None = None,
-    id_usuario_reserva: int | str | None = None,
-    id_usuario_aprovacao: int | str | None = None,
-    data_criacao: str | None = None,
+    qtd_pessoas: int | None = None,
     justificativa: str | None = None,
 ):
-    motivo_recusa = justificativa or "Motivo não informado pelo coordenador."
-
     dados_reserva = montar_dados_reserva_texto(
-        id_reserva=id_reserva,
-        id_sala=id_sala,
         nome_sala=nome_sala,
         solicitante=solicitante,
-        email_solicitante=email_solicitante,
         matricula=matricula,
         cargo=cargo,
         instituicao=instituicao,
-        id_curso=id_curso,
         curso=curso,
-        status_reserva="Reprovada",
         data_inicio=data_inicio,
         hora_inicio=hora_inicio,
         data_fim=data_fim,
         hora_fim=hora_fim,
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
-        id_usuario_reserva=id_usuario_reserva,
-        id_usuario_aprovacao=id_usuario_aprovacao,
-        data_criacao=data_criacao,
-        justificativa=motivo_recusa,
     )
 
     return enviar_email_template_resend(
@@ -456,7 +372,7 @@ def enviar_email_reserva_recusada(
         variaveis={
             "nome_usuario": solicitante or "usuário",
             "dados_reserva": dados_reserva,
-            "motivo_recusa": motivo_recusa,
+            "motivo_recusa": justificativa or "Motivo não informado pelo coordenador.",
             "link_historico": obter_link_historico_reservas(),
         },
     )
@@ -464,51 +380,33 @@ def enviar_email_reserva_recusada(
 
 def enviar_email_reserva_cancelada(
     email: str,
-    id_reserva: int | str | None = None,
-    id_sala: int | str | None = None,
     nome_sala: str | None = None,
     solicitante: str | None = None,
-    email_solicitante: str | None = None,
     matricula: str | None = None,
     cargo: str | None = None,
     instituicao: str | None = None,
-    id_curso: int | str | None = None,
     curso: str | None = None,
     data_inicio: str | None = None,
     hora_inicio: str | None = None,
     data_fim: str | None = None,
     hora_fim: str | None = None,
     motivo: str | None = None,
-    qtd_pessoas: int | str | None = None,
-    id_usuario_reserva: int | str | None = None,
-    id_usuario_aprovacao: int | str | None = None,
-    data_criacao: str | None = None,
+    qtd_pessoas: int | None = None,
     justificativa: str | None = None,
 ):
-    motivo_cancelamento = justificativa or "Cancelamento registrado no sistema."
-
     dados_reserva = montar_dados_reserva_texto(
-        id_reserva=id_reserva,
-        id_sala=id_sala,
         nome_sala=nome_sala,
         solicitante=solicitante,
-        email_solicitante=email_solicitante,
         matricula=matricula,
         cargo=cargo,
         instituicao=instituicao,
-        id_curso=id_curso,
         curso=curso,
-        status_reserva="Cancelada",
         data_inicio=data_inicio,
         hora_inicio=hora_inicio,
         data_fim=data_fim,
         hora_fim=hora_fim,
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
-        id_usuario_reserva=id_usuario_reserva,
-        id_usuario_aprovacao=id_usuario_aprovacao,
-        data_criacao=data_criacao,
-        justificativa=motivo_cancelamento,
     )
 
     return enviar_email_template_resend(
@@ -518,7 +416,7 @@ def enviar_email_reserva_cancelada(
         variaveis={
             "nome_usuario": solicitante or "usuário",
             "dados_reserva": dados_reserva,
-            "motivo_cancelamento": motivo_cancelamento,
+            "motivo_cancelamento": justificativa or "Cancelamento registrado no sistema.",
             "link_historico": obter_link_historico_reservas(),
         },
     )
