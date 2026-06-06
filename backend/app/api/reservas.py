@@ -163,6 +163,7 @@ def tentar_enviar_email_status_reserva(
         )
 
 
+
 def montar_datetime_reserva(data_reserva, hora_reserva):
     if isinstance(data_reserva, datetime):
         data_texto = data_reserva.date().isoformat()

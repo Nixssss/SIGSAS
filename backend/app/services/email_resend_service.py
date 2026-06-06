@@ -24,6 +24,17 @@ def obter_frontend_url():
     return frontend_url.rstrip("/")
 
 
+def obter_link_historico_reservas():
+    return os.getenv(
+        "FRONTEND_HISTORICO_RESERVAS_URL",
+        f"{obter_frontend_url()}/dashboard?aba=reservas",
+    )
+
+
+def obter_template_reserva_pendente():
+    return os.getenv("RESEND_TEMPLATE_RESERVA_PENDENTE", "reserva_pendente")
+
+
 def obter_template_reserva_aprovada():
     return os.getenv("RESEND_TEMPLATE_RESERVA_APROVADA", "reserva_aprovada")
 
@@ -249,7 +260,7 @@ def enviar_email_reserva_criada(
     motivo: str | None = None,
     qtd_pessoas: int | None = None,
 ):
-    bloco = montar_bloco_reserva(
+    dados_reserva = montar_dados_reserva_texto(
         nome_sala=nome_sala,
         solicitante=solicitante,
         matricula=matricula,
@@ -262,25 +273,17 @@ def enviar_email_reserva_criada(
         hora_fim=hora_fim,
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
-        status_reserva="Pendente",
     )
 
-    conteudo = f"""
-    <p style="color:#e5e7eb;">Sua reserva foi criada com sucesso e está aguardando análise.</p>
-    <p style="color:#cbd5e1;">Você receberá um novo email quando ela for aprovada, recusada ou cancelada.</p>
-    {bloco}
-    """
-
-    html = layout_email(
-        titulo="Reserva criada",
-        subtitulo="Sua solicitação de reserva foi registrada.",
-        conteudo=conteudo,
-    )
-
-    return enviar_email_resend(
+    return enviar_email_template_resend(
         destinatario=email,
-        assunto="Reserva criada - SIGSAS",
-        html=html,
+        assunto="SIGSAS | Solicitação de reserva registrada",
+        template_id=obter_template_reserva_pendente(),
+        variaveis={
+            "nome_usuario": solicitante or "usuário",
+            "dados_reserva": dados_reserva,
+            "link_historico": obter_link_historico_reservas(),
+        },
     )
 
 
