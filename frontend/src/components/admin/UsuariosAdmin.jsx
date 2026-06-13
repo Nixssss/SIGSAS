@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import api from "../../services/api"
-import ConfirmModal from "../ConfirmModal"
 import SkeletonLoader from "../SkeletonLoader"
 
 const usuarioInicial = {
@@ -714,6 +713,88 @@ function UsuariosAdmin({ showToast }) {
     )
   }
 
+  function renderizarModalExclusao() {
+    if (!usuarioExcluir) return null
+
+    return createPortal(
+      <div className="usuario-modal-overlay">
+        <div className="usuario-modal usuario-delete-modal">
+          <div className="usuario-modal-header">
+            <div>
+              <h3>Excluir usuário?</h3>
+              <p>
+                Tem certeza que deseja excluir o usuário "
+                <strong>{usuarioExcluir.nome}</strong>"? Essa ação não poderá
+                ser desfeita.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="usuario-modal-close"
+              onClick={() => setUsuarioExcluir(null)}
+              disabled={excluindo}
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="usuario-delete-body">
+            <div className="usuario-delete-alert">
+              <span aria-hidden="true">!</span>
+
+              <div>
+                <strong>Atenção</strong>
+                <p>
+                  Ao confirmar, este usuário será removido do sistema. Verifique
+                  se ele não possui vínculos importantes antes de continuar.
+                </p>
+              </div>
+            </div>
+
+            <div className="usuario-delete-preview">
+              <span
+                className={`usuario-avatar perfil-${obterClassePerfil(
+                  usuarioExcluir.perfil
+                )}`}
+                aria-hidden="true"
+              >
+                {getIniciais(usuarioExcluir.nome)}
+              </span>
+
+              <div>
+                <strong>{usuarioExcluir.nome}</strong>
+                <small>{usuarioExcluir.email || "Sem e-mail informado"}</small>
+                <em>{formatarPerfil(usuarioExcluir.perfil)}</em>
+              </div>
+            </div>
+          </div>
+
+          <div className="usuarios-form-actions usuario-delete-actions">
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={() => setUsuarioExcluir(null)}
+              disabled={excluindo}
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              className="btn danger"
+              onClick={confirmarExclusaoUsuario}
+              disabled={excluindo}
+            >
+              {excluindo ? "Excluindo..." : "Excluir usuário"}
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )
+  }
+
   if (carregando) {
     return (
       <div className="usuarios-admin">
@@ -894,22 +975,7 @@ function UsuariosAdmin({ showToast }) {
       </section>
 
       {renderizarModalUsuario()}
-
-      <ConfirmModal
-        aberto={!!usuarioExcluir}
-        tipo="danger"
-        titulo="Excluir usuário?"
-        mensagem={
-          usuarioExcluir
-            ? `Tem certeza que deseja excluir o usuário "${usuarioExcluir.nome}"? Essa ação não poderá ser desfeita.`
-            : ""
-        }
-        textoCancelar="Cancelar"
-        textoConfirmar="Excluir"
-        carregando={excluindo}
-        onCancelar={() => setUsuarioExcluir(null)}
-        onConfirmar={confirmarExclusaoUsuario}
-      />
+      {renderizarModalExclusao()}
     </div>
   )
 }

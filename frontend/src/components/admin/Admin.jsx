@@ -13,6 +13,7 @@ import UsuariosAdmin from "./UsuariosAdmin"
 import AuditoriaAdmin from "./AuditoriaAdmin"
 import ReportesProblemasAdmin from "./ReportesProblemasAdmin"
 import SugestoesMelhoriasAdmin from "./SugestoesMelhoriasAdmin"
+import ChatbotBHistoricoAdmin from "./ChatbotBHistoricoAdmin"
 
 import {
   instituicoesService,
@@ -291,6 +292,15 @@ function Admin({ adminTela }) {
       <div className="admin-page">
         {renderToasts()}
         <SugestoesMelhoriasAdmin showToast={showToast} />
+      </div>
+    )
+  }
+
+  if (adminTela === "chatbotb") {
+    return (
+      <div className="admin-page">
+        {renderToasts()}
+        <ChatbotBHistoricoAdmin showToast={showToast} />
       </div>
     )
   }

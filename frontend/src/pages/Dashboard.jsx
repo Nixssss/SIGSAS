@@ -954,6 +954,7 @@ function Dashboard({ sair }) {
                   <button className={tela === "admin" && adminTela === "reservas" ? "active" : ""} onClick={() => abrirAdmin("reservas")} type="button">Reservas</button>
                   <button className={tela === "admin" && adminTela === "usuarios" ? "active" : ""} onClick={() => abrirAdmin("usuarios")} type="button">Usuários</button>
                   <button className={tela === "admin" && adminTela === "auditoria" ? "active" : ""} onClick={() => abrirAdmin("auditoria")} type="button">Auditoria</button>
+                  <button className={tela === "admin" && adminTela === "chatbotb" ? "active" : ""} onClick={() => abrirAdmin("chatbotb")} type="button">Histórico chatbotb</button>
                   <button className={tela === "admin" && adminTela === "problemas" ? "active" : ""} onClick={() => abrirAdmin("problemas")} type="button">Problemas</button>
                   <button className={tela === "admin" && adminTela === "sugestoes" ? "active" : ""} onClick={() => abrirAdmin("sugestoes")} type="button">Sugestões</button>
                   <button className={tela === "admin" && adminTela === "cadastro" ? "active" : ""} onClick={() => abrirAdmin("cadastro")} type="button">Cadastro</button>
@@ -1119,6 +1120,7 @@ function Dashboard({ sair }) {
                   <button className={adminTela === "reservas" ? "active" : ""} onClick={() => abrirAdmin("reservas")}>Reservas</button>
                   <button className={adminTela === "usuarios" ? "active" : ""} onClick={() => abrirAdmin("usuarios")}>Usuários</button>
                   <button className={adminTela === "auditoria" ? "active" : ""} onClick={() => abrirAdmin("auditoria")}>Auditoria</button>
+                  <button className={adminTela === "chatbotb" ? "active" : ""} onClick={() => abrirAdmin("chatbotb")}>Histórico chatbotb</button>
                   <button className={adminTela === "problemas" ? "active" : ""} onClick={() => abrirAdmin("problemas")}>Problemas</button>
                   <button className={adminTela === "sugestoes" ? "active" : ""} onClick={() => abrirAdmin("sugestoes")}>Sugestões</button>
                   <button className={adminTela === "cadastro" ? "active" : ""} onClick={() => abrirAdmin("cadastro")}>Cadastro</button>
@@ -1407,6 +1409,7 @@ function Dashboard({ sair }) {
               <button className={adminTela === "reservas" ? "active" : ""} type="button" onClick={() => abrirAdmin("reservas")}>Reservas</button>
               <button className={adminTela === "usuarios" ? "active" : ""} type="button" onClick={() => abrirAdmin("usuarios")}>Usuários</button>
               <button className={adminTela === "auditoria" ? "active" : ""} type="button" onClick={() => abrirAdmin("auditoria")}>Auditoria</button>
+              <button className={adminTela === "chatbotb" ? "active" : ""} type="button" onClick={() => abrirAdmin("chatbotb")}>Histórico chatbotb</button>
               <button className={adminTela === "problemas" ? "active" : ""} type="button" onClick={() => abrirAdmin("problemas")}>Problemas</button>
               <button className={adminTela === "sugestoes" ? "active" : ""} type="button" onClick={() => abrirAdmin("sugestoes")}>Sugestões</button>
               <button className={adminTela === "cadastro" ? "active" : ""} type="button" onClick={() => abrirAdmin("cadastro")}>Cadastro</button>
