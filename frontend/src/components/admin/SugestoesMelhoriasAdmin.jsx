@@ -53,6 +53,32 @@ function SugestoesMelhoriasAdmin({ showToast }) {
       .replace(/[\u0300-\u036f]/g, "")
   }
 
+  function gerarClasseFeedback(valor) {
+    const classe = normalizarTexto(valor)
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+
+    return classe || "sem-informacao"
+  }
+
+  function obterClasseStatus(status) {
+    const texto = normalizarTexto(status)
+
+    if (texto.includes("nova")) return "nova"
+    if (texto.includes("analise")) return "analise"
+    if (texto.includes("aprovada")) return "aprovada"
+    if (texto.includes("implementada")) return "implementada"
+    if (texto.includes("recusada")) return "recusada"
+
+    return gerarClasseFeedback(status)
+  }
+
+  function montarTextoTooltip(sugestao) {
+    return [sugestao.titulo, sugestao.descricao]
+      .filter(Boolean)
+      .join(" — ")
+  }
+
   function abrirDetalhes(sugestao) {
     setSelecionada(sugestao)
     setRespostaAdmin(sugestao.respostaAdmin || "")
@@ -240,7 +266,7 @@ function SugestoesMelhoriasAdmin({ showToast }) {
 
   if (carregando) {
     return (
-      <div className="feedback-admin">
+      <div className="feedback-admin feedback-page-sugestoes">
         <section className="feedback-admin-hero">
           <div>
             <h2>Sugestões de Melhorias</h2>
@@ -254,7 +280,7 @@ function SugestoesMelhoriasAdmin({ showToast }) {
   }
 
   return (
-    <div className="feedback-admin">
+    <div className="feedback-admin feedback-page-sugestoes">
       <section className="feedback-admin-hero">
         <div>
           <h2>Sugestões de Melhorias</h2>
@@ -316,45 +342,65 @@ function SugestoesMelhoriasAdmin({ showToast }) {
             </thead>
 
             <tbody>
-              {sugestoesFiltradas.map((sugestao) => (
-                <tr key={sugestao.id}>
+              {sugestoesFiltradas.map((sugestao, indice) => (
+                <tr
+                  key={sugestao.id}
+                  className={`feedback-row ${
+                    indice % 2 === 0 ? "linha-par" : "linha-impar"
+                  }`}
+                >
                   <td>{formatarData(sugestao.dataCriacao)}</td>
 
-                  <td>
+                  <td className="feedback-user-cell">
                     <strong>{sugestao.nomeUsuario || "Não informado"}</strong>
                     <small>{sugestao.emailUsuario || "—"}</small>
                   </td>
 
-                  <td>{sugestao.titulo}</td>
-                  <td>{sugestao.modulo || "—"}</td>
+                  <td className="feedback-title-cell">
+                    <span
+                      className="feedback-title-preview"
+                      title={montarTextoTooltip(sugestao)}
+                      data-feedback-tooltip={montarTextoTooltip(sugestao)}
+                    >
+                      {sugestao.titulo}
+                    </span>
+                  </td>
+
+                  <td className="feedback-module-cell">
+                    {sugestao.modulo || "—"}
+                  </td>
 
                   <td>
-                    <span className="feedback-badge categoria">
-                      {sugestao.categoria}
+                    <span
+                      className={`feedback-badge feedback-badge-categoria categoria-${gerarClasseFeedback(
+                        sugestao.categoria
+                      )}`}
+                    >
+                      {sugestao.categoria || "—"}
                     </span>
                   </td>
 
                   <td>
                     <span
-                      className={`feedback-badge status-${normalizarTexto(
+                      className={`feedback-badge feedback-badge-status status-${obterClasseStatus(
                         sugestao.status
                       )}`}
                     >
-                      {sugestao.status}
+                      {sugestao.status || "—"}
                     </span>
                   </td>
 
-                  <td>
+                  <td className="feedback-actions-cell">
                     <div className="feedback-actions">
                       <button
-                        className="btn secondary"
+                        className="btn secondary feedback-detail-btn"
                         onClick={() => abrirDetalhes(sugestao)}
                       >
                         Ver detalhes
                       </button>
 
                       <button
-                        className="btn danger"
+                        className="btn danger feedback-delete-btn"
                         onClick={() => pedirExclusao(sugestao)}
                       >
                         Excluir

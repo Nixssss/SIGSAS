@@ -3,7 +3,8 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.pool import QueuePool
 
 load_dotenv(override=True)
 
@@ -29,7 +30,16 @@ DATABASE_URL = URL.create(
 
 engine = create_engine(
     DATABASE_URL,
+    poolclass=QueuePool,
+    pool_size=2,
+    max_overflow=0,
+    pool_timeout=30,
+    pool_recycle=300,
     pool_pre_ping=True,
+    connect_args={
+        "sslmode": "require",
+        "connect_timeout": 10,
+    },
 )
 
 SessionLocal = sessionmaker(

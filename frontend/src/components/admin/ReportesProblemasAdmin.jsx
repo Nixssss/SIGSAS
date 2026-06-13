@@ -53,6 +53,42 @@ function ReportesProblemasAdmin({ showToast }) {
       .replace(/[\u0300-\u036f]/g, "")
   }
 
+  function gerarClasseFeedback(valor) {
+    const classe = normalizarTexto(valor)
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+
+    return classe || "sem-informacao"
+  }
+
+  function obterClasseStatus(status) {
+    const texto = normalizarTexto(status)
+
+    if (texto.includes("aberto")) return "aberto"
+    if (texto.includes("analise")) return "analise"
+    if (texto.includes("resolvido")) return "resolvido"
+    if (texto.includes("recusado")) return "recusado"
+
+    return gerarClasseFeedback(status)
+  }
+
+  function obterClassePrioridade(prioridade) {
+    const texto = normalizarTexto(prioridade)
+
+    if (texto.includes("baixa")) return "baixa"
+    if (texto.includes("media")) return "media"
+    if (texto.includes("alta")) return "alta"
+    if (texto.includes("critica")) return "critica"
+
+    return gerarClasseFeedback(prioridade)
+  }
+
+  function montarTextoTooltip(reporte) {
+    return [reporte.titulo, reporte.descricao]
+      .filter(Boolean)
+      .join(" — ")
+  }
+
   function abrirDetalhes(reporte) {
     setSelecionado(reporte)
     setRespostaAdmin(reporte.respostaAdmin || "")
@@ -235,7 +271,7 @@ function ReportesProblemasAdmin({ showToast }) {
 
   if (carregando) {
     return (
-      <div className="feedback-admin">
+      <div className="feedback-admin feedback-page-problemas">
         <section className="feedback-admin-hero">
           <div>
             <h2>Reportes de Problemas</h2>
@@ -249,7 +285,7 @@ function ReportesProblemasAdmin({ showToast }) {
   }
 
   return (
-    <div className="feedback-admin">
+    <div className="feedback-admin feedback-page-problemas">
       <section className="feedback-admin-hero">
         <div>
           <h2>Reportes de Problemas</h2>
@@ -309,49 +345,65 @@ function ReportesProblemasAdmin({ showToast }) {
             </thead>
 
             <tbody>
-              {reportesFiltrados.map((reporte) => (
-                <tr key={reporte.id}>
+              {reportesFiltrados.map((reporte, indice) => (
+                <tr
+                  key={reporte.id}
+                  className={`feedback-row ${
+                    indice % 2 === 0 ? "linha-par" : "linha-impar"
+                  }`}
+                >
                   <td>{formatarData(reporte.dataCriacao)}</td>
 
-                  <td>
+                  <td className="feedback-user-cell">
                     <strong>{reporte.nomeUsuario || "Não informado"}</strong>
                     <small>{reporte.emailUsuario || "—"}</small>
                   </td>
 
-                  <td>{reporte.titulo}</td>
-                  <td>{reporte.modulo || "—"}</td>
+                  <td className="feedback-title-cell">
+                    <span
+                      className="feedback-title-preview"
+                      title={montarTextoTooltip(reporte)}
+                      data-feedback-tooltip={montarTextoTooltip(reporte)}
+                    >
+                      {reporte.titulo}
+                    </span>
+                  </td>
+
+                  <td className="feedback-module-cell">
+                    {reporte.modulo || "—"}
+                  </td>
 
                   <td>
                     <span
-                      className={`feedback-badge prioridade-${normalizarTexto(
+                      className={`feedback-badge feedback-badge-prioridade prioridade-${obterClassePrioridade(
                         reporte.prioridade
                       )}`}
                     >
-                      {reporte.prioridade}
+                      {reporte.prioridade || "—"}
                     </span>
                   </td>
 
                   <td>
                     <span
-                      className={`feedback-badge status-${normalizarTexto(
+                      className={`feedback-badge feedback-badge-status status-${obterClasseStatus(
                         reporte.status
                       )}`}
                     >
-                      {reporte.status}
+                      {reporte.status || "—"}
                     </span>
                   </td>
 
-                  <td>
+                  <td className="feedback-actions-cell">
                     <div className="feedback-actions">
                       <button
-                        className="btn secondary"
+                        className="btn secondary feedback-detail-btn"
                         onClick={() => abrirDetalhes(reporte)}
                       >
                         Ver detalhes
                       </button>
 
                       <button
-                        className="btn danger"
+                        className="btn danger feedback-delete-btn"
                         onClick={() => pedirExclusao(reporte)}
                       >
                         Excluir

@@ -9,6 +9,13 @@ const STATUS_RESERVA = {
   4: "Cancelada",
 }
 
+const CLASSE_STATUS_RESERVA = {
+  1: "pendente",
+  2: "aprovada",
+  3: "recusada",
+  4: "cancelada",
+}
+
 function ReservasAdmin({ showToast }) {
   const [reservas, setReservas] = useState([])
   const [salas, setSalas] = useState([])
@@ -298,7 +305,13 @@ function ReservasAdmin({ showToast }) {
 
         <small>
           Status:{" "}
-          {STATUS_RESERVA[Number(r.idStatusReserva)] || "Desconhecido"}
+          <span
+            className={`reserva-status-badge status-${
+              CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] || "desconhecido"
+            }`}
+          >
+            {STATUS_RESERVA[Number(r.idStatusReserva)] || "Desconhecido"}
+          </span>
         </small>
         <br />
 
@@ -467,8 +480,8 @@ function ReservasAdmin({ showToast }) {
     })
 
   return (
-    <>
-      <div className="card">
+    <div className="reservas-admin-page">
+      <div className="card reservas-section reservas-pendentes-card">
         <h3>Reservas pendentes</h3>
 
         {carregando && (
@@ -481,7 +494,7 @@ function ReservasAdmin({ showToast }) {
 
         {!carregando &&
           reservasPendentes.map((r) => (
-            <div key={r.idReserva} className="list-row">
+            <div key={r.idReserva} className={`list-row reserva-row status-${CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] || "desconhecido"}`}>
               <DadosReserva r={r} />
 
               <div className="actions">
@@ -516,7 +529,7 @@ function ReservasAdmin({ showToast }) {
           ))}
       </div>
 
-      <div className="card">
+      <div className="card reservas-section reservas-aprovadas-card">
         <h3>Reservas aprovadas</h3>
 
         {carregando && (
@@ -529,7 +542,7 @@ function ReservasAdmin({ showToast }) {
 
         {!carregando &&
           reservasAprovadas.map((r) => (
-            <div key={r.idReserva} className="list-row">
+            <div key={r.idReserva} className={`list-row reserva-row status-${CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] || "desconhecido"}`}>
               <DadosReserva r={r} />
 
               <div className="actions">
@@ -546,7 +559,7 @@ function ReservasAdmin({ showToast }) {
           ))}
       </div>
 
-      <div className="card">
+      <div className="card reservas-section reservas-historico-card">
         <h3>Histórico de reservas</h3>
 
         {carregando && (
@@ -559,7 +572,7 @@ function ReservasAdmin({ showToast }) {
 
         {!carregando &&
           historicoReservas.map((r) => (
-            <div key={r.idReserva} className="list-row no-button-row">
+            <div key={r.idReserva} className={`list-row no-button-row reserva-row status-${CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] || "desconhecido"}`}>
               <DadosReserva r={r} />
             </div>
           ))}
@@ -567,7 +580,7 @@ function ReservasAdmin({ showToast }) {
 
       {modalRecusa}
       {modalCancelamento}
-    </>
+    </div>
   )
 }
 

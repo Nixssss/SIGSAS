@@ -277,6 +277,20 @@ function CadastroAdmin({ showToast }) {
     return "Ativo"
   }
 
+  function getClasseStatusConvite(convite) {
+    return normalizarTexto(getStatusConvite(convite))
+  }
+
+  function getClassePerfilConvite(perfil) {
+    const texto = normalizarTexto(perfil)
+
+    if (texto.includes("administrador")) return "administrador"
+    if (texto.includes("coordenador")) return "coordenador"
+    if (texto.includes("professor")) return "professor"
+
+    return "usuario"
+  }
+
   function montarTextoCursosConvite(convite) {
     if (!Array.isArray(convite.cursos) || convite.cursos.length === 0) {
       if (convite.perfilConvidado === "Administrador") {
@@ -417,7 +431,7 @@ function CadastroAdmin({ showToast }) {
   }
 
   return (
-    <>
+    <div className="cadastro-admin-page">
       <div className="card convite-admin-card">
         <div className="convite-admin-header">
           <div>
@@ -485,14 +499,38 @@ function CadastroAdmin({ showToast }) {
           <p style={{ marginTop: "12px" }}>Nenhum convite gerado.</p>
         )}
 
-        {convites.map((convite) => (
-          <div key={convite.idConvite} className="convite-list-row">
+        {convites.map((convite, indice) => (
+          <div
+            key={convite.idConvite}
+            className={`convite-list-row status-${getClasseStatusConvite(
+              convite
+            )} ${indice % 2 === 0 ? "linha-par" : "linha-impar"}`}
+          >
             <div className="convite-list-info">
               <strong>{convite.email}</strong>
 
               <div className="convite-meta-grid">
-                <small>Status: {getStatusConvite(convite)}</small>
-                <small>Perfil: {convite.perfilConvidado || "Não informado"}</small>
+                <small>
+                  Status:{" "}
+                  <span
+                    className={`convite-status-badge status-${getClasseStatusConvite(
+                      convite
+                    )}`}
+                  >
+                    {getStatusConvite(convite)}
+                  </span>
+                </small>
+
+                <small>
+                  Perfil:{" "}
+                  <span
+                    className={`convite-perfil-badge perfil-${getClassePerfilConvite(
+                      convite.perfilConvidado
+                    )}`}
+                  >
+                    {convite.perfilConvidado || "Não informado"}
+                  </span>
+                </small>
                 <small>Criado em: {formatarData(convite.criadoEm)}</small>
                 <small>Expira em: {formatarData(convite.expiraEm)}</small>
 
@@ -501,11 +539,15 @@ function CadastroAdmin({ showToast }) {
                 )}
               </div>
 
-              <small className="convite-cursos-resumo">
+              <small
+                className="convite-cursos-resumo"
+                title={montarTextoCursosConvite(convite)}
+                data-cursos={montarTextoCursosConvite(convite)}
+              >
                 Cursos: {montarTextoCursosConvite(convite)}
               </small>
 
-              <small className="convite-link-text">
+              <small className="convite-link-text" title={convite.linkCadastro}>
                 Link: {convite.linkCadastro}
               </small>
             </div>
@@ -541,7 +583,7 @@ function CadastroAdmin({ showToast }) {
           </div>
         ))}
       </div>
-    </>
+    </div>
   )
 }
 

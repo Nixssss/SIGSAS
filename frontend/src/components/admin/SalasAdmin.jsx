@@ -777,8 +777,8 @@ function SalasAdmin({
   }
 
   return (
-    <>
-      <div className="card">
+    <div className="salas-admin-page">
+      <div className="card salas-form-card">
         <h3>Nova sala</h3>
 
         <form onSubmit={adicionarSala} className="form-col">
@@ -938,7 +938,7 @@ function SalasAdmin({
         </form>
       </div>
 
-      <div className="card">
+      <div className="card salas-list-card">
         <div className="card-title-actions">
           <h3>Salas cadastradas</h3>
 
@@ -948,6 +948,7 @@ function SalasAdmin({
         </div>
 
         <input
+          className="salas-admin-search"
           placeholder="Buscar sala, tipo, recurso, instituição, campus ou edifício..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
@@ -957,7 +958,7 @@ function SalasAdmin({
       </div>
 
       {renderizarModalEdicao()}
-    </>
+    </div>
   )
 }
 

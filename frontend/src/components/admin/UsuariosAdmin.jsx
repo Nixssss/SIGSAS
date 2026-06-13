@@ -73,6 +73,54 @@ function UsuariosAdmin({ showToast }) {
       .trim()
   }
 
+  function obterClassePerfil(perfil) {
+    const perfilNormalizado = normalizarTexto(perfil)
+
+    if (
+      perfilNormalizado.includes("administrador") ||
+      perfilNormalizado === "admin"
+    ) {
+      return "administrador"
+    }
+
+    if (perfilNormalizado.includes("coordenador")) {
+      return "coordenador"
+    }
+
+    if (perfilNormalizado.includes("professor")) {
+      return "professor"
+    }
+
+    return "usuario"
+  }
+
+  function formatarPerfil(perfil) {
+    const classe = obterClassePerfil(perfil)
+
+    if (classe === "administrador") return "Administrador"
+    if (classe === "coordenador") return "Coordenador"
+    if (classe === "professor") return "Professor"
+
+    return "Usuário"
+  }
+
+  function getIniciais(nome) {
+    const partes = String(nome || "U")
+      .trim()
+      .split(" ")
+      .filter(Boolean)
+
+    if (partes.length === 0) return "U"
+    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase()
+
+    return `${partes[0][0]}${partes[partes.length - 1][0]}`.toUpperCase()
+  }
+
+  function getTotalCursosUsuario(usuario) {
+    if (!Array.isArray(usuario.cursos)) return 0
+    return usuario.cursos.length
+  }
+
   function getNomeInstituicao(idInstituicao) {
     const instituicao = instituicoes.find(
       (item) => Number(item.id) === Number(idInstituicao)
@@ -736,42 +784,84 @@ function UsuariosAdmin({ showToast }) {
             </thead>
 
             <tbody>
-              {usuariosFiltrados.map((usuario) => (
-                <tr key={usuario.id}>
-                  <td>
-                    <strong>{usuario.nome}</strong>
+              {usuariosFiltrados.map((usuario, indice) => (
+                <tr
+                  key={usuario.id}
+                  className={`usuario-row ${
+                    indice % 2 === 0 ? "linha-par" : "linha-impar"
+                  }`}
+                >
+                  <td className="usuarios-nome-cell">
+                    <div className="usuario-identidade">
+                      <span
+                        className={`usuario-avatar perfil-${obterClassePerfil(
+                          usuario.perfil
+                        )}`}
+                        aria-hidden="true"
+                      >
+                        {getIniciais(usuario.nome)}
+                      </span>
+
+                      <div>
+                        <strong>{usuario.nome}</strong>
+                        <small>ID #{usuario.id}</small>
+                      </div>
+                    </div>
                   </td>
 
-                  <td>{usuario.email}</td>
+                  <td className="usuarios-email-cell">
+                    <span title={usuario.email}>{usuario.email}</span>
+                  </td>
 
-                  <td>
+                  <td className="usuarios-perfil-cell">
                     <span
-                      className={`usuario-badge ${normalizarTexto(
+                      className={`usuario-badge perfil-${obterClassePerfil(
                         usuario.perfil
                       )}`}
                     >
-                      {usuario.perfil}
+                      {formatarPerfil(usuario.perfil)}
                     </span>
                   </td>
 
-                  <td>{usuario.matricula || "—"}</td>
+                  <td className="usuarios-matricula-cell">
+                    {usuario.matricula || "—"}
+                  </td>
 
-                  <td>{usuario.cargo || "—"}</td>
+                  <td className="usuarios-cargo-cell">
+                    {usuario.cargo || "—"}
+                  </td>
 
-                  <td>
-                    {usuario.instituicao ||
-                      getNomeInstituicao(usuario.idInstituicao)}
+                  <td className="usuarios-instituicao-cell">
+                    <span
+                      title={
+                        usuario.instituicao ||
+                        getNomeInstituicao(usuario.idInstituicao)
+                      }
+                    >
+                      {usuario.instituicao ||
+                        getNomeInstituicao(usuario.idInstituicao)}
+                    </span>
                   </td>
 
                   <td className="usuarios-cursos-cell">
-                    {montarTextoCursos(usuario)}
+                    <span
+                      className="usuarios-cursos-preview"
+                      title={montarTextoCursos(usuario)}
+                      data-cursos={montarTextoCursos(usuario)}
+                    >
+                      {montarTextoCursos(usuario)}
+                    </span>
+
+                    {getTotalCursosUsuario(usuario) > 0 && (
+                      <small>{getTotalCursosUsuario(usuario)} curso(s)</small>
+                    )}
                   </td>
 
-                  <td>
+                  <td className="usuarios-acoes-cell">
                     <div className="usuarios-row-actions">
                       <button
                         type="button"
-                        className="btn secondary"
+                        className="btn secondary usuarios-edit-btn"
                         onClick={() => editarUsuario(usuario)}
                       >
                         Editar
@@ -779,7 +869,7 @@ function UsuariosAdmin({ showToast }) {
 
                       <button
                         type="button"
-                        className="btn danger"
+                        className="btn danger usuarios-delete-btn"
                         onClick={() => pedirExclusaoUsuario(usuario)}
                       >
                         Excluir

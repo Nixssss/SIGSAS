@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import api from "../services/api"
+import chatbotRobo from "../assets/chatbot-robo.png"
 
 const SESSION_KEY = "sigsas_chatbot_session_id"
 const MENSAGENS_KEY = "sigsas_chatbot_mensagens"
@@ -34,11 +35,14 @@ function horarioParaMinutos(horario) {
 function minutosParaHorario(totalMinutos) {
   const horas = Math.floor(totalMinutos / 60)
   const minutos = totalMinutos % 60
-
   return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}`
 }
 
-function gerarHorariosDisponiveis(inicio, fim, intervalo = INTERVALO_HORARIO_MINUTOS) {
+function gerarHorariosDisponiveis(
+  inicio,
+  fim,
+  intervalo = INTERVALO_HORARIO_MINUTOS
+) {
   const horarios = []
   const inicioMinutos = horarioParaMinutos(inicio)
   const fimMinutos = horarioParaMinutos(fim)
@@ -54,26 +58,49 @@ function gerarHorariosDisponiveis(inicio, fim, intervalo = INTERVALO_HORARIO_MIN
   return horarios
 }
 
+function ordenarHorariosPicker(horarios) {
+  if (!Array.isArray(horarios)) return []
+
+  return [...horarios].sort((a, b) => {
+    const horarioA = typeof a === "string" ? a : a?.horario || a?.valor || a?.label
+    const horarioB = typeof b === "string" ? b : b?.horario || b?.valor || b?.label
+
+    const minutosA = horarioParaMinutos(horarioA)
+    const minutosB = horarioParaMinutos(horarioB)
+
+    if (minutosA === null && minutosB === null) return 0
+    if (minutosA === null) return 1
+    if (minutosB === null) return -1
+
+    return minutosA - minutosB
+  })
+}
+
 function normalizarHorariosParaPicker(horarios) {
   if (!Array.isArray(horarios)) return []
 
-  return horarios
-    .map((item) => {
-      if (typeof item === "string") {
-        return { horario: item, disponivel: true, motivo: "Disponível" }
-      }
+  return ordenarHorariosPicker(
+    horarios
+      .map((item) => {
+        if (typeof item === "string") {
+          return {
+            horario: item,
+            disponivel: true,
+            motivo: "Disponível",
+          }
+        }
 
-      const horario = item?.horario || item?.valor || item?.label
+        const horario = item?.horario || item?.valor || item?.label
+        if (!horario) return null
 
-      if (!horario) return null
-
-      return {
-        horario,
-        disponivel: item?.disponivel !== false && item?.bloqueado !== true,
-        motivo: item?.motivo || item?.motivoIndisponivel || "Horário indisponível",
-      }
-    })
-    .filter(Boolean)
+        return {
+          horario,
+          disponivel: item?.disponivel !== false && item?.bloqueado !== true,
+          motivo: item?.motivo || item?.motivoIndisponivel || "Horário indisponível",
+        }
+      })
+      .filter(Boolean)
+  )
 }
 
 function obterHorarioValidoDoTexto(texto) {
@@ -151,6 +178,152 @@ function montarOpcoesDaResposta(data) {
   return []
 }
 
+function obterInstituicaoUnica(data) {
+  if (
+    data?.tipoInteracao !== "instituicoes" ||
+    !Array.isArray(data?.instituicoes) ||
+    data.instituicoes.length !== 1
+  ) {
+    return null
+  }
+
+  const instituicao = data.instituicoes[0]
+  const idInstituicao = instituicao?.idInstituicao || instituicao?.id
+
+  if (!idInstituicao) {
+    return null
+  }
+
+  return {
+    label: instituicao.nome,
+    valor: `INSTITUICAO:${idInstituicao}`,
+  }
+}
+
+
+const MESES_FUNCIONAMENTO_PRIMEIRO_SEMESTRE = [2, 3, 4, 5, 6]
+const MESES_FUNCIONAMENTO_SEGUNDO_SEMESTRE = [8, 9, 10, 11, 12]
+const MESES_FUNCIONAMENTO = [
+  ...MESES_FUNCIONAMENTO_PRIMEIRO_SEMESTRE,
+  ...MESES_FUNCIONAMENTO_SEGUNDO_SEMESTRE,
+]
+
+const NOMES_MESES_PARA_NUMERO = {
+  janeiro: 1,
+  jan: 1,
+  fevereiro: 2,
+  fev: 2,
+  março: 3,
+  marco: 3,
+  mar: 3,
+  abril: 4,
+  abr: 4,
+  maio: 5,
+  mai: 5,
+  junho: 6,
+  jun: 6,
+  julho: 7,
+  jul: 7,
+  agosto: 8,
+  ago: 8,
+  setembro: 9,
+  set: 9,
+  outubro: 10,
+  out: 10,
+  novembro: 11,
+  nov: 11,
+  dezembro: 12,
+  dez: 12,
+}
+
+function obterNumeroMesCalendario(mes) {
+  const primeiroDia = Array.isArray(mes?.dias) ? mes.dias[0] : null
+  const mesDoDia = Number(primeiroDia?.mes)
+
+  if (!Number.isNaN(mesDoDia) && mesDoDia >= 1 && mesDoDia <= 12) {
+    return mesDoDia
+  }
+
+  const numeroDireto = Number(mes?.numeroMes || mes?.mes || mes?.mesNumero)
+
+  if (!Number.isNaN(numeroDireto) && numeroDireto >= 1 && numeroDireto <= 12) {
+    return numeroDireto
+  }
+
+  const nomeMes = String(mes?.nomeMes || mes?.nome || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+
+  return NOMES_MESES_PARA_NUMERO[nomeMes] || null
+}
+
+function obterAnoCalendario(mes) {
+  const primeiroDia = Array.isArray(mes?.dias) ? mes.dias[0] : null
+  const anoDoDia = Number(primeiroDia?.ano)
+
+  if (!Number.isNaN(anoDoDia) && anoDoDia > 1900) {
+    return anoDoDia
+  }
+
+  const anoDireto = Number(mes?.ano)
+
+  if (!Number.isNaN(anoDireto) && anoDireto > 1900) {
+    return anoDireto
+  }
+
+  return null
+}
+
+function obterMesesPermitidosPelaDataAtual(dataAtual = new Date()) {
+  const mesAtual = dataAtual.getMonth() + 1
+
+  if (MESES_FUNCIONAMENTO_PRIMEIRO_SEMESTRE.includes(mesAtual)) {
+    return MESES_FUNCIONAMENTO_PRIMEIRO_SEMESTRE.filter((mes) => mes >= mesAtual)
+  }
+
+  if (MESES_FUNCIONAMENTO_SEGUNDO_SEMESTRE.includes(mesAtual)) {
+    return MESES_FUNCIONAMENTO_SEGUNDO_SEMESTRE.filter((mes) => mes >= mesAtual)
+  }
+
+  return []
+}
+
+function obterMensagemPeriodoLetivo(dataAtual = new Date()) {
+  const mesAtual = dataAtual.getMonth() + 1
+
+  if (mesAtual === 1) {
+    return "Não há meses disponíveis para reserva em janeiro. As reservas retornam em fevereiro."
+  }
+
+  if (mesAtual === 7) {
+    return "Não há meses disponíveis para reserva em julho. As reservas retornam em agosto."
+  }
+
+  return "Não há meses disponíveis para reserva neste período letivo."
+}
+
+function filtrarMesesPeriodoLetivo(meses, dataAtual = new Date()) {
+  if (!Array.isArray(meses)) return []
+
+  const anoAtual = dataAtual.getFullYear()
+  const mesesPermitidos = obterMesesPermitidosPelaDataAtual(dataAtual)
+
+  if (!mesesPermitidos.length) return []
+
+  return meses.filter((mes) => {
+    const numeroMes = obterNumeroMesCalendario(mes)
+    const anoMes = obterAnoCalendario(mes) || anoAtual
+
+    if (!numeroMes) return false
+    if (anoMes !== anoAtual) return false
+    if (!MESES_FUNCIONAMENTO.includes(numeroMes)) return false
+
+    return mesesPermitidos.includes(numeroMes)
+  })
+}
+
 function ChatFluxo() {
   const mensagensIniciais = obterMensagensSalvas()
 
@@ -206,7 +379,7 @@ function ChatFluxo() {
     }
   }
 
-  async function enviarParaBackend(mensagem) {
+  async function enviarParaBackend(mensagem, opcoes = {}) {
     const usuario = getUsuarioLogado()
 
     const payload = {
@@ -217,6 +390,43 @@ function ChatFluxo() {
 
     const response = await api.post("/chatbot-fluxo/mensagem", payload)
     const data = response.data || {}
+
+    const instituicaoUnica = obterInstituicaoUnica(data)
+
+    if (instituicaoUnica && !opcoes.ignorarAutoInstituicao) {
+      const responseInstituicao = await api.post("/chatbot-fluxo/mensagem", {
+        ...payload,
+        texto: instituicaoUnica.valor,
+      })
+
+      const dataInstituicao = responseInstituicao.data || {}
+
+      atualizarEtapaPelaResposta(dataInstituicao)
+
+      adicionarMensagem({
+        autor: "bot",
+        texto: dataInstituicao.resposta || "Sem resposta do servidor.",
+        tipoInteracao: dataInstituicao.tipoInteracao || null,
+        opcoes: montarOpcoesDaResposta(dataInstituicao),
+        meses: dataInstituicao.meses || [],
+        dias: dataInstituicao.dias || [],
+        instituicoes: dataInstituicao.instituicoes || [],
+        campi: dataInstituicao.campi || [],
+        salas: dataInstituicao.salas || [],
+        reservas: dataInstituicao.reservas || [],
+        faixasCapacidade: dataInstituicao.faixasCapacidade || [],
+        horarios: dataInstituicao.horarios || [],
+        campoHorario: dataInstituicao.campoHorario || null,
+        acaoReservas: dataInstituicao.acaoReservas || null,
+        textoBotaoReservas: dataInstituicao.textoBotaoReservas || null,
+      })
+
+      if (dataInstituicao.tipoInteracao === "checkbox-reservas") {
+        setReservasSelecionadas([])
+      }
+
+      return
+    }
 
     atualizarEtapaPelaResposta(data)
 
@@ -247,7 +457,6 @@ function ChatFluxo() {
     e.preventDefault()
 
     const mensagem = texto.trim()
-
     if (!mensagem || carregando) return
 
     adicionarMensagem({
@@ -262,7 +471,6 @@ function ChatFluxo() {
       await enviarParaBackend(mensagem)
     } catch (error) {
       console.error(error)
-
       adicionarMensagem({
         autor: "bot",
         texto: "Erro ao conectar com o backend do chatbot.",
@@ -286,7 +494,6 @@ function ChatFluxo() {
       await enviarParaBackend(valor)
     } catch (error) {
       console.error(error)
-
       adicionarMensagem({
         autor: "bot",
         texto: "Erro ao conectar com o backend do chatbot.",
@@ -335,6 +542,7 @@ function ChatFluxo() {
       setEtapaAtual(null)
       setTimePickerAberto(null)
       setUltimoHorarioInicio(null)
+      setUltimoHorarioFim(null)
     } catch (error) {
       console.error(error)
 
@@ -393,6 +601,7 @@ function ChatFluxo() {
     setEtapaAtual(null)
     setTimePickerAberto(null)
     setUltimoHorarioInicio(null)
+    setUltimoHorarioFim(null)
   }
 
   function reservaEstaSelecionada(idReserva) {
@@ -415,7 +624,6 @@ function ChatFluxo() {
     if (!reservasSelecionadas.length || carregando) return
 
     const acaoTexto = msg?.acaoReservas === "cancelar" ? "Cancelar" : "Confirmar"
-
     const textoUsuario =
       reservasSelecionadas.length === 1
         ? `${acaoTexto} reserva #${reservasSelecionadas[0]}`
@@ -435,7 +643,6 @@ function ChatFluxo() {
       setReservasSelecionadas([])
     } catch (error) {
       console.error(error)
-
       adicionarMensagem({
         autor: "bot",
         texto: "Erro ao enviar as reservas selecionadas.",
@@ -523,77 +730,79 @@ function ChatFluxo() {
     bloqueado,
     horarios,
     aoSelecionar,
-    alinhamento = "left",
     travado = false,
   }) {
     const pickerEstaAberto = !travado && timePickerAberto === id
 
     return (
-      <div className={`chatbot-time-field ${alinhamento}-field`}>
-        <label>{titulo}</label>
+      <div className="chatbot-time-field">
+        <div className="chatbot-time-label-row">
+          <strong>{titulo}</strong>
+        </div>
 
-        <button
-          type="button"
-          className={`chatbot-time-trigger ${pickerEstaAberto ? "active" : ""} ${
-            valor ? "selected" : ""
-          } ${travado ? "locked" : ""}`}
-          onClick={() => {
-            if (!ativo || bloqueado || travado) return
+        <div className="chatbot-time-picker-wrap">
+          <button
+            type="button"
+            className={`chatbot-time-trigger ${valor ? "selected" : ""} ${
+              travado ? "locked" : ""
+            }`}
+            onClick={() => {
+              if (!ativo || bloqueado || travado) return
+              setTimePickerAberto((atual) => (atual === id ? null : id))
+            }}
+            disabled={!ativo || bloqueado || travado}
+          >
+            <span>{valor || placeholder}</span>
+            <strong>⌄</strong>
+          </button>
 
-            setTimePickerAberto((atual) => (atual === id ? null : id))
-          }}
-          disabled={!ativo || bloqueado || travado}
-        >
-          <span>{valor || placeholder}</span>
-          <strong>🕒</strong>
-          <i>⌄</i>
-        </button>
+          {pickerEstaAberto && ativo && !bloqueado && (
+            <div className="chatbot-time-popover">
+              <div className="chatbot-time-popover-header">
+                <strong>{titulo}</strong>
+                <span>08:00 - 22:30</span>
+              </div>
+
+              <div className="chatbot-time-grid">
+                {ordenarHorariosPicker(horarios).map((item) => {
+                  const horario = typeof item === "string" ? item : item.horario
+                  const disponivel =
+                    typeof item === "string"
+                      ? true
+                      : item?.disponivel !== false && item?.bloqueado !== true
+                  const motivo =
+                    typeof item === "string"
+                      ? "Disponível"
+                      : item?.motivo || "Horário indisponível"
+
+                  return (
+                    <button
+                      key={horario}
+                      type="button"
+                      className={`chatbot-time-option ${
+                        disponivel ? "available" : "disabled"
+                      }`}
+                      onClick={() => {
+                        if (!disponivel) return
+                        aoSelecionar(horario)
+                      }}
+                      disabled={carregando || !disponivel}
+                      title={motivo}
+                    >
+                      {horario}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
 
         <small>{subtitulo}</small>
-
-        {pickerEstaAberto && ativo && !bloqueado && (
-          <div className="chatbot-time-popover">
-            <div className="chatbot-time-popover-header">
-              <strong>{titulo}</strong>
-              <span>08:00 - 22:30</span>
-            </div>
-
-            <div className="chatbot-time-list">
-              {horarios.map((item) => {
-                const horario = typeof item === "string" ? item : item.horario
-                const disponivel =
-                  typeof item === "string"
-                    ? true
-                    : item?.disponivel !== false && item?.bloqueado !== true
-                const motivo =
-                  typeof item === "string"
-                    ? "Disponível"
-                    : item?.motivo || "Horário indisponível"
-
-                return (
-                  <button
-                    key={horario}
-                    type="button"
-                    className={`chatbot-time-option ${
-                      horario === valor ? "selected" : ""
-                    } ${!disponivel ? "disabled" : ""}`}
-                    onClick={() => {
-                      if (!disponivel) return
-                      aoSelecionar(horario)
-                    }}
-                    disabled={carregando || !disponivel}
-                    title={motivo}
-                  >
-                    {horario}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
       </div>
     )
   }
+
 
   function renderizarSeletorHorario(msg, indiceMensagem) {
     if (msg.tipoInteracao !== "horario-manual") return null
@@ -614,8 +823,7 @@ function ChatFluxo() {
 
     const minimoHorarioFim = horarioInicioReferencia
       ? minutosParaHorario(
-          horarioParaMinutos(horarioInicioReferencia) +
-            INTERVALO_HORARIO_MINUTOS
+          horarioParaMinutos(horarioInicioReferencia) + INTERVALO_HORARIO_MINUTOS
         )
       : HORARIO_MINIMO_RESERVA
 
@@ -640,20 +848,19 @@ function ChatFluxo() {
           )
 
     const selecionandoFim = campoHorario === "fim"
-    const horarioFimSelecionado =
-      selecionandoFim
-        ? ultimoHorarioFim || obterPrimeiroHorarioDepoisDaMensagem(indiceMensagem)
-        : null
+    const horarioFimSelecionado = selecionandoFim
+      ? ultimoHorarioFim || obterPrimeiroHorarioDepoisDaMensagem(indiceMensagem)
+      : null
     const fluxoJaAvancou = selecionandoFim && existeMensagemBotDepois(indiceMensagem)
 
     return (
-      <div className="chatbot-time-box cascade-time-box">
-        <div className="chatbot-time-headline">
+      <div className="premium-turnos">
+        <div className="chatbot-time-header">
           <strong>Escolha o horário da reserva</strong>
           <span>Intervalos de 15 minutos</span>
         </div>
 
-        <div className="chatbot-time-row cascade-time-row">
+        <div className="chatbot-time-fields">
           {renderizarCampoHorario({
             id: `${indiceMensagem}-inicio`,
             titulo: "Hora de início",
@@ -664,7 +871,6 @@ function ChatFluxo() {
             bloqueado: carregando,
             travado: selecionandoFim,
             horarios: horariosInicio,
-            alinhamento: "inicio",
             aoSelecionar: (horario) => enviarHorarioSelecionado(horario, "inicio"),
           })}
 
@@ -682,15 +888,13 @@ function ChatFluxo() {
             bloqueado: carregando || !horarioInicioReferencia || fluxoJaAvancou,
             travado: !!horarioFimSelecionado || fluxoJaAvancou,
             horarios: horariosFim,
-            alinhamento: "fim",
             aoSelecionar: (horario) => enviarHorarioSelecionado(horario, "fim"),
           })}
         </div>
 
         {selecionandoFim && !horarioInicioReferencia && (
-          <p className="chatbot-time-alert">
-            Escolha primeiro o horário de início para liberar os horários de
-            término.
+          <p className="turnos-info">
+            Escolha primeiro o horário de início para liberar os horários de término.
           </p>
         )}
       </div>
@@ -731,10 +935,10 @@ function ChatFluxo() {
     }
 
     return (
-      <div className="chatbot-options premium-options">
+      <div className="premium-options">
         {msg.opcoes.map((opcao) => (
           <button
-            key={opcao.valor}
+            key={`${opcao.valor}-${opcao.label}`}
             type="button"
             className="chat-option-btn"
             onClick={() => enviarMensagemRapida(opcao.valor, opcao.label)}
@@ -750,29 +954,43 @@ function ChatFluxo() {
   function renderizarCalendario(msg) {
     if (!msg.meses?.length && !msg.dias?.length) return null
 
-    const meses = msg.meses?.length
+    const dataAtual = new Date()
+    const mesesOriginais = msg.meses?.length
       ? msg.meses
       : [
           {
             nomeMes: "Calendário",
-            ano: "",
+            ano: dataAtual.getFullYear(),
             dias: msg.dias || [],
           },
         ]
 
+    const meses = filtrarMesesPeriodoLetivo(mesesOriginais, dataAtual)
     const diasSemana = ["S", "T", "Q", "Q", "S", "S", "D"]
 
+    if (!meses.length) {
+      return (
+        <div className="premium-calendar-wrapper">
+          <div className="premium-calendar-empty">
+            <strong>Calendário indisponível</strong>
+            <p>{obterMensagemPeriodoLetivo(dataAtual)}</p>
+            <small>
+              O SIGSAS exibe somente meses de funcionamento acadêmico:
+              fevereiro a junho e agosto a dezembro.
+            </small>
+          </div>
+        </div>
+      )
+    }
+
     return (
-      <div className="chatbot-calendar-wrapper premium-calendar-wrapper">
+      <div className="premium-calendar-wrapper">
         {meses.map((mes) => {
           const primeiroDia = mes.dias?.[0]
           const espacosAntes = primeiroDia ? primeiroDia.diaSemana : 0
 
           return (
-            <div
-              key={`${mes.nomeMes}-${mes.ano}`}
-              className="calendar-month premium-calendar-month"
-            >
+            <div key={`${mes.nomeMes}-${mes.ano}`} className="premium-calendar-month">
               <h4>
                 {mes.nomeMes} {mes.ano}
               </h4>
@@ -797,10 +1015,11 @@ function ChatFluxo() {
                     className={`calendar-day ${
                       dia.disponivel ? "available" : "disabled"
                     }`}
-                    onClick={() =>
+                    onClick={() => {
+                      if (!dia.disponivel || carregando) return
                       enviarMensagemRapida(`DATA:${dia.dataIso}`, dia.dataBr)
-                    }
-                    disabled={carregando}
+                    }}
+                    disabled={carregando || !dia.disponivel}
                     title={dia.motivoIndisponivel || ""}
                   >
                     <span>{dia.dia}</span>
@@ -820,81 +1039,10 @@ function ChatFluxo() {
   function renderizarCampi(msg) {
     if (msg.tipoInteracao !== "campi" || !msg.campi?.length) return null
 
-    const gridStyle = {
-      width: "100%",
-      marginTop: "16px",
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-      gap: "12px",
-    }
-
     return (
-      <div style={gridStyle}>
+      <div className="chat-campus-grid">
         {msg.campi.map((campus) => {
           const disponivel = campus.disponivel === true
-
-          const cardStyle = {
-            width: "100%",
-            minHeight: "88px",
-            padding: "14px 16px",
-            borderRadius: "16px",
-            border: disponivel
-              ? "1px solid rgba(245, 158, 11, 0.42)"
-              : "1px solid rgba(148, 163, 184, 0.18)",
-            background: disponivel
-              ? "radial-gradient(circle at top left, rgba(245, 158, 11, 0.13), transparent 42%), rgba(2, 6, 23, 0.96)"
-              : "radial-gradient(circle at top left, rgba(148, 163, 184, 0.08), transparent 42%), rgba(15, 23, 42, 0.9)",
-            color: "#f8fafc",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "stretch",
-            justifyContent: "center",
-            gap: "9px",
-            textAlign: "left",
-            cursor: disponivel && !carregando ? "pointer" : "not-allowed",
-            opacity: disponivel ? 1 : 0.72,
-            userSelect: "none",
-          }
-
-          const headerStyle = {
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: "10px",
-          }
-
-          const nomeStyle = {
-            color: "#f8fafc",
-            fontSize: "14px",
-            fontWeight: 950,
-            lineHeight: 1.2,
-            wordBreak: "break-word",
-          }
-
-          const statusStyle = {
-            flexShrink: 0,
-            padding: "5px 9px",
-            borderRadius: "999px",
-            fontSize: "10px",
-            fontWeight: 950,
-            lineHeight: 1,
-            textTransform: "uppercase",
-            letterSpacing: "0.03em",
-            color: disponivel ? "#22c55e" : "#f59e0b",
-            background: disponivel
-              ? "rgba(34, 197, 94, 0.12)"
-              : "rgba(245, 158, 11, 0.12)",
-            border: disponivel
-              ? "1px solid rgba(34, 197, 94, 0.24)"
-              : "1px solid rgba(245, 158, 11, 0.26)",
-          }
-
-          const motivoStyle = {
-            color: "#94a3b8",
-            fontSize: "11px",
-            fontWeight: 800,
-            lineHeight: 1.35,
-          }
 
           function selecionarCampus() {
             if (!disponivel || carregando) return
@@ -909,30 +1057,28 @@ function ChatFluxo() {
           }
 
           return (
-            <div
-              key={campus.idCampus}
-              role="button"
-              tabIndex={disponivel ? 0 : -1}
-              style={cardStyle}
+            <button
+              key={campus.idCampus || campus.nome}
+              type="button"
+              className={`chat-campus-card ${
+                disponivel ? "disponivel" : "indisponivel"
+              }`}
               onClick={selecionarCampus}
               onKeyDown={selecionarComEnter}
-              title={campus.motivoIndisponivel || ""}
+              disabled={!disponivel || carregando}
             >
-              <div style={headerStyle}>
-                <strong style={nomeStyle}>{campus.nome}</strong>
-
-                <span style={statusStyle}>
-                  {disponivel ? "Disponível" : "Indisponível"}
-                </span>
+              <div className="chat-campus-top">
+                <strong>{campus.nome}</strong>
+                <span>{disponivel ? "Disponível" : "Indisponível"}</span>
               </div>
 
               {!disponivel && (
-                <small style={motivoStyle}>
+                <small>
                   {campus.motivoIndisponivel ||
-                    "Não há salas disponíveis neste campus."}
+                    "Não há salas ativas cadastradas neste campus."}
                 </small>
               )}
-            </div>
+            </button>
           )
         })}
       </div>
@@ -947,53 +1093,11 @@ function ChatFluxo() {
       return null
     }
 
-    const gridStyle = {
-      width: "100%",
-      marginTop: "16px",
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-      gap: "12px",
-    }
-
     return (
-      <div style={gridStyle}>
+      <div className="chat-capacity-grid">
         {msg.faixasCapacidade.map((faixa) => {
-          const cardStyle = {
-            minHeight: "72px",
-            padding: "14px 16px",
-            borderRadius: "16px",
-            border: "1px solid rgba(245, 158, 11, 0.42)",
-            background:
-              "radial-gradient(circle at top left, rgba(245, 158, 11, 0.15), transparent 42%), rgba(2, 6, 23, 0.96)",
-            color: "#f8fafc",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "5px",
-            textAlign: "center",
-            cursor: carregando ? "not-allowed" : "pointer",
-            userSelect: "none",
-          }
-
-          const tituloStyle = {
-            color: "#f8fafc",
-            fontSize: "15px",
-            fontWeight: 950,
-            lineHeight: 1.1,
-          }
-
-          const subtituloStyle = {
-            color: "#f59e0b",
-            fontSize: "10px",
-            fontWeight: 950,
-            textTransform: "uppercase",
-            letterSpacing: "0.04em",
-          }
-
           function selecionarFaixa() {
             if (carregando) return
-
             enviarMensagemRapida(
               `FAIXA_CAPACIDADE:${faixa.minimo}-${faixa.maximo}`,
               `${faixa.minimo} a ${faixa.maximo} pessoas`
@@ -1008,19 +1112,19 @@ function ChatFluxo() {
           }
 
           return (
-            <div
+            <button
               key={`${faixa.minimo}-${faixa.maximo}`}
-              role="button"
-              tabIndex={carregando ? -1 : 0}
-              style={cardStyle}
+              type="button"
+              className="chat-capacity-card"
               onClick={selecionarFaixa}
               onKeyDown={selecionarComEnter}
+              disabled={carregando}
             >
-              <strong style={tituloStyle}>
+              <strong>
                 {faixa.minimo} a {faixa.maximo}
               </strong>
-              <span style={subtituloStyle}>pessoas</span>
-            </div>
+              <span>Pessoas</span>
+            </button>
           )
         })}
       </div>
@@ -1031,9 +1135,9 @@ function ChatFluxo() {
     if (msg.tipoInteracao !== "lista-salas" || !msg.salas?.length) return null
 
     return (
-      <div className="chatbot-salas-grid premium-salas-grid">
+      <div className="premium-salas-grid">
         {msg.salas.map((sala) => (
-          <div key={sala.idSala} className="chatbot-sala-card premium-sala-card">
+          <div key={sala.idSala || sala.numeroLista} className="premium-sala-card">
             <div className="chatbot-sala-top">
               <div>
                 <strong>
@@ -1042,9 +1146,7 @@ function ChatFluxo() {
                 <small>{sala.tipo}</small>
               </div>
 
-              <span className="chatbot-sala-badge">
-                {sala.capacidade} pessoas
-              </span>
+              <span className="chatbot-sala-badge">{sala.capacidade} pessoas</span>
             </div>
 
             <div className="chatbot-sala-info">
@@ -1063,22 +1165,16 @@ function ChatFluxo() {
             </div>
 
             {!!sala.recursos?.length && (
-              <div
-                className="chatbot-sala-recursos compacta"
-                title={sala.recursos.join(", ")}
-              >
-                {(sala.recursosResumo || sala.recursos.slice(0, 3)).map(
-                  (recurso) => (
-                    <span key={recurso}>{recurso}</span>
-                  )
-                )}
+              <div className="chatbot-sala-recursos">
+                {(sala.recursosResumo || sala.recursos.slice(0, 3)).map((recurso) => (
+                  <span key={recurso}>{recurso}</span>
+                ))}
 
-                {(sala.recursosRestantes ||
-                  Math.max(sala.recursos.length - 3, 0)) > 0 && (
-                  <span className="mais-recursos">
-                    +
-                    {sala.recursosRestantes ||
-                      Math.max(sala.recursos.length - 3, 0)}
+                {(sala.recursosRestantes || Math.max(sala.recursos.length - 3, 0)) >
+                  0 && (
+                  <span>
+                    +{" "}
+                    {sala.recursosRestantes || Math.max(sala.recursos.length - 3, 0)}
                   </span>
                 )}
               </div>
@@ -1086,12 +1182,9 @@ function ChatFluxo() {
 
             <button
               type="button"
-              className="btn primary escolher-sala-btn"
+              className="escolher-sala-btn btn primary"
               onClick={() =>
-                enviarMensagemRapida(
-                  String(sala.numeroLista),
-                  `Sala ${sala.numeroLista}`
-                )
+                enviarMensagemRapida(String(sala.numeroLista), `Sala ${sala.numeroLista}`)
               }
               disabled={carregando}
             >
@@ -1109,17 +1202,15 @@ function ChatFluxo() {
     }
 
     return (
-      <div className="chatbot-reservas-box premium-reservas-box">
-        <div className="chatbot-reservas-grid">
+      <div className="chat-reservas-box">
+        <div className="chat-reservas-grid">
           {msg.reservas.map((reserva) => {
             const selecionada = reservaEstaSelecionada(reserva.idReserva)
 
             return (
               <label
                 key={reserva.idReserva}
-                className={`chatbot-reserva-card ${
-                  selecionada ? "selected" : ""
-                }`}
+                className={`chat-reserva-check ${selecionada ? "selected" : ""}`}
               >
                 <input
                   type="checkbox"
@@ -1128,44 +1219,29 @@ function ChatFluxo() {
                   disabled={carregando}
                 />
 
-                <div className="chatbot-reserva-content">
-                  <div className="chatbot-reserva-top">
-                    <strong>Reserva #{reserva.idReserva}</strong>
-                    <span>{reserva.status}</span>
-                  </div>
-
-                  <div className="chatbot-reserva-info">
-                    <p>
-                      <b>Sala:</b> {reserva.sala}
-                    </p>
-                    <p>
-                      <b>Data:</b> {reserva.data} das {reserva.horaInicio} às{" "}
-                      {reserva.horaFim}
-                    </p>
-                    <p>
-                      <b>Solicitante:</b> {reserva.solicitante}
-                    </p>
-                    <p>
-                      <b>Curso:</b> {reserva.curso || "Não informado"}
-                    </p>
-                    <p>
-                      <b>Motivo:</b> {reserva.motivo}
-                    </p>
-                  </div>
-                </div>
+                <span>
+                  <strong>
+                    Reserva #{reserva.idReserva} {reserva.status}
+                  </strong>
+                  <small>Sala: {reserva.sala}</small>
+                  <small>
+                    Data: {reserva.data} das {reserva.horaInicio} às {reserva.horaFim}
+                  </small>
+                  <small>Solicitante: {reserva.solicitante}</small>
+                  <small>Curso: {reserva.curso || "Não informado"}</small>
+                  <small>Motivo: {reserva.motivo}</small>
+                </span>
               </label>
             )
           })}
         </div>
 
-        <div className="chatbot-reservas-footer">
-          <div className="chatbot-reservas-counter">
-            {reservasSelecionadas.length} selecionada(s)
-          </div>
+        <div className="chat-reservas-actions">
+          <span>{reservasSelecionadas.length} selecionada(s)</span>
 
           <button
             type="button"
-            className="btn primary confirmar-reservas-btn"
+            className="btn primary"
             onClick={() => confirmarReservasSelecionadas(msg)}
             disabled={!reservasSelecionadas.length || carregando}
           >
@@ -1190,66 +1266,121 @@ function ChatFluxo() {
     )
   }
 
+  const usuarioLogado = getUsuarioLogado()
+  const inicialUsuario = String(usuarioLogado?.nome || usuarioLogado?.email || "Admin")
+    .trim()
+    .charAt(0)
+    .toUpperCase() || "A"
+
+  function obterHorarioMensagem(msg, index) {
+    if (msg.horario) return msg.horario
+    return index % 2 === 0 ? "09:30" : "09:31"
+  }
+
+  function mensagemUsuarioFoiRespondida(indiceMensagem) {
+    if (mensagens[indiceMensagem]?.autor !== "user") return false
+
+    return mensagens.some(
+      (mensagem, index) => index > indiceMensagem && mensagem?.autor === "bot"
+    )
+  }
+
   return (
-    <div className="chatbot-page premium-chatbot-page">
-      <div className="chatbot-header premium-chatbot-header">
-        <div className="chatbot-title-area">
-          <div className="chatbot-avatar">🤖</div>
-
-          <div>
-            <span>Assistente acadêmico</span>
-            <h1>Chatbot SIGSAS</h1>
-            <p>
-              Reserva guiada com consulta de salas, campus, horário, capacidade
-              e auditoria em tempo real.
-            </p>
-          </div>
-        </div>
-
-        <div className="chatbot-header-actions">
+    <div className="premium-chatbot-page sigsas-chatbot-clean-page">
+      <div className="premium-chatbot-card sigsas-chatbot-expanded-card">
+        <div className="sigsas-chatbot-toolbar">
           <button
-            className="btn secondary"
+            type="button"
+            className="sigsas-chatbot-toolbar-btn sigsas-chatbot-toolbar-btn-secondary"
             onClick={limparChatLocal}
-            disabled={carregando}
           >
+            <span aria-hidden="true">⌫</span>
             Limpar conversa
           </button>
 
           <button
-            className="btn primary"
+            type="button"
+            className="sigsas-chatbot-toolbar-btn sigsas-chatbot-toolbar-btn-primary"
             onClick={reiniciarChat}
-            disabled={carregando}
           >
+            <span aria-hidden="true">↻</span>
             Reiniciar fluxo
           </button>
         </div>
-      </div>
 
-      {renderizarProgresso()}
+        <div className="sigsas-chatbot-progress-wrap">
+          {renderizarProgresso()}
+        </div>
 
-      <div className="chatbot-card premium-chatbot-card">
-        <div className="chatbot-messages">
+        <div className="chatbot-messages sigsas-chatbot-messages-clean">
           {mensagens.map((msg, index) => (
             <div
               key={`${msg.autor}-${index}`}
-              className={`chatbot-message ${msg.autor} premium-message`}
+              className={`sigsas-chatbot-message-row ${
+                msg.autor === "bot" ? "bot" : "user"
+              }`}
             >
-              <span>{msg.autor === "bot" ? "SIGSAS" : "Você"}</span>
+              {msg.autor === "bot" && (
+                <div className="sigsas-chatbot-avatar bot" aria-hidden="true">
+                  <img
+                    src={chatbotRobo}
+                    alt="Assistente SIGSAS"
+                    className="sigsas-chatbot-avatar-image"
+                  />
+                </div>
+              )}
 
-              <p>{msg.texto}</p>
+              <div className={`premium-message ${msg.autor} sigsas-chatbot-message-bubble`}>
+                <span>{msg.autor === "bot" ? "SIGSAS" : "Você"}</span>
+                <p>{msg.texto}</p>
 
-              {msg.autor === "bot" && renderizarInteracao(msg, index)}
+                {msg.autor === "bot" && renderizarInteracao(msg, index)}
+
+                <div className="sigsas-chatbot-message-meta">
+                  <small>{obterHorarioMensagem(msg, index)}</small>
+
+                  {msg.autor === "user" && (
+                    <small
+                      className={`sigsas-chatbot-seen ${
+                        mensagemUsuarioFoiRespondida(index) ? "active" : "pending"
+                      }`}
+                      aria-label={
+                        mensagemUsuarioFoiRespondida(index)
+                          ? "Mensagem visualizada"
+                          : "Mensagem enviada"
+                      }
+                    >
+                      ✓✓
+                    </small>
+                  )}
+                </div>
+              </div>
+
+              {msg.autor === "user" && (
+                <div className="sigsas-chatbot-avatar user" aria-hidden="true">
+                  {inicialUsuario}
+                </div>
+              )}
             </div>
           ))}
 
           {carregando && (
-            <div className="chatbot-message bot premium-message typing-message">
-              <span>SIGSAS</span>
+            <div className="sigsas-chatbot-message-row bot">
+              <div className="sigsas-chatbot-avatar bot" aria-hidden="true">
+                <img
+                  src={chatbotRobo}
+                  alt="Assistente SIGSAS"
+                  className="sigsas-chatbot-avatar-image"
+                />
+              </div>
 
-              <div className="typing-dots">
-                <i />
-                <i />
-                <i />
+              <div className="premium-message bot typing-message sigsas-chatbot-message-bubble">
+                <span>SIGSAS</span>
+                <div className="typing-dots" aria-label="SIGSAS está digitando">
+                  <i />
+                  <i />
+                  <i />
+                </div>
               </div>
             </div>
           )}
@@ -1257,19 +1388,16 @@ function ChatFluxo() {
           <div ref={fimMensagensRef} />
         </div>
 
-        <form
-          className="chatbot-form premium-chatbot-form"
-          onSubmit={enviarMensagemManual}
-        >
+        <form className="premium-chatbot-form sigsas-chatbot-composer" onSubmit={enviarMensagemManual}>
           <input
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            placeholder="Digite sua resposta. Exemplo: 08:00, SIM, ou menu"
+            placeholder="Digite sua resposta... Exemplo: 08:00, SIM, ou menu"
             disabled={carregando}
           />
 
-          <button className="btn primary" type="submit" disabled={carregando}>
-            Enviar
+          <button type="submit" className="sigsas-chatbot-send-btn" disabled={carregando}>
+            ➤
           </button>
         </form>
       </div>

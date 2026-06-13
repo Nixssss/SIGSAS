@@ -25,7 +25,7 @@ function Dashboard({ sair }) {
 
   const [tela, setTela] = useState(() => (isAdmin ? "dashboard" : "salas"))
   const [adminTela, setAdminTela] = useState("resumo")
-  const [tema, setTema] = useState("dark")
+  const [tema, setTema] = useState(() => localStorage.getItem("sigsas_tema") || "light")
 
   const [buscaGlobal, setBuscaGlobal] = useState("")
   const [buscandoGlobal, setBuscandoGlobal] = useState(false)
@@ -66,7 +66,7 @@ function Dashboard({ sair }) {
   }, [isAdmin, tela])
 
   useEffect(() => {
-    const temaSalvo = localStorage.getItem("sigsas_tema") || "dark"
+    const temaSalvo = localStorage.getItem("sigsas_tema") || "light"
 
     setTema(temaSalvo)
     document.documentElement.setAttribute("data-theme", temaSalvo)
@@ -999,8 +999,20 @@ function Dashboard({ sair }) {
             </section>
 
             <div className="mobile-drawer-footer">
-              <button type="button" onClick={alternarTema}>
-                {tema === "dark" ? "☀ Tema claro" : "☾ Tema escuro"}
+              <button
+                type="button"
+                className={`mobile-theme-toggle ${
+                  tema === "dark" ? "is-dark" : "is-light"
+                }`}
+                onClick={alternarTema}
+                aria-label={
+                  tema === "dark"
+                    ? "Tema escuro ativo. Clique para ativar o tema claro."
+                    : "Tema claro ativo. Clique para ativar o tema escuro."
+                }
+              >
+                <span aria-hidden="true">{tema === "dark" ? "☾" : "☀"}</span>
+                {tema === "dark" ? "Tema escuro" : "Tema claro"}
               </button>
 
               <button type="button" className="danger" onClick={handleSair}>
@@ -1011,7 +1023,7 @@ function Dashboard({ sair }) {
         </div>
       )}
 
-      <aside className="sidebar modern-sidebar">
+      <aside className={`sidebar modern-sidebar ${tela === "admin" ? "admin-menu-expanded" : ""}`}>
         <div className="sidebar-brand">
           <div className="brand-icon">⬡</div>
 
@@ -1019,6 +1031,41 @@ function Dashboard({ sair }) {
             <h2>SIGSAS</h2>
             <span>Gestão Inteligente de Salas</span>
           </div>
+        </div>
+
+        <div className="sidebar-theme-top">
+          <button
+            type="button"
+            className={`theme-toggle sidebar-theme-toggle ${
+              tema === "dark" ? "is-dark" : "is-light"
+            }`}
+            onClick={alternarTema}
+            aria-label={
+              tema === "dark"
+                ? "Tema escuro ativo. Clique para ativar o tema claro."
+                : "Tema claro ativo. Clique para ativar o tema escuro."
+            }
+            title={
+              tema === "dark"
+                ? "Tema escuro ativo"
+                : "Tema claro ativo"
+            }
+          >
+            <span className="theme-toggle-icon" aria-hidden="true">
+              {tema === "dark" ? "☾" : "☀"}
+            </span>
+
+            <span className="theme-toggle-content">
+              <strong>{tema === "dark" ? "Tema escuro" : "Tema claro"}</strong>
+              <small>
+                {tema === "dark" ? "Modo noturno ativo" : "Modo claro ativo"}
+              </small>
+            </span>
+
+            <span className="theme-toggle-switch" aria-hidden="true">
+              <i />
+            </span>
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -1109,11 +1156,8 @@ function Dashboard({ sair }) {
         </div>
 
         <div className="sidebar-footer">
-          <button className="theme-toggle" onClick={alternarTema}>
-            {tema === "dark" ? "☀ Tema claro" : "☾ Tema escuro"}
-          </button>
-
           <button className="logout-btn" onClick={handleSair}>
+            <span aria-hidden="true">↪</span>
             Sair
           </button>
         </div>

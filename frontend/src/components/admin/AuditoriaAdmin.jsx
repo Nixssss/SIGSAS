@@ -364,6 +364,77 @@ function AuditoriaAdmin({ showToast }) {
     setDataFim("")
   }
 
+  function gerarClasseSegura(valor) {
+    const texto = normalizarTexto(valor)
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+
+    return texto || "sem-informacao"
+  }
+
+  function formatarRotulo(valor) {
+    const texto = String(valor || "—")
+      .replace(/_/g, " ")
+      .replace(/-/g, " ")
+      .trim()
+
+    if (!texto || texto === "—") return "—"
+
+    return texto
+      .toLowerCase()
+      .split(" ")
+      .filter(Boolean)
+      .map((palavra) => palavra.charAt(0).toUpperCase() + palavra.slice(1))
+      .join(" ")
+  }
+
+  function obterClasseStatus(status) {
+    const statusNormalizado = normalizarTexto(status)
+
+    if (statusNormalizado.includes("sucesso")) return "sucesso"
+    if (statusNormalizado.includes("erro")) return "erro"
+    if (statusNormalizado.includes("abandono")) return "abandono"
+    if (statusNormalizado.includes("cancelado")) return "cancelado"
+    if (statusNormalizado.includes("iniciado")) return "iniciado"
+
+    return gerarClasseSegura(status)
+  }
+
+  function obterClasseAcao(acao, status) {
+    const acaoNormalizada = normalizarTexto(acao)
+    const statusNormalizado = normalizarTexto(status)
+
+    if (statusNormalizado.includes("erro") || acaoNormalizada.includes("erro")) {
+      return "erro"
+    }
+
+    if (acaoNormalizada.includes("login")) {
+      return "login"
+    }
+
+    if (acaoNormalizada.includes("chatbot")) {
+      return "chatbot"
+    }
+
+    if (acaoNormalizada.includes("reserva")) {
+      return "reservas"
+    }
+
+    if (acaoNormalizada.includes("campi") || acaoNormalizada.includes("campus")) {
+      return "campi"
+    }
+
+    if (acaoNormalizada.includes("usuario")) {
+      return "usuarios"
+    }
+
+    if (acaoNormalizada.includes("sala")) {
+      return "salas"
+    }
+
+    return "geral"
+  }
+
   const modalDetalhes =
     logSelecionado &&
     createPortal(
@@ -418,7 +489,14 @@ function AuditoriaAdmin({ showToast }) {
               </p>
 
               <p>
-                <b>Status:</b> {logSelecionado.status}
+                <b>Status:</b>{" "}
+                <span
+                  className={`monitor-status monitor-status-${obterClasseStatus(
+                    logSelecionado.status
+                  )}`}
+                >
+                  {formatarRotulo(logSelecionado.status)}
+                </span>
               </p>
 
               <p>
@@ -798,7 +876,15 @@ function AuditoriaAdmin({ showToast }) {
                   </td>
 
                   <td>
-                    <span className="monitor-action">{log.acao}</span>
+                    <span
+                      className={`monitor-action monitor-action-${obterClasseAcao(
+                        log.acao,
+                        log.status
+                      )}`}
+                      title={log.acao || "Ação não informada"}
+                    >
+                      {formatarRotulo(log.acao)}
+                    </span>
                   </td>
 
                   <td>{log.modulo}</td>
@@ -806,8 +892,12 @@ function AuditoriaAdmin({ showToast }) {
                   <td>{log.etapa || "—"}</td>
 
                   <td>
-                    <span className={`monitor-status ${log.status}`}>
-                      {log.status}
+                    <span
+                      className={`monitor-status monitor-status-${obterClasseStatus(
+                        log.status
+                      )}`}
+                    >
+                      {formatarRotulo(log.status)}
                     </span>
                   </td>
 
