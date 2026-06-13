@@ -31,11 +31,12 @@ DATABASE_URL = URL.create(
 engine = create_engine(
     DATABASE_URL,
     poolclass=QueuePool,
-    pool_size=2,
-    max_overflow=0,
-    pool_timeout=30,
+    pool_size=8,
+    max_overflow=5,
+    pool_timeout=60,
     pool_recycle=300,
     pool_pre_ping=True,
+    pool_use_lifo=True,
     connect_args={
         "sslmode": "require",
         "connect_timeout": 10,

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, text
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -17,7 +17,13 @@ class Sala(Base):
     capacidade = Column(Integer, nullable=False)
     metragem = Column(Integer, nullable=False)
     andar = Column(Integer, nullable=False)
-    ativo = Column(Boolean, default=True)
+
+    ativo = Column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default=text("true"),
+    )
 
     tipo_sala = relationship("TipoSala", back_populates="salas")
     edificio = relationship("Edificio")
