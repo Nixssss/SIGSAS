@@ -7,6 +7,7 @@ from app.api import (
     reservas,
     auth,
     chatfluxo_router,
+    chatbotb_historico,
     instituicoes,
     campi,
     edificios,
@@ -45,6 +46,8 @@ from app.models.sugestao_melhoria import SugestaoMelhoria
 from app.models.curso import Curso
 from app.models.usuario_curso import UsuarioCurso
 from app.models.convite_curso import ConviteCurso
+from app.models.chatbotb_conversa import ChatbotBConversa
+from app.models.chatbotb_mensagem import ChatbotBMensagem
 
 
 def create_db_tables():
@@ -87,6 +90,7 @@ app.add_middleware(
 app.include_router(reservas.router, prefix="/api/v1", tags=["Reservas"])
 app.include_router(auth.router, prefix="/api/v1", tags=["Autenticação"])
 app.include_router(chatfluxo_router.router, prefix="/api/v1", tags=["Chatbot Fluxo"])
+app.include_router(chatbotb_historico.router, prefix="/api/v1", tags=["ChatbotB Histórico"])
 app.include_router(instituicoes.router, prefix="/api/v1", tags=["Instituições"])
 app.include_router(campi.router, prefix="/api/v1", tags=["Campi"])
 app.include_router(edificios.router, prefix="/api/v1", tags=["Edifícios"])

@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
-import { reservasService, salasService } from "../../services/adminService"
+import {
+  campiService,
+  edificiosService,
+  instituicoesService,
+  reservasService,
+  salasService,
+} from "../../services/adminService"
 
 const STATUS_RESERVA = {
   1: "Pendente",
@@ -19,6 +25,9 @@ const CLASSE_STATUS_RESERVA = {
 function ReservasAdmin({ showToast }) {
   const [reservas, setReservas] = useState([])
   const [salas, setSalas] = useState([])
+  const [edificios, setEdificios] = useState([])
+  const [campi, setCampi] = useState([])
+  const [instituicoes, setInstituicoes] = useState([])
 
   const [reservaSelecionada, setReservaSelecionada] = useState(null)
   const [motivoRecusa, setMotivoRecusa] = useState("")
@@ -61,31 +70,163 @@ function ReservasAdmin({ showToast }) {
     try {
       setCarregando(true)
 
-      const [reservasApi, salasApi] = await Promise.all([
+      const [
+        reservasApi,
+        salasApi,
+        edificiosApi,
+        campiApi,
+        instituicoesApi,
+      ] = await Promise.all([
         reservasService.listar(),
         salasService.listar(),
+        edificiosService.listar(),
+        campiService.listar(),
+        instituicoesService.listar(),
       ])
 
       setReservas(Array.isArray(reservasApi) ? reservasApi : [])
       setSalas(Array.isArray(salasApi) ? salasApi : [])
+      setEdificios(Array.isArray(edificiosApi) ? edificiosApi : [])
+      setCampi(Array.isArray(campiApi) ? campiApi : [])
+      setInstituicoes(Array.isArray(instituicoesApi) ? instituicoesApi : [])
     } catch (error) {
       console.error("Erro ao carregar reservas administrativas:", error)
       showToast?.("Erro ao carregar reservas", "erro")
       setReservas([])
       setSalas([])
+      setEdificios([])
+      setCampi([])
+      setInstituicoes([])
     } finally {
       setCarregando(false)
     }
   }
 
-  function getNomeSala(idSala) {
-    const sala = salas.find(
-      (s) =>
-        Number(s.idSala) === Number(idSala) ||
-        Number(s.id) === Number(idSala)
+  function mesmoId(valorA, valorB) {
+    return Number(valorA) === Number(valorB)
+  }
+
+  function primeiroValorValido(...valores) {
+    const encontrado = valores.find(
+      (valor) => valor !== undefined && valor !== null && valor !== ""
     )
 
-    return sala?.nome || "Sala não encontrada"
+    return encontrado ?? null
+  }
+
+  function textoOuNaoInformado(valor) {
+    return valor !== undefined && valor !== null && valor !== ""
+      ? valor
+      : "Não informado"
+  }
+
+  function getSala(idSala) {
+    return (
+      salas.find(
+        (sala) =>
+          mesmoId(sala.idSala, idSala) ||
+          mesmoId(sala.id, idSala)
+      ) || null
+    )
+  }
+
+  function getEdificio(sala) {
+    if (!sala) return null
+
+    if (sala.edificio && typeof sala.edificio === "object") {
+      return sala.edificio
+    }
+
+    const idEdificio = primeiroValorValido(
+      sala.idEdificio,
+      sala.id_edificio,
+      sala.edificioId,
+      sala.id_edificio_sala
+    )
+
+    return (
+      edificios.find(
+        (edificio) =>
+          mesmoId(edificio.id, idEdificio) ||
+          mesmoId(edificio.idEdificio, idEdificio)
+      ) || null
+    )
+  }
+
+  function getCampus(sala, edificio) {
+    if (sala?.campus && typeof sala.campus === "object") {
+      return sala.campus
+    }
+
+    if (edificio?.campus && typeof edificio.campus === "object") {
+      return edificio.campus
+    }
+
+    const idCampus = primeiroValorValido(
+      sala?.idCampus,
+      sala?.id_campus,
+      sala?.campusId,
+      edificio?.idCampus,
+      edificio?.id_campus,
+      edificio?.campusId
+    )
+
+    return (
+      campi.find(
+        (campus) =>
+          mesmoId(campus.id, idCampus) ||
+          mesmoId(campus.idCampus, idCampus)
+      ) || null
+    )
+  }
+
+  function getInstituicao(sala, campus) {
+    if (sala?.instituicao && typeof sala.instituicao === "object") {
+      return sala.instituicao
+    }
+
+    if (campus?.instituicao && typeof campus.instituicao === "object") {
+      return campus.instituicao
+    }
+
+    const idInstituicao = primeiroValorValido(
+      sala?.idInstituicao,
+      sala?.id_instituicao,
+      sala?.instituicaoId,
+      campus?.idInstituicao,
+      campus?.id_instituicao,
+      campus?.instituicaoId
+    )
+
+    return (
+      instituicoes.find(
+        (instituicao) =>
+          mesmoId(instituicao.id, idInstituicao) ||
+          mesmoId(instituicao.idInstituicao, idInstituicao)
+      ) || null
+    )
+  }
+
+  function getDetalhesSala(idSala) {
+    const sala = getSala(idSala)
+    const edificio = getEdificio(sala)
+    const campus = getCampus(sala, edificio)
+    const instituicao = getInstituicao(sala, campus)
+
+    return {
+      nome: textoOuNaoInformado(sala?.nome),
+      numero: textoOuNaoInformado(sala?.numero),
+      andar: textoOuNaoInformado(sala?.andar),
+      edificio: textoOuNaoInformado(edificio?.nome || sala?.nomeEdificio),
+      campus: textoOuNaoInformado(campus?.nome || sala?.nomeCampus),
+      instituicao: textoOuNaoInformado(
+        instituicao?.nome || sala?.nomeInstituicao
+      ),
+    }
+  }
+
+  function getNomeSala(idSala) {
+    return getDetalhesSala(idSala).nome
   }
 
   function getUsuarioAprovacaoId() {
@@ -97,14 +238,66 @@ function ReservasAdmin({ showToast }) {
     }
   }
 
-  function formatarDataCriacao(data) {
+  function formatarDataBR(data) {
+    if (!data) return "Não informada"
+
+    const texto = String(data).trim()
+
+    if (/^\d{4}-\d{2}-\d{2}/.test(texto)) {
+      const [ano, mes, dia] = texto.slice(0, 10).split("-")
+      return `${dia}/${mes}/${ano}`
+    }
+
+    const dataConvertida = new Date(texto)
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return "Não informada"
+    }
+
+    return dataConvertida.toLocaleDateString("pt-BR")
+  }
+
+  function formatarHoraBR(hora) {
+    if (!hora) return "Não informada"
+
+    const texto = String(hora).trim()
+
+    if (/^\d{2}:\d{2}/.test(texto)) {
+      return texto.slice(0, 5)
+    }
+
+    return texto
+  }
+
+  function formatarDataHoraCriacao(data) {
     if (!data) return "Não informado"
 
-    try {
-      return new Date(data).toLocaleString("pt-BR")
-    } catch {
+    const dataConvertida = new Date(data)
+
+    if (Number.isNaN(dataConvertida.getTime())) {
       return "Não informado"
     }
+
+    return dataConvertida.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
+  function formatarPeriodoReserva(reserva) {
+    const dataInicio = formatarDataBR(reserva.dataInicio)
+    const dataFim = formatarDataBR(reserva.dataFim)
+    const horaInicio = formatarHoraBR(reserva.horaInicio)
+    const horaFim = formatarHoraBR(reserva.horaFim)
+
+    if (dataInicio === dataFim) {
+      return `${dataInicio}, das ${horaInicio} às ${horaFim}`
+    }
+
+    return `${dataInicio} às ${horaInicio} até ${dataFim} às ${horaFim}`
   }
 
   async function aprovarReserva(reserva) {
@@ -280,9 +473,23 @@ function ReservasAdmin({ showToast }) {
   )
 
   function DadosReserva({ r }) {
+    const sala = getDetalhesSala(r.idSala)
+
     return (
-      <span>
-        <strong>{getNomeSala(r.idSala)}</strong>
+      <span className="reserva-dados">
+        <strong>{sala.nome}</strong>
+        <br />
+
+        <small>Número da sala: {sala.numero}</small>
+        <br />
+
+        <small>Campus: {sala.campus}</small>
+        <br />
+
+        <small>Edifício: {sala.edificio}</small>
+        <br />
+
+        <small>Andar: {sala.andar}</small>
         <br />
 
         <small>
@@ -299,7 +506,7 @@ function ReservasAdmin({ showToast }) {
         <br />
 
         <small>
-          Instituição: {r.instituicaoUsuarioReserva || "Não informada"}
+          Instituição: {r.instituicaoUsuarioReserva || sala.instituicao}
         </small>
         <br />
 
@@ -315,10 +522,7 @@ function ReservasAdmin({ showToast }) {
         </small>
         <br />
 
-        <small>
-          Data: {r.dataInicio} às {r.horaInicio} até {r.dataFim} às{" "}
-          {r.horaFim}
-        </small>
+        <small>Data: {formatarPeriodoReserva(r)}</small>
         <br />
 
         <small>Motivo da reserva: {r.motivo || "Não informado"}</small>
@@ -327,7 +531,7 @@ function ReservasAdmin({ showToast }) {
         <small>Pessoas: {r.qtdPessoas || "Não informado"}</small>
         <br />
 
-        <small>Solicitado em: {formatarDataCriacao(r.dataCriacao)}</small>
+        <small>Solicitado em: {formatarDataHoraCriacao(r.dataCriacao)}</small>
 
         {r.justificativa && (
           <>
@@ -391,11 +595,7 @@ function ReservasAdmin({ showToast }) {
         <form onSubmit={confirmarRecusa} className="admin-reserva-modal-form">
           <div className="admin-reserva-info">
             <strong>{getNomeSala(reservaSelecionada.idSala)}</strong>
-            <span>
-              {reservaSelecionada.dataInicio} às{" "}
-              {reservaSelecionada.horaInicio} até{" "}
-              {reservaSelecionada.dataFim} às {reservaSelecionada.horaFim}
-            </span>
+            <span>{formatarPeriodoReserva(reservaSelecionada)}</span>
           </div>
 
           <label>
@@ -443,11 +643,7 @@ function ReservasAdmin({ showToast }) {
         >
           <div className="admin-reserva-info">
             <strong>{getNomeSala(reservaCancelamento.idSala)}</strong>
-            <span>
-              {reservaCancelamento.dataInicio} às{" "}
-              {reservaCancelamento.horaInicio} até{" "}
-              {reservaCancelamento.dataFim} às {reservaCancelamento.horaFim}
-            </span>
+            <span>{formatarPeriodoReserva(reservaCancelamento)}</span>
           </div>
 
           <label>
@@ -494,7 +690,13 @@ function ReservasAdmin({ showToast }) {
 
         {!carregando &&
           reservasPendentes.map((r) => (
-            <div key={r.idReserva} className={`list-row reserva-row status-${CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] || "desconhecido"}`}>
+            <div
+              key={r.idReserva}
+              className={`list-row reserva-row status-${
+                CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] ||
+                "desconhecido"
+              }`}
+            >
               <DadosReserva r={r} />
 
               <div className="actions">
@@ -542,7 +744,13 @@ function ReservasAdmin({ showToast }) {
 
         {!carregando &&
           reservasAprovadas.map((r) => (
-            <div key={r.idReserva} className={`list-row reserva-row status-${CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] || "desconhecido"}`}>
+            <div
+              key={r.idReserva}
+              className={`list-row reserva-row status-${
+                CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] ||
+                "desconhecido"
+              }`}
+            >
               <DadosReserva r={r} />
 
               <div className="actions">
@@ -572,7 +780,13 @@ function ReservasAdmin({ showToast }) {
 
         {!carregando &&
           historicoReservas.map((r) => (
-            <div key={r.idReserva} className={`list-row no-button-row reserva-row status-${CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] || "desconhecido"}`}>
+            <div
+              key={r.idReserva}
+              className={`list-row no-button-row reserva-row status-${
+                CLASSE_STATUS_RESERVA[Number(r.idStatusReserva)] ||
+                "desconhecido"
+              }`}
+            >
               <DadosReserva r={r} />
             </div>
           ))}
