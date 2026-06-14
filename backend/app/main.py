@@ -68,14 +68,31 @@ app = FastAPI(
 
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "")
+FRONTEND_URLS = os.getenv("FRONTEND_URLS", "")
 
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://sigsas-frontend.netlify.app",
+    "https://sigsas.com.br",
+    "https://www.sigsas.com.br",
 ]
 
 if FRONTEND_URL:
-    origins.append(FRONTEND_URL)
+    origins.append(FRONTEND_URL.strip())
+
+if FRONTEND_URLS:
+    urls_extras = [
+        url.strip()
+        for url in FRONTEND_URLS.split(",")
+        if url.strip()
+    ]
+
+    origins.extend(urls_extras)
+
+origins = list(dict.fromkeys(origins))
 
 
 app.add_middleware(
