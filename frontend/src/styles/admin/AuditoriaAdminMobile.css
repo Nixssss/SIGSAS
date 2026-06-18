@@ -1,0 +1,560 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-hero,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-panel,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-alert-card,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-table-card {
+    border-radius: 22px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #d8e4f0;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-hero span {
+    display: inline-flex;
+    width: fit-content;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eef5fc;
+    color: #0f4c8a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-hero h2 {
+    margin: 4px 0 6px;
+    font-size: 24px;
+    line-height: 1.1;
+    color: #0f2742;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-hero p,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-panel-header p,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-table-header p {
+    margin: 0;
+    color: #607188;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .btn {
+    min-height: 42px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 12px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-stats-grid,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-alerts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-stat,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-alert-card {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-stat span,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-stat small {
+    font-size: 12px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-stat strong {
+    font-size: 24px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-panels {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-panel-header h3,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-table-header h3 {
+    margin: 0 0 4px;
+    font-size: 17px;
+    line-height: 1.2;
+    color: #0f2742;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-donut-area {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    justify-items: center;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-donut {
+    width: 138px;
+    height: 138px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-donut > div {
+    width: 88px;
+    height: 88px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-legend {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-legend p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    color: #4e6278;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #f8fbff;
+    border: 1px solid #e2ecf6;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .module-bars,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .timeline-bars,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-alert-list {
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .module-bar-row {
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .module-bar-info {
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .module-bar-info span {
+    max-width: 75%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .timeline-bars {
+    height: 164px;
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .timeline-item span {
+    font-size: 11px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-alert-item {
+    width: 100%;
+    text-align: left;
+    border-radius: 14px;
+    padding: 12px;
+    min-height: auto;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-alert-item strong,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-alert-item span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-filter-grid input,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-filter-grid select {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid #c8d7e6;
+    background: #fbfdff;
+    color: #16324f;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-header {
+    margin-top: 14px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-item {
+    background: #fdfefe;
+    border: 1px solid #d8e4f0;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-item-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-date {
+    display: block;
+    color: #5f7388;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-item-top h4 {
+    margin: 0 0 2px;
+    color: #0f2742;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-item-top small {
+    display: block;
+    color: #6e8195;
+    font-size: 12px;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-module,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-status,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-action {
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.25;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-field {
+    background: #f8fbff;
+    border: 1px solid #e2ecf6;
+    border-radius: 14px;
+    padding: 10px 12px;
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-field span {
+    display: block;
+    color: #62758a;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-field strong {
+    display: block;
+    color: #0f2742;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+    word-break: break-word;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-field-full {
+    grid-column: 1 / -1;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-break {
+    word-break: break-all;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .auditoria-mobile-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-empty {
+    border-radius: 16px;
+    padding: 18px 14px;
+    text-align: center;
+    background: #f8fbff;
+    border: 1px dashed #d4e1ef;
+    color: #62758a;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-table-wrapper,
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-table {
+    display: none;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal {
+    width: min(92vw, 420px);
+    max-height: 86vh;
+    overflow: hidden;
+    border-radius: 22px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body {
+    max-height: calc(86vh - 150px);
+    overflow-y: auto;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-detail-grid p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #16324f;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body textarea {
+    width: 100%;
+    resize: none;
+    border-radius: 14px;
+    border: 1px solid #cddae7;
+    padding: 12px;
+    background: #fbfdff;
+    box-sizing: border-box;
+    color: #24384d;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-actions .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Modal compacto: a página não rola; apenas o conteúdo interno do popup rola. */
+  body.admin-mobile-active .monitor-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 12px !important;
+    overflow: hidden !important;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+    background: rgba(6, 18, 34, 0.56) !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal {
+    position: relative !important;
+    width: min(100%, 390px) !important;
+    max-width: 390px !important;
+    height: auto !important;
+    max-height: min(80dvh, 640px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border-radius: 20px !important;
+    background: #eef3f9 !important;
+    box-shadow: 0 20px 42px rgba(2, 13, 29, 0.34) !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-header {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    min-height: auto !important;
+    padding: 18px 56px 14px 18px !important;
+    margin: 0 !important;
+    border-bottom: 1px solid #d5e0eb !important;
+    background: #f8fbff !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-header span {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    color: #1474b8 !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-header h3 {
+    max-width: 100% !important;
+    margin: 3px 0 4px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 20px !important;
+    line-height: 1.12 !important;
+    color: #0f2742 !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-header p {
+    margin: 0 !important;
+    color: #5d7187 !important;
+    font-size: 12px !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-header > button {
+    position: absolute !important;
+    top: 13px !important;
+    right: 13px !important;
+    z-index: 3 !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    border: 1px solid #d6e2ed !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    color: #0f2742 !important;
+    font-size: 25px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    box-shadow: 0 4px 10px rgba(15, 39, 66, 0.06) !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
+    padding: 14px 16px !important;
+    scrollbar-width: thin;
+    scrollbar-color: #aac1d7 transparent;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #aac1d7;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-detail-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-detail-grid p {
+    min-width: 0 !important;
+    padding: 10px 11px !important;
+    border: 1px solid #dbe5ef !important;
+    border-radius: 13px !important;
+    background: #ffffff !important;
+    color: #21374e !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body label {
+    margin-top: 12px !important;
+    gap: 6px !important;
+    font-size: 13px !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-body textarea {
+    min-height: 110px !important;
+    max-height: 180px !important;
+    padding: 11px 12px !important;
+    border-radius: 14px !important;
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-actions {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom)) !important;
+    margin: 0 !important;
+    border-top: 1px solid #d5e0eb !important;
+    background: #f8fbff !important;
+  }
+
+  body.admin-mobile-active .monitor-auditoria.auditoria-mobile-pro .monitor-modal-actions .btn {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+}

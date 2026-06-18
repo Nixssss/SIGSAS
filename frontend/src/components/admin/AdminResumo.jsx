@@ -1,12 +1,11 @@
-function AdminResumo({ instituicoes, campi, edificios, salas }) {
-  return (
-    <div className="card dashboard-grid">
-      <div className="dash-box">🏛 Instituições: {instituicoes.length}</div>
-      <div className="dash-box">🏫 Campi: {campi.length}</div>
-      <div className="dash-box">🏢 Edifícios: {edificios.length}</div>
-      <div className="dash-box">🚪 Salas: {salas.length}</div>
-    </div>
-  )
+import useAdminViewport from "./useAdminViewport"
+import AdminResumoDesktop from "./AdminResumoDesktop"
+import AdminResumoMobile from "./AdminResumoMobile"
+
+function AdminResumo(props) {
+  const mobile = useAdminViewport()
+
+  return mobile ? <AdminResumoMobile {...props} /> : <AdminResumoDesktop {...props} />
 }
 
 export default AdminResumo

@@ -1,0 +1,672 @@
+/* =========================================================
+   VISÃO DO SISTEMA - MOBILE SIGSAS
+   Exclusivo para SistemaResumoMobile.jsx.
+   Não altera SistemaResumoDesktop.jsx nem o App.css.
+   ========================================================= */
+
+.sistema-mobile-page {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sistema-mobile-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .sistema-mobile-hero {
+    position: relative;
+    min-height: 167px;
+    overflow: hidden;
+    padding: 19px;
+    border: 1px solid rgba(159, 213, 239, 0.82);
+    border-radius: 24px;
+    background: linear-gradient(135deg, #0b4279 0%, #0f6399 54%, #00a6df 100%);
+    box-shadow: 0 17px 31px rgba(15, 79, 134, 0.20);
+    color: #ffffff;
+    animation: sistemaMobileHeroIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .sistema-mobile-hero > div:not(.sistema-mobile-hero-decoration) {
+    position: relative;
+    z-index: 2;
+    max-width: 247px;
+  }
+
+  .sistema-mobile-hero > div > span {
+    display: inline-block;
+    color: #9ce7ff;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.12em;
+  }
+
+  .sistema-mobile-hero h1 {
+    margin: 8px 0 7px;
+    color: #ffffff;
+    font-size: 25px;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-hero p {
+    margin: 0;
+    color: rgba(240, 250, 255, 0.88);
+    font-size: 11.5px;
+    line-height: 1.5;
+    font-weight: 750;
+  }
+
+  .sistema-mobile-hero-decoration {
+    position: absolute;
+    top: -45px;
+    right: -26px;
+    width: 164px;
+    height: 171px;
+    border: 1px solid rgba(255, 255, 255, 0.23);
+    border-radius: 35px;
+    transform: rotate(21deg);
+    animation: sistemaMobileHeroShape 5.6s ease-in-out infinite;
+  }
+
+  .sistema-mobile-hero-decoration::before {
+    content: "";
+    position: absolute;
+    inset: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 23px;
+  }
+
+  .sistema-mobile-hero-decoration span {
+    position: absolute;
+    right: 18px;
+    bottom: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: rgba(169, 236, 255, 0.72);
+    box-shadow: 0 0 0 10px rgba(169, 236, 255, 0.10);
+    animation: sistemaMobileOrb 3.8s ease-in-out infinite;
+  }
+
+  .sistema-mobile-hero-decoration i {
+    position: absolute;
+    left: 17px;
+    bottom: 18px;
+    width: 81px;
+    height: 58px;
+    border: 1px solid rgba(255, 255, 255, 0.21);
+    border-radius: 14px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .sistema-mobile-hero-icon {
+    position: absolute;
+    z-index: 3;
+    right: 15px;
+    bottom: 15px;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    backdrop-filter: blur(8px);
+  }
+
+  .sistema-mobile-hero-icon .sistema-svg-icon {
+    width: 21px;
+    height: 21px;
+  }
+
+  .sistema-mobile-objective-card {
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 37px minmax(0, 1fr);
+    align-items: flex-start;
+    gap: 11px;
+    border: 1px solid #cbe3f1;
+    border-radius: 20px;
+    background: #eef9ff;
+  }
+
+  .sistema-mobile-objective-card > span {
+    width: 37px;
+    height: 37px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+    box-shadow: 0 7px 14px rgba(15, 79, 134, 0.16);
+  }
+
+  .sistema-mobile-objective-card .sistema-svg-icon {
+    width: 19px;
+    height: 19px;
+  }
+
+  .sistema-mobile-objective-card div {
+    min-width: 0;
+  }
+
+  .sistema-mobile-objective-card small {
+    display: block;
+    color: #0b75ad;
+    font-size: 8px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+  }
+
+  .sistema-mobile-objective-card h2 {
+    margin: 4px 0;
+    color: #123e63;
+    font-size: 13px;
+    line-height: 1.25;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-objective-card p {
+    margin: 0;
+    color: #66849c;
+    font-size: 9.5px;
+    line-height: 1.45;
+    font-weight: 750;
+  }
+
+  .sistema-mobile-section {
+    padding: 16px;
+    border: 1px solid #d4e4ef;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.90);
+    box-shadow: 0 10px 24px rgba(15, 79, 134, 0.07);
+  }
+
+  .sistema-mobile-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 13px;
+  }
+
+  .sistema-mobile-section-header > div > span {
+    display: inline-block;
+    color: #0d76b0;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.10em;
+  }
+
+  .sistema-mobile-section-header h2 {
+    margin: 4px 0 0;
+    color: #092f55;
+    font-size: 16px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-section-count,
+  .sistema-mobile-section-icon {
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1px solid #cae4f3;
+    border-radius: 11px;
+    background: #ecf8ff;
+    color: #0b4279;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-section-icon .sistema-svg-icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .sistema-mobile-module-list {
+    display: grid;
+    gap: 9px;
+  }
+
+  .sistema-mobile-module-card {
+    min-height: 76px;
+    padding: 11px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: flex-start;
+    gap: 9px;
+    border: 1px solid #d7e6ef;
+    border-radius: 16px;
+    background: #fbfdff;
+    animation: sistemaMobileCardIn 0.34s ease both;
+    animation-delay: var(--delay);
+  }
+
+  .sistema-mobile-module-icon {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #eaf7fd;
+    color: #0b75ad;
+  }
+
+  .sistema-mobile-module-icon .sistema-svg-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sistema-mobile-module-card div {
+    min-width: 0;
+  }
+
+  .sistema-mobile-module-card h3 {
+    margin: 0;
+    color: #164268;
+    font-size: 10.5px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-module-card p {
+    margin: 4px 0 0;
+    color: #6f899f;
+    font-size: 8.8px;
+    line-height: 1.42;
+    font-weight: 750;
+  }
+
+  .sistema-mobile-stack-list {
+    display: grid;
+    gap: 7px;
+  }
+
+  .sistema-mobile-stack-group {
+    overflow: hidden;
+    border: 1px solid #d5e5ef;
+    border-radius: 13px;
+    background: #fbfdff;
+  }
+
+  .sistema-mobile-stack-group summary {
+    min-height: 39px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    color: #234d70;
+    font-size: 10px;
+    font-weight: 950;
+    list-style: none;
+  }
+
+  .sistema-mobile-stack-group summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .sistema-mobile-stack-group summary span {
+    padding: 4px 6px;
+    border-radius: 999px;
+    background: #eaf7fd;
+    color: #0b75ad;
+    font-size: 7.5px;
+    font-weight: 900;
+  }
+
+  .sistema-mobile-stack-group > div {
+    padding: 0 10px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .sistema-mobile-stack-group > div span,
+  .sistema-mobile-entity-chips span {
+    max-width: 100%;
+    padding: 5px 7px;
+    overflow: hidden;
+    border: 1px solid #d2e6f1;
+    border-radius: 999px;
+    background: #f2faff;
+    color: #53748e;
+    font-size: 8px;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sistema-mobile-entity-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sistema-mobile-note {
+    margin-top: 12px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #cce4f2;
+    border-radius: 14px;
+    background: #eef9ff;
+  }
+
+  .sistema-mobile-note > span {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #d9f1fc;
+    color: #0b75ad;
+  }
+
+  .sistema-mobile-note .sistema-svg-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sistema-mobile-note p {
+    margin: 0;
+    color: #5f819b;
+    font-size: 8.7px;
+    line-height: 1.42;
+    font-weight: 800;
+  }
+
+  .sistema-mobile-differentials {
+    display: grid;
+    gap: 8px;
+  }
+
+  .sistema-mobile-differentials > div {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 12px;
+    background: #f8fcff;
+  }
+
+  .sistema-mobile-differentials > div > span {
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: #e8f8ef;
+    color: #15803d;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-differentials p {
+    margin: 0;
+    color: #456b87;
+    font-size: 8.8px;
+    line-height: 1.35;
+    font-weight: 800;
+  }
+
+  .sistema-mobile-flow {
+    display: grid;
+    gap: 0;
+  }
+
+  .sistema-mobile-flow article {
+    position: relative;
+    min-height: 59px;
+    padding: 0 0 11px 34px;
+  }
+
+  .sistema-mobile-flow article::before {
+    content: "";
+    position: absolute;
+    top: 27px;
+    bottom: -1px;
+    left: 12px;
+    width: 1px;
+    background: #d5e6f0;
+  }
+
+  .sistema-mobile-flow article:last-child::before {
+    display: none;
+  }
+
+  .sistema-mobile-flow > article > span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25px;
+    height: 25px;
+    display: grid;
+    place-items: center;
+    border: 2px solid #d4edf9;
+    border-radius: 999px;
+    background: #0b75ad;
+    color: #ffffff;
+    box-shadow: 0 0 0 1px #8fd8f6;
+    font-size: 7.5px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-flow h3 {
+    margin: 2px 0 3px;
+    color: #1a456a;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-flow p {
+    margin: 0;
+    color: #718a9f;
+    font-size: 8.5px;
+    line-height: 1.38;
+    font-weight: 750;
+  }
+
+  .sistema-mobile-status-list {
+    display: grid;
+    gap: 9px;
+  }
+
+  .sistema-mobile-status-card {
+    padding: 13px;
+    border: 1px solid #d4e4ef;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.90);
+    box-shadow: 0 8px 19px rgba(15, 79, 134, 0.06);
+  }
+
+  .sistema-mobile-status-card > span {
+    display: inline-flex;
+    padding: 5px 7px;
+    border-radius: 999px;
+    background: #e8f8ef;
+    color: #15803d;
+    font-size: 8px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-status-card.evolucao > span {
+    background: #fff4dd;
+    color: #b77908;
+  }
+
+  .sistema-mobile-status-card h3 {
+    margin: 7px 0 3px;
+    color: #153a60;
+    font-size: 12px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-status-card p {
+    margin: 0;
+    color: #718a9f;
+    font-size: 9px;
+    line-height: 1.42;
+    font-weight: 750;
+  }
+
+  .sistema-mobile-delivery-card {
+    padding: 13px;
+    display: grid;
+    grid-template-columns: 35px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #d5c9f5;
+    border-radius: 18px;
+    background: #f5f1ff;
+  }
+
+  .sistema-mobile-delivery-card > span {
+    width: 35px;
+    height: 35px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #e8ddff;
+    color: #6d28d9;
+  }
+
+  .sistema-mobile-delivery-card .sistema-svg-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sistema-mobile-delivery-card div {
+    min-width: 0;
+  }
+
+  .sistema-mobile-delivery-card strong {
+    display: block;
+    color: #3d1b78;
+    font-size: 10.5px;
+    font-weight: 950;
+  }
+
+  .sistema-mobile-delivery-card p {
+    margin: 4px 0 0;
+    color: #725e98;
+    font-size: 9px;
+    line-height: 1.4;
+    font-weight: 750;
+  }
+
+  html[data-theme="dark"] .sistema-mobile-objective-card,
+  html[data-theme="dark"] .sistema-mobile-section,
+  html[data-theme="dark"] .sistema-mobile-status-card {
+    border-color: rgba(105, 149, 182, 0.20);
+    background: rgba(10, 23, 40, 0.94);
+  }
+
+  html[data-theme="dark"] .sistema-mobile-objective-card h2,
+  html[data-theme="dark"] .sistema-mobile-section-header h2,
+  html[data-theme="dark"] .sistema-mobile-module-card h3,
+  html[data-theme="dark"] .sistema-mobile-stack-group summary,
+  html[data-theme="dark"] .sistema-mobile-flow h3,
+  html[data-theme="dark"] .sistema-mobile-status-card h3 {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .sistema-mobile-module-card,
+  html[data-theme="dark"] .sistema-mobile-stack-group,
+  html[data-theme="dark"] .sistema-mobile-differentials > div,
+  html[data-theme="dark"] .sistema-mobile-stack-group > div span,
+  html[data-theme="dark"] .sistema-mobile-entity-chips span,
+  html[data-theme="dark"] .sistema-mobile-flow article {
+    border-color: rgba(105, 149, 182, 0.20);
+    background: #0d2138;
+  }
+
+  html[data-theme="dark"] .sistema-mobile-objective-card p,
+  html[data-theme="dark"] .sistema-mobile-module-card p,
+  html[data-theme="dark"] .sistema-mobile-note p,
+  html[data-theme="dark"] .sistema-mobile-differentials p,
+  html[data-theme="dark"] .sistema-mobile-flow p,
+  html[data-theme="dark"] .sistema-mobile-status-card p {
+    color: #a6c0d2;
+  }
+
+  html[data-theme="dark"] .sistema-mobile-note {
+    border-color: rgba(0, 166, 223, 0.24);
+    background: #102941;
+  }
+
+  html[data-theme="dark"] .sistema-mobile-delivery-card {
+    border-color: rgba(157, 120, 255, 0.25);
+    background: #1d1730;
+  }
+
+  html[data-theme="dark"] .sistema-mobile-delivery-card strong {
+    color: #e9e1ff;
+  }
+
+  html[data-theme="dark"] .sistema-mobile-delivery-card p {
+    color: #c2b8de;
+  }
+}
+
+@keyframes sistemaMobileHeroIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sistemaMobileCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sistemaMobileHeroShape {
+  0%,
+  100% {
+    transform: rotate(21deg) translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: rotate(16deg) translate3d(-7px, 7px, 0);
+  }
+}
+
+@keyframes sistemaMobileOrb {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-3px, 4px, 0) scale(1.06);
+  }
+}

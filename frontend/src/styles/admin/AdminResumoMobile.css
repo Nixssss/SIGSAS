@@ -1,0 +1,81 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .admin-mobile-overview {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .admin-mobile-resumo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin: 0 0 12px;
+  }
+
+  body.admin-mobile-active .admin-mobile-resumo-item {
+    display: flex;
+    min-width: 0;
+    min-height: 64px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px;
+    border: 1px solid var(--admin-mobile-border);
+    border-radius: 14px;
+    background: var(--admin-mobile-surface);
+    box-shadow: var(--admin-mobile-shadow-soft);
+  }
+
+  body.admin-mobile-active .admin-mobile-resumo-item span {
+    overflow: hidden;
+    color: var(--admin-mobile-muted);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.admin-mobile-active .admin-mobile-resumo-item strong {
+    color: var(--admin-mobile-text);
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  body.admin-mobile-active .admin-mobile-summary-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px;
+    width: 100%;
+  }
+
+  body.admin-mobile-active .admin-mobile-summary-grid > .card.admin-card {
+    display: block !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 14px !important;
+    border-radius: 18px !important;
+  }
+
+  body.admin-mobile-active .admin-mobile-summary-grid .admin-accordion-list {
+    display: grid !important;
+    gap: 8px;
+    margin: 0 !important;
+  }
+
+  body.admin-mobile-active .admin-mobile-summary-grid .admin-accordion-group {
+    margin: 0 !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+  }
+
+  body.admin-mobile-active .admin-mobile-summary-grid .admin-accordion-header {
+    min-height: 52px !important;
+    padding: 10px 11px !important;
+  }
+
+  body.admin-mobile-active .admin-mobile-summary-grid .admin-accordion-row {
+    min-height: 0 !important;
+    padding: 9px 11px !important;
+  }
+}

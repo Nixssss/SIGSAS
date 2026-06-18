@@ -1,0 +1,292 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active {
+    --admin-mobile-surface: #ffffff;
+    --admin-mobile-surface-soft: #f5f8fc;
+    --admin-mobile-border: #d6e2ee;
+    --admin-mobile-text: #10213a;
+    --admin-mobile-muted: #64748b;
+    --admin-mobile-primary: #075d9d;
+    --admin-mobile-primary-strong: #064b80;
+    --admin-mobile-danger: #d9485f;
+    --admin-mobile-shadow: 0 10px 24px rgba(15, 47, 79, 0.08);
+    --admin-mobile-shadow-soft: 0 5px 14px rgba(15, 47, 79, 0.06);
+  }
+
+  body[data-theme="dark"].admin-mobile-active,
+  html[data-theme="dark"] body.admin-mobile-active {
+    --admin-mobile-surface: #101b2d;
+    --admin-mobile-surface-soft: #142238;
+    --admin-mobile-border: #2b3d59;
+    --admin-mobile-text: #edf4ff;
+    --admin-mobile-muted: #a9b9cf;
+    --admin-mobile-primary: #58b8f3;
+    --admin-mobile-primary-strong: #7acbff;
+    --admin-mobile-danger: #fb7185;
+    --admin-mobile-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+    --admin-mobile-shadow-soft: 0 5px 14px rgba(0, 0, 0, 0.18);
+  }
+
+  body.admin-mobile-active .admin-mobile-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 12px 12px 104px;
+    overflow-x: clip;
+    color: var(--admin-mobile-text);
+    box-sizing: border-box;
+  }
+
+  body.admin-mobile-active .admin-mobile-page *,
+  body.admin-mobile-active .admin-mobile-page *::before,
+  body.admin-mobile-active .admin-mobile-page *::after {
+    box-sizing: border-box;
+  }
+
+  body.admin-mobile-active .admin-mobile-page > *,
+  body.admin-mobile-active .admin-mobile-page section,
+  body.admin-mobile-active .admin-mobile-page article,
+  body.admin-mobile-active .admin-mobile-page div {
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .grid-3,
+  body.admin-mobile-active .admin-mobile-page .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .card,
+  body.admin-mobile-active .admin-mobile-page .admin-card,
+  body.admin-mobile-active .admin-mobile-page .usuarios-list-card,
+  body.admin-mobile-active .admin-mobile-page .feedback-admin-card,
+  body.admin-mobile-active .admin-mobile-page .chatbotb-card,
+  body.admin-mobile-active .admin-mobile-page .monitor-table-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 0 12px;
+    padding: 14px;
+    overflow: visible;
+    border: 1px solid var(--admin-mobile-border);
+    border-radius: 18px;
+    background: var(--admin-mobile-surface);
+    box-shadow: var(--admin-mobile-shadow);
+  }
+
+  body.admin-mobile-active .admin-mobile-page h2,
+  body.admin-mobile-active .admin-mobile-page h3,
+  body.admin-mobile-active .admin-mobile-page h4 {
+    max-width: 100%;
+    margin-top: 0;
+    overflow-wrap: anywhere;
+    color: var(--admin-mobile-text);
+    line-height: 1.2;
+  }
+
+  body.admin-mobile-active .admin-mobile-page h2 {
+    margin-bottom: 5px;
+    font-size: clamp(21px, 6vw, 26px);
+  }
+
+  body.admin-mobile-active .admin-mobile-page h3 {
+    margin-bottom: 0;
+    font-size: 16px;
+  }
+
+  body.admin-mobile-active .admin-mobile-page p,
+  body.admin-mobile-active .admin-mobile-page small,
+  body.admin-mobile-active .admin-mobile-page label {
+    color: var(--admin-mobile-muted);
+  }
+
+  body.admin-mobile-active .admin-mobile-page p,
+  body.admin-mobile-active .admin-mobile-page small {
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-active .admin-mobile-page input,
+  body.admin-mobile-active .admin-mobile-page select,
+  body.admin-mobile-active .admin-mobile-page textarea {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    height: auto;
+    padding: 10px 12px;
+    border: 1px solid #b8cbe0;
+    border-radius: 12px;
+    color: var(--admin-mobile-text);
+    background: var(--admin-mobile-surface-soft);
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .admin-mobile-page input,
+  body[data-theme="dark"].admin-mobile-active .admin-mobile-page select,
+  body[data-theme="dark"].admin-mobile-active .admin-mobile-page textarea,
+  html[data-theme="dark"] body.admin-mobile-active .admin-mobile-page input,
+  html[data-theme="dark"] body.admin-mobile-active .admin-mobile-page select,
+  html[data-theme="dark"] body.admin-mobile-active .admin-mobile-page textarea {
+    border-color: var(--admin-mobile-border);
+  }
+
+  body.admin-mobile-active .admin-mobile-page textarea {
+    min-height: 108px;
+    resize: vertical;
+  }
+
+  body.admin-mobile-active .admin-mobile-page input:focus,
+  body.admin-mobile-active .admin-mobile-page select:focus,
+  body.admin-mobile-active .admin-mobile-page textarea:focus {
+    outline: 2px solid rgba(7, 93, 157, 0.2);
+    outline-offset: 1px;
+    border-color: var(--admin-mobile-primary);
+  }
+
+  body.admin-mobile-active .admin-mobile-page .btn {
+    width: auto;
+    min-height: 40px;
+    height: auto !important;
+    max-height: none !important;
+    padding: 9px 12px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .btn.primary {
+    background: var(--admin-mobile-primary);
+  }
+
+  body.admin-mobile-active .admin-mobile-page .btn.edit,
+  body.admin-mobile-active .admin-mobile-page .btn.secondary {
+    border-color: #b7d5ee;
+    color: var(--admin-mobile-primary-strong);
+    background: #edf7ff;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .btn.delete,
+  body.admin-mobile-active .admin-mobile-page .btn.danger {
+    background: var(--admin-mobile-danger);
+  }
+
+  body.admin-mobile-active .admin-mobile-page .card-title-actions {
+    display: flex !important;
+    min-height: 0 !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px;
+    margin: 0 0 12px !important;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .card-title-actions > h3 {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0 !important;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .card-title-actions > .btn {
+    width: auto !important;
+    min-width: 0;
+    min-height: 36px;
+    flex: 0 0 auto;
+    padding: 8px 12px;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .form-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .form-col > .btn.primary {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 2px;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .list-row {
+    min-height: 0 !important;
+    height: auto !important;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .actions,
+  body.admin-mobile-active .admin-mobile-page .feedback-actions,
+  body.admin-mobile-active .admin-mobile-page .usuarios-form-actions,
+  body.admin-mobile-active .admin-mobile-page .admin-reserva-modal-actions {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .actions .btn,
+  body.admin-mobile-active .admin-mobile-page .feedback-actions .btn,
+  body.admin-mobile-active .admin-mobile-page .usuarios-form-actions .btn {
+    flex: 1 1 116px;
+  }
+
+  body.admin-mobile-active .admin-mobile-page .toast-container-global {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+
+  body.admin-mobile-active .popup,
+  body.admin-mobile-active .modal-box,
+  body.admin-mobile-active .salas-modal-overlay,
+  body.admin-mobile-active .admin-reserva-modal-overlay,
+  body.admin-mobile-active .usuario-modal-overlay,
+  body.admin-mobile-active .feedback-modal-overlay,
+  body.admin-mobile-active .monitor-modal-overlay,
+  body.admin-mobile-active .chatbotb-modal-overlay {
+    z-index: 9999;
+  }
+
+  body.admin-mobile-active .popup,
+  body.admin-mobile-active .salas-modal-overlay,
+  body.admin-mobile-active .admin-reserva-modal-overlay,
+  body.admin-mobile-active .usuario-modal-overlay,
+  body.admin-mobile-active .feedback-modal-overlay,
+  body.admin-mobile-active .monitor-modal-overlay,
+  body.admin-mobile-active .chatbotb-modal-overlay {
+    padding: 12px;
+  }
+
+  body.admin-mobile-active .modal-box,
+  body.admin-mobile-active .salas-modal-box,
+  body.admin-mobile-active .admin-reserva-modal,
+  body.admin-mobile-active .usuario-modal,
+  body.admin-mobile-active .feedback-modal,
+  body.admin-mobile-active .monitor-modal,
+  body.admin-mobile-active .chatbotb-modal {
+    width: min(100%, 620px);
+    max-width: 100%;
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    border-radius: 18px;
+  }
+
+  body.admin-mobile-active .modal-split,
+  body.admin-mobile-active .salas-modal-content,
+  body.admin-mobile-active .feedback-detail-grid,
+  body.admin-mobile-active .monitor-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  body.admin-mobile-active .modal-list,
+  body.admin-mobile-active .modal-editor {
+    min-width: 0;
+  }
+}

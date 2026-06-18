@@ -1,0 +1,11 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .admin-menu-card {
+    display: grid;
+    gap: 10px;
+    min-height: 0 !important;
+  }
+
+  body.admin-mobile-active .admin-menu-card .btn {
+    width: 100%;
+  }
+}

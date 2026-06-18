@@ -1,0 +1,1330 @@
+/* =========================================================
+   SALAS MOBILE - SIGSAS
+   Exclusivo para SalasMobile.jsx. Não altera o desktop.
+   ========================================================= */
+
+.salas-mobile-page {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .salas-mobile-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .salas-mobile-hero {
+    position: relative;
+    min-height: 153px;
+    overflow: hidden;
+    padding: 19px;
+    border: 1px solid rgba(159, 213, 239, 0.82);
+    border-radius: 24px;
+    background: linear-gradient(135deg, #0b4279 0%, #0f6299 55%, #00a6df 100%);
+    box-shadow: 0 17px 31px rgba(15, 79, 134, 0.20);
+    color: #ffffff;
+    animation: salasMobileHeroIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .salas-mobile-hero > div:not(.salas-mobile-hero-decoration) {
+    position: relative;
+    z-index: 2;
+    max-width: 245px;
+  }
+
+  .salas-mobile-hero > div > span {
+    display: inline-block;
+    color: #9ce7ff;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.12em;
+  }
+
+  .salas-mobile-hero h1 {
+    margin: 8px 0 7px;
+    color: #ffffff;
+    font-size: 25px;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    font-weight: 950;
+  }
+
+  .salas-mobile-hero p {
+    margin: 0;
+    color: rgba(240, 250, 255, 0.86);
+    font-size: 11.5px;
+    line-height: 1.5;
+    font-weight: 750;
+  }
+
+  .salas-mobile-hero-decoration {
+    position: absolute;
+    right: -25px;
+    top: -44px;
+    width: 164px;
+    height: 170px;
+    border: 1px solid rgba(255, 255, 255, 0.23);
+    border-radius: 34px;
+    transform: rotate(22deg);
+    animation: salasMobileHeroShape 5.6s ease-in-out infinite;
+  }
+
+  .salas-mobile-hero-decoration::before {
+    content: "";
+    position: absolute;
+    inset: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 23px;
+  }
+
+  .salas-mobile-hero-decoration span {
+    position: absolute;
+    right: 23px;
+    bottom: 18px;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    background: rgba(172, 236, 255, 0.72);
+    box-shadow: 0 0 0 10px rgba(172, 236, 255, 0.10);
+    animation: salasMobileOrb 3.7s ease-in-out infinite;
+  }
+
+  .salas-mobile-hero-decoration i {
+    position: absolute;
+    left: 18px;
+    bottom: 21px;
+    width: 80px;
+    height: 57px;
+    border: 1px solid rgba(255, 255, 255, 0.21);
+    border-radius: 14px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .salas-mobile-hero-icon {
+    position: absolute;
+    z-index: 3;
+    right: 16px;
+    bottom: 15px;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.13);
+    color: #ffffff;
+    backdrop-filter: blur(8px);
+  }
+
+  .salas-mobile-hero-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .salas-mobile-search-section {
+    padding: 15px;
+    border: 1px solid #d5e4ef;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.90);
+    box-shadow: 0 9px 22px rgba(15, 79, 134, 0.07);
+  }
+
+  .salas-mobile-search-section > label {
+    display: block;
+    margin-bottom: 8px;
+    color: #153a60;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-search-input {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 12px;
+    border: 1px solid #c7ddea;
+    border-radius: 14px;
+    background: #f8fcff;
+    color: #0b75ad;
+  }
+
+  .salas-mobile-search-input svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+  }
+
+  .salas-mobile-search-input input {
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    background: transparent;
+    color: #0a3159;
+    box-shadow: none;
+    font-size: 11px;
+  }
+
+  .salas-mobile-search-input input:focus {
+    border: none;
+    box-shadow: none;
+  }
+
+  .salas-mobile-search-input input::placeholder {
+    color: #90a4b5;
+  }
+
+  .salas-mobile-search-section > p {
+    margin: 10px 0 0;
+    color: #7890a4;
+    font-size: 10px;
+    font-weight: 750;
+  }
+
+  .salas-mobile-search-section > p strong {
+    margin-right: 3px;
+    color: #0b4279;
+    font-weight: 950;
+  }
+
+  .salas-mobile-loading,
+  .salas-mobile-empty {
+    min-height: 185px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #bfd7e6;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.82);
+    text-align: center;
+  }
+
+  .salas-mobile-loading > span {
+    width: 33px;
+    height: 33px;
+    margin-bottom: 12px;
+    border: 3px solid #cfe7f3;
+    border-top-color: #0b75ad;
+    border-radius: 999px;
+    animation: salasMobileSpin 0.8s linear infinite;
+  }
+
+  .salas-mobile-loading strong,
+  .salas-mobile-empty h2 {
+    margin: 0;
+    color: #153a60;
+    font-size: 14px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-loading small,
+  .salas-mobile-empty p {
+    max-width: 245px;
+    margin: 7px 0 0;
+    color: #728ba1;
+    font-size: 10.5px;
+    line-height: 1.45;
+    font-weight: 750;
+  }
+
+  .salas-mobile-empty > span {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 11px;
+    border-radius: 15px;
+    background: #eaf6fd;
+    color: #0b75ad;
+  }
+
+  .salas-mobile-empty svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .salas-mobile-empty button {
+    min-height: 33px;
+    margin-top: 13px;
+    padding: 0 11px;
+    border: 1px solid #c6e4f2;
+    border-radius: 11px;
+    background: #eef9ff;
+    color: #0b4279;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .salas-mobile-card {
+    overflow: hidden;
+    border: 1px solid #d5e4ef;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.91);
+    box-shadow: 0 11px 25px rgba(15, 79, 134, 0.08);
+    animation: salasMobileCardIn 0.34s ease both;
+  }
+
+  .salas-mobile-card.is-blocked {
+    border-color: #e4d8c1;
+  }
+
+  .salas-mobile-card-header {
+    min-height: 81px;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 39px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #f6fbff, #edf7fd);
+  }
+
+  .salas-mobile-card.is-blocked .salas-mobile-card-header {
+    background: linear-gradient(135deg, #fffaf0, #fdf6e8);
+  }
+
+  .salas-mobile-card-icon {
+    width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #c8e6f4;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(15, 79, 134, 0.16);
+  }
+
+  .salas-mobile-card-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .salas-mobile-card-header > div {
+    min-width: 0;
+  }
+
+  .salas-mobile-card-header small {
+    display: block;
+    color: #0c75ad;
+    font-size: 9px;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .salas-mobile-card-header h2 {
+    margin: 3px 0 2px;
+    overflow: hidden;
+    color: #0a3159;
+    font-size: 14px;
+    font-weight: 950;
+    letter-spacing: -0.02em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-card-header p {
+    margin: 0;
+    overflow: hidden;
+    color: #718a9f;
+    font-size: 10px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-status {
+    padding: 6px 7px;
+    border-radius: 999px;
+    font-size: 8.5px;
+    font-weight: 950;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-status.available {
+    background: #e9f9ef;
+    color: #15803d;
+  }
+
+  .salas-mobile-status.inactive {
+    background: #f0f2f5;
+    color: #69788a;
+  }
+
+  .salas-mobile-status.blocked {
+    background: #fff4dd;
+    color: #b77908;
+  }
+
+  .salas-mobile-card-facts {
+    padding: 13px 15px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    border-top: 1px solid #e7f0f6;
+    border-bottom: 1px solid #e7f0f6;
+  }
+
+  .salas-mobile-card-facts > div {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .salas-mobile-card-facts svg {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 auto;
+    color: #0c75ad;
+  }
+
+  .salas-mobile-card-facts span {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .salas-mobile-card-facts small {
+    color: #8299ad;
+    font-size: 8.5px;
+    font-weight: 850;
+  }
+
+  .salas-mobile-card-facts strong {
+    overflow: hidden;
+    margin-top: 2px;
+    color: #173b60;
+    font-size: 10px;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-resources {
+    padding: 13px 15px 9px;
+  }
+
+  .salas-mobile-resources-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1c456b;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-resources-title svg {
+    width: 16px;
+    height: 16px;
+    color: #0b75ad;
+  }
+
+  .salas-mobile-resource-chips {
+    margin-top: 9px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .salas-mobile-resource-chips span {
+    max-width: 100%;
+    padding: 5px 7px;
+    overflow: hidden;
+    border: 1px solid #d3e7f2;
+    border-radius: 999px;
+    background: #f3faff;
+    color: #47708f;
+    font-size: 8.5px;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-resource-chips span.salas-mobile-resource-more {
+    border-color: #c5e5f5;
+    background: #e4f6fe;
+    color: #0b6da5;
+  }
+
+  .salas-mobile-resources > p {
+    margin: 8px 0 0;
+    color: #8498aa;
+    font-size: 9px;
+    font-weight: 750;
+  }
+
+  .salas-mobile-reservation-alert {
+    margin: 2px 15px 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border: 1px solid #f0ddae;
+    border-radius: 14px;
+    background: #fffaf0;
+  }
+
+  .salas-mobile-reservation-alert strong {
+    color: #a56a08;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-reservation-alert span,
+  .salas-mobile-reservation-alert small {
+    color: #8e7350;
+    font-size: 9px;
+    line-height: 1.4;
+    font-weight: 750;
+  }
+
+  .salas-mobile-details {
+    margin: 2px 15px 13px;
+    border-top: 1px solid #e7eff5;
+  }
+
+  .salas-mobile-details summary {
+    min-height: 37px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: #4d738f;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 900;
+    list-style: none;
+  }
+
+  .salas-mobile-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .salas-mobile-details summary svg {
+    width: 16px;
+    height: 16px;
+    color: #0b75ad;
+    transition: transform 0.2s ease;
+  }
+
+  .salas-mobile-details[open] summary svg {
+    transform: rotate(90deg);
+  }
+
+  .salas-mobile-details > div {
+    padding: 1px 0 6px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .salas-mobile-details p {
+    min-width: 0;
+    margin: 0;
+    padding: 8px;
+    border-radius: 11px;
+    background: #f7fbfe;
+  }
+
+  .salas-mobile-details small,
+  .salas-mobile-details strong {
+    display: block;
+  }
+
+  .salas-mobile-details small {
+    color: #8299ad;
+    font-size: 8px;
+    font-weight: 850;
+  }
+
+  .salas-mobile-details strong {
+    margin-top: 3px;
+    overflow: hidden;
+    color: #274a6d;
+    font-size: 9px;
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-book-button {
+    width: calc(100% - 30px);
+    min-height: 42px;
+    margin: 0 15px 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    box-shadow: 0 10px 20px rgba(15, 79, 134, 0.18);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-book-button svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .salas-mobile-book-button.disabled {
+    border-color: #e2d7c1;
+    background: #f5f3ee;
+    box-shadow: none;
+    color: #987d56;
+  }
+
+  .salas-mobile-reserva-overlay {
+    position: fixed;
+    z-index: 1200;
+    inset: 0;
+    padding: 12px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(5, 31, 57, 0.46);
+    backdrop-filter: blur(6px);
+    animation: salasMobileOverlayIn 0.2s ease both;
+  }
+
+  .salas-mobile-reserva-modal {
+    width: 100%;
+    max-width: 650px;
+    max-height: min(91dvh, 810px);
+    overflow: hidden;
+    border: 1px solid #d0e3ef;
+    border-radius: 25px;
+    background: #f9fcff;
+    box-shadow: 0 28px 64px rgba(4, 34, 65, 0.30);
+    animation: salasMobileModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .salas-mobile-reserva-modal-header {
+    min-height: 91px;
+    padding: 17px 17px 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #dcebf4;
+    background: linear-gradient(135deg, #0b4279, #0f649b 54%, #00a6df);
+    color: #ffffff;
+  }
+
+  .salas-mobile-reserva-modal-header > div {
+    min-width: 0;
+  }
+
+  .salas-mobile-reserva-modal-header span {
+    display: block;
+    color: #9de8ff;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .salas-mobile-reserva-modal-header h3 {
+    margin: 4px 0;
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-reserva-modal-header p {
+    margin: 0;
+    color: rgba(242, 251, 255, 0.85);
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 750;
+  }
+
+  .salas-mobile-reserva-modal-close {
+    width: 33px;
+    height: 33px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 23px;
+    line-height: 1;
+  }
+
+  .salas-mobile-reserva-modal-content {
+    max-height: calc(min(91dvh, 810px) - 91px);
+    padding: 14px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .salas-mobile-reserva-modal-content::-webkit-scrollbar {
+    display: none;
+  }
+
+  .salas-mobile-reserva-room-summary {
+    padding: 11px;
+    display: grid;
+    grid-template-columns: 37px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #cce5f3;
+    border-radius: 17px;
+    background: #edf8fe;
+  }
+
+  .salas-mobile-reserva-room-icon {
+    width: 37px;
+    height: 37px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+  }
+
+  .salas-mobile-reserva-room-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .salas-mobile-reserva-room-summary div {
+    min-width: 0;
+  }
+
+  .salas-mobile-reserva-room-summary strong,
+  .salas-mobile-reserva-room-summary small {
+    display: block;
+  }
+
+  .salas-mobile-reserva-room-summary strong {
+    overflow: hidden;
+    color: #0a3159;
+    font-size: 12px;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-reserva-room-summary small {
+    margin-top: 3px;
+    color: #66839b;
+    font-size: 9px;
+    font-weight: 750;
+  }
+
+  .salas-mobile-reserva-form {
+    margin-top: 13px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+
+  .salas-mobile-reserva-period,
+  .salas-mobile-reserva-form-full,
+  .salas-mobile-reserva-actions {
+    grid-column: 1 / -1;
+  }
+
+  .salas-mobile-reserva-period {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+    padding: 12px;
+    border: 1px solid #d8e7f0;
+    border-radius: 18px;
+    background: #ffffff;
+  }
+
+  .salas-mobile-reserva-period > span {
+    grid-column: 1 / -1;
+    color: #174167;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-reserva-form > label {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #254b6e;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .salas-mobile-reserva-form > label > span {
+    display: block;
+  }
+
+  .salas-mobile-reserva-form input {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 11px;
+    border: 1px solid #cbdfea;
+    border-radius: 12px;
+    background: #f9fcff;
+    color: #0a3159;
+    font-size: 10px;
+    outline: none;
+  }
+
+  .salas-mobile-reserva-form input:focus {
+    border-color: #0b75ad;
+    box-shadow: 0 0 0 3px rgba(0, 166, 223, 0.12);
+  }
+
+  .salas-mobile-reserva-form input::placeholder {
+    color: #92a7b8;
+  }
+
+  .salas-mobile-reserva-error {
+    margin: 0;
+    padding: 10px;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #c2414d;
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 850;
+  }
+
+  .salas-mobile-reserva-actions {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 9px;
+    padding-top: 2px;
+  }
+
+  .salas-mobile-reserva-cancel,
+  .salas-mobile-reserva-submit {
+    min-height: 43px;
+    padding: 0 10px;
+    border-radius: 13px;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-reserva-cancel {
+    border: 1px solid #ccdfeb;
+    background: #f2f8fc;
+    color: #275475;
+  }
+
+  .salas-mobile-reserva-submit {
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    box-shadow: 0 9px 18px rgba(15, 79, 134, 0.18);
+    color: #ffffff;
+  }
+
+  .salas-mobile-reserva-submit:disabled,
+  .salas-mobile-reserva-cancel:disabled {
+    opacity: 0.62;
+    cursor: not-allowed;
+  }
+
+  .salas-mobile-reserva-success {
+    width: min(88vw, 340px);
+    padding: 28px 22px;
+    border: 1px solid #c9e7d4;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 28px 64px rgba(4, 34, 65, 0.30);
+    text-align: center;
+    animation: salasMobileModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .salas-mobile-reserva-success > span {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 12px;
+    border-radius: 17px;
+    background: #e8f8ef;
+    color: #15803d;
+    font-size: 24px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-reserva-success h3 {
+    margin: 0;
+    color: #153a60;
+    font-size: 17px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-reserva-success p {
+    margin: 7px 0 0;
+    color: #708aa1;
+    font-size: 11px;
+    line-height: 1.45;
+    font-weight: 750;
+  }
+
+  /* Calendário e relógio usados somente pela reserva mobile */
+  .salas-mobile-reserva-modal .calendario-reserva-box,
+  .salas-mobile-reserva-modal .relogio-reserva-box {
+    position: relative;
+    min-width: 0;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-label,
+  .salas-mobile-reserva-modal .relogio-reserva-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #476d8b;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-input,
+  .salas-mobile-reserva-modal .relogio-reserva-input {
+    width: 100%;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 10px;
+    border: 1px solid #caddea;
+    border-radius: 12px;
+    background: #f9fcff;
+    color: #173f63;
+    font-size: 10px;
+    font-weight: 900;
+    text-align: left;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-input.aberto,
+  .salas-mobile-reserva-modal .relogio-reserva-input.aberto {
+    border-color: #0b75ad;
+    box-shadow: 0 0 0 3px rgba(0, 166, 223, 0.12);
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-input strong,
+  .salas-mobile-reserva-modal .relogio-reserva-input strong {
+    width: 17px;
+    height: 17px;
+    display: grid;
+    place-items: center;
+    color: #0b75ad;
+  }
+
+  .salas-mobile-reserva-modal .reserva-input-icon-svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva,
+  .salas-mobile-reserva-modal .relogio-reserva-panel {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    max-height: 345px;
+    overflow: auto;
+    padding: 11px;
+    border: 1px solid #c7deec;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 18px 38px rgba(5, 47, 85, 0.20);
+    scrollbar-width: thin;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-header {
+    display: grid;
+    grid-template-columns: 29px minmax(0, 1fr) 29px;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 9px;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-header button {
+    width: 29px;
+    height: 29px;
+    padding: 0;
+    border: 1px solid #d3e3ed;
+    border-radius: 10px;
+    background: #f8fcff;
+    color: #0b4279;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-header button:disabled {
+    opacity: 0.4;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-header strong {
+    overflow: hidden;
+    color: #173f63;
+    font-size: 10px;
+    font-weight: 950;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-semana,
+  .salas-mobile-reserva-modal .calendario-reserva-dias {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-semana {
+    margin-bottom: 4px;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-semana span {
+    color: #7b93a8;
+    font-size: 8px;
+    font-weight: 950;
+    text-align: center;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-semana span.domingo {
+    color: #c18585;
+  }
+
+  .salas-mobile-reserva-modal .calendario-dia,
+  .salas-mobile-reserva-modal .dia-vazio {
+    min-height: 30px;
+  }
+
+  .salas-mobile-reserva-modal .calendario-dia {
+    padding: 0;
+    border: 1px solid #d4e3ed;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #1c466b;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .salas-mobile-reserva-modal .calendario-dia.selecionado {
+    border-color: #0b4279;
+    background: #0b4279;
+    color: #ffffff;
+  }
+
+  .salas-mobile-reserva-modal .calendario-dia.indisponivel,
+  .salas-mobile-reserva-modal .calendario-dia.domingo {
+    border-color: #ebeff2;
+    background: #f0f3f5;
+    color: #a2adb7;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-legenda {
+    margin-top: 9px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 10px;
+    color: #708ba1;
+    font-size: 8px;
+    font-weight: 750;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-legenda span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-legenda i {
+    width: 7px;
+    height: 7px;
+    border-radius: 99px;
+  }
+
+  .salas-mobile-reserva-modal .legenda-disponivel {
+    background: #0b75ad;
+  }
+
+  .salas-mobile-reserva-modal .legenda-indisponivel {
+    background: #a2adb7;
+  }
+
+  .salas-mobile-reserva-modal .calendario-reserva-legenda small {
+    width: 100%;
+    color: #91a4b3;
+    font-size: 8px;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-panel-header {
+    margin-bottom: 9px;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-panel-header strong,
+  .salas-mobile-reserva-modal .relogio-reserva-panel-header span {
+    display: block;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-panel-header strong {
+    color: #173f63;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-panel-header span {
+    margin-top: 3px;
+    color: #7a93a7;
+    font-size: 8px;
+    font-weight: 750;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-lista {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-opcao {
+    min-height: 31px;
+    padding: 0;
+    border: 1px solid #d5e4ed;
+    border-radius: 9px;
+    background: #f9fcff;
+    color: #275173;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-opcao.selecionado {
+    border-color: #0b4279;
+    background: #0b4279;
+    color: #ffffff;
+  }
+
+  .salas-mobile-reserva-modal .relogio-reserva-empty {
+    grid-column: 1 / -1;
+    padding: 8px;
+    color: #8398aa;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  html[data-theme="dark"] .salas-mobile-search-section,
+  html[data-theme="dark"] .salas-mobile-card,
+  html[data-theme="dark"] .salas-mobile-loading,
+  html[data-theme="dark"] .salas-mobile-empty {
+    border-color: rgba(105, 149, 182, 0.20);
+    background: rgba(10, 23, 40, 0.94);
+  }
+
+  html[data-theme="dark"] .salas-mobile-search-section > label,
+  html[data-theme="dark"] .salas-mobile-card-header h2,
+  html[data-theme="dark"] .salas-mobile-card-facts strong,
+  html[data-theme="dark"] .salas-mobile-resources-title,
+  html[data-theme="dark"] .salas-mobile-details strong,
+  html[data-theme="dark"] .salas-mobile-loading strong,
+  html[data-theme="dark"] .salas-mobile-empty h2 {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .salas-mobile-search-input,
+  html[data-theme="dark"] .salas-mobile-card-header,
+  html[data-theme="dark"] .salas-mobile-details p {
+    border-color: rgba(105, 149, 182, 0.20);
+    background: #0d2138;
+  }
+
+  html[data-theme="dark"] .salas-mobile-search-input input {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .salas-mobile-card-header small,
+  html[data-theme="dark"] .salas-mobile-card-header p,
+  html[data-theme="dark"] .salas-mobile-card-facts small,
+  html[data-theme="dark"] .salas-mobile-resources > p,
+  html[data-theme="dark"] .salas-mobile-details small,
+  html[data-theme="dark"] .salas-mobile-loading small,
+  html[data-theme="dark"] .salas-mobile-empty p {
+    color: #a2bdd0;
+  }
+
+  html[data-theme="dark"] .salas-mobile-card-facts,
+  html[data-theme="dark"] .salas-mobile-details {
+    border-color: rgba(105, 149, 182, 0.16);
+  }
+
+  html[data-theme="dark"] .salas-mobile-resource-chips span {
+    border-color: rgba(105, 149, 182, 0.22);
+    background: #102941;
+    color: #b8d3e5;
+  }
+
+  html[data-theme="dark"] .salas-mobile-reserva-modal {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #0b1b2e;
+  }
+
+  html[data-theme="dark"] .salas-mobile-reserva-modal-content,
+  html[data-theme="dark"] .salas-mobile-reserva-period,
+  html[data-theme="dark"] .salas-mobile-reserva-room-summary {
+    background: #0b1b2e;
+  }
+
+  html[data-theme="dark"] .salas-mobile-reserva-room-summary,
+  html[data-theme="dark"] .salas-mobile-reserva-period,
+  html[data-theme="dark"] .salas-mobile-reserva-form input,
+  html[data-theme="dark"] .salas-mobile-reserva-modal .calendario-reserva-input,
+  html[data-theme="dark"] .salas-mobile-reserva-modal .relogio-reserva-input {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #102941;
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .salas-mobile-reserva-room-summary strong,
+  html[data-theme="dark"] .salas-mobile-reserva-form > label,
+  html[data-theme="dark"] .salas-mobile-reserva-period > span,
+  html[data-theme="dark"] .salas-mobile-reserva-modal .calendario-reserva-label,
+  html[data-theme="dark"] .salas-mobile-reserva-modal .relogio-reserva-label {
+    color: #dcefff;
+  }
+
+  html[data-theme="dark"] .salas-mobile-reserva-room-summary small {
+    color: #9db8cc;
+  }
+
+  html[data-theme="dark"] .salas-mobile-reserva-modal .calendario-reserva,
+  html[data-theme="dark"] .salas-mobile-reserva-modal .relogio-reserva-panel {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #0d2138;
+  }
+}
+
+@media (max-width: 390px) {
+  .salas-mobile-card-header {
+    grid-template-columns: 37px minmax(0, 1fr);
+  }
+
+  .salas-mobile-status {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: -2px;
+  }
+
+  .salas-mobile-card-header {
+    min-height: 96px;
+  }
+
+  .salas-mobile-reserva-period {
+    grid-template-columns: 1fr;
+  }
+
+  .salas-mobile-reserva-form {
+    grid-template-columns: 1fr;
+  }
+
+  .salas-mobile-reserva-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes salasMobileHeroIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes salasMobileCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes salasMobileHeroShape {
+  0%,
+  100% {
+    transform: rotate(22deg) translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: rotate(17deg) translate3d(-7px, 7px, 0);
+  }
+}
+
+@keyframes salasMobileOrb {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-3px, 4px, 0) scale(1.06);
+  }
+}
+
+@keyframes salasMobileSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes salasMobileOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes salasMobileModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

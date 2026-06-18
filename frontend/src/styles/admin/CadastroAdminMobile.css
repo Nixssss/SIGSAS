@@ -1,0 +1,295 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .cadastro-admin-page {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-card,
+  body.admin-mobile-active .cadastro-admin-page .convite-list-card {
+    margin: 0;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid #d8e4f0;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-header {
+    margin-bottom: 14px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-header h3,
+  body.admin-mobile-active .cadastro-admin-page .convite-list-card > h3 {
+    margin: 0 0 5px;
+    color: #0f2742;
+    font-size: 21px;
+    line-height: 1.18;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-header p {
+    margin: 0;
+    color: #607188;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-form label {
+    display: grid;
+    gap: 7px;
+    color: #16324f;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-form input,
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-form select {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    box-sizing: border-box;
+    border: 1px solid #c8d7e6;
+    border-radius: 14px;
+    padding: 0 13px;
+    background: #fbfdff;
+    color: #16324f;
+    font-size: 14px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-full {
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-box {
+    min-width: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 13px;
+    border: 1px solid #dbe7f2;
+    border-radius: 16px;
+    background: #f8fbff;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-header {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 11px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-header strong {
+    color: #16324f;
+    font-size: 14px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-header small,
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-empty {
+    margin: 0;
+    color: #64778c;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-search {
+    min-height: 42px;
+    margin-bottom: 9px;
+    border-radius: 13px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-search input {
+    min-height: 40px;
+    border-radius: 13px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-curso-option {
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 13px;
+    font-size: 13px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-admin-form > .btn.primary {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-card {
+    padding-bottom: 16px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-card > h3 {
+    margin-bottom: 14px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    min-width: 0;
+    min-height: 0;
+    margin: 0 0 11px;
+    padding: 14px;
+    border: 1px solid #d8e4f0;
+    border-left: 4px solid #155d99;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 6px 17px rgba(15, 23, 42, 0.04);
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row:last-child {
+    margin-bottom: 0;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row.linha-par,
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row.linha-impar,
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row.status-ativo,
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row.status-usado,
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row.status-expirado {
+    background: #ffffff;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-info {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-info > strong {
+    display: block;
+    min-width: 0;
+    color: #0f2742;
+    font-size: 15px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-meta-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-meta-grid small,
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-resumo,
+  body.admin-mobile-active .cadastro-admin-page .convite-link-text {
+    display: block;
+    min-width: 0;
+    margin: 0;
+    color: #5e7187;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-cursos-resumo {
+    padding-top: 9px;
+    border-top: 1px solid #e5edf5;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-link-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 9px 10px;
+    border: 1px solid #e1ebf4;
+    border-radius: 12px;
+    background: #f8fbff;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-status-badge,
+  body.admin-mobile-active .cadastro-admin-page .convite-perfil-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 24px;
+    padding: 4px 9px;
+    box-sizing: border-box;
+    border: 1px solid #cbd9e6;
+    border-radius: 999px;
+    background: #f2f7fc;
+    color: #31506f;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-status-badge.status-ativo,
+  body.admin-mobile-active .cadastro-admin-page .convite-status-badge.status-usado,
+  body.admin-mobile-active .cadastro-admin-page .convite-status-badge.status-expirado,
+  body.admin-mobile-active .cadastro-admin-page .convite-perfil-badge.perfil-administrador,
+  body.admin-mobile-active .cadastro-admin-page .convite-perfil-badge.perfil-coordenador,
+  body.admin-mobile-active .cadastro-admin-page .convite-perfil-badge.perfil-professor,
+  body.admin-mobile-active .cadastro-admin-page .convite-perfil-badge.perfil-usuario {
+    background: #f2f7fc;
+    border-color: #cbd9e6;
+    color: #31506f;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row .actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row .actions .btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    height: 42px;
+    margin: 0;
+    padding: 0 7px;
+    border-radius: 13px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    box-sizing: border-box;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row .actions .btn.primary {
+    background: #0f4f86;
+    border-color: #0f4f86;
+    color: #ffffff;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row .actions .btn.edit {
+    background: #eef5fc;
+    border-color: #c6d9eb;
+    color: #164d7d;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row .actions .btn.delete {
+    background: #fff6f6;
+    border-color: #f2c8cc;
+    color: #b4232a;
+  }
+
+  body.admin-mobile-active .cadastro-admin-page .convite-list-row .actions .btn:disabled {
+    opacity: 0.52;
+  }
+}

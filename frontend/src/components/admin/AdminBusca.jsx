@@ -1,13 +1,11 @@
-function AdminBusca({ busca, setBusca }) {
-  return (
-    <div className="card">
-      <input
-        placeholder="Buscar instituição, campus ou edifício..."
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
-      />
-    </div>
-  )
+import useAdminViewport from "./useAdminViewport"
+import AdminBuscaDesktop from "./AdminBuscaDesktop"
+import AdminBuscaMobile from "./AdminBuscaMobile"
+
+function AdminBusca(props) {
+  const mobile = useAdminViewport()
+
+  return mobile ? <AdminBuscaMobile {...props} /> : <AdminBuscaDesktop {...props} />
 }
 
 export default AdminBusca

@@ -1,0 +1,15 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .admin-card .list-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0 !important;
+    padding: 11px 0 !important;
+    border-top: 1px solid var(--admin-mobile-border);
+  }
+
+  body.admin-mobile-active .admin-card .list-row span,
+  body.admin-mobile-active .admin-card .list-row strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}

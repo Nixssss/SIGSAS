@@ -1,0 +1,78 @@
+@media (max-width: 768px) {
+  .redefinir-mobile-card {
+    margin-top: clamp(28px, 6vh, 46px);
+  }
+
+  .redefinir-mobile-token {
+    margin-bottom: 13px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #cce4f2;
+    border-radius: 14px;
+    background: #eef9ff;
+  }
+
+  .redefinir-mobile-token > span {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #d9f1fc;
+    color: #0b75ad;
+  }
+
+  .redefinir-mobile-token svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .redefinir-mobile-token div {
+    min-width: 0;
+  }
+
+  .redefinir-mobile-token small {
+    display: block;
+    color: #0b75ad;
+    font-size: 7.5px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+  }
+
+  .redefinir-mobile-token strong {
+    display: block;
+    overflow: hidden;
+    margin-top: 3px;
+    color: #174167;
+    font-size: 9.5px;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .redefinir-mobile-token p {
+    overflow: hidden;
+    margin: 3px 0 0;
+    color: #6b879e;
+    font-size: 7.5px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  html[data-theme="dark"] .redefinir-mobile-token {
+    border-color: rgba(0, 166, 223, 0.24);
+    background: #102941;
+  }
+
+  html[data-theme="dark"] .redefinir-mobile-token strong {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .redefinir-mobile-token p {
+    color: #a6c0d2;
+  }
+}

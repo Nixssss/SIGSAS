@@ -1,0 +1,668 @@
+/* =========================================================
+   DASHBOARD MOBILE - SHELL SIGSAS
+   Exclusivo para DashboardMobile.jsx
+   Não altera DashboardDesktop.jsx nem App.css.
+   ========================================================= */
+
+.sigsas-mobile-shell {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sigsas-mobile-shell {
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    display: block;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 94% 0%, rgba(0, 166, 223, 0.13), transparent 26%),
+      linear-gradient(180deg, #edf5fb 0%, #f8fbff 54%, #edf5fb 100%);
+    color: #0a3159;
+  }
+
+  .sigsas-mobile-header {
+    position: fixed;
+    z-index: 300;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: calc(67px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 15px 0;
+    display: grid;
+    grid-template-columns: 39px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(200, 221, 235, 0.9);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 8px 24px rgba(11, 66, 121, 0.07);
+    backdrop-filter: blur(18px);
+  }
+
+  .sigsas-mobile-header-button,
+  .sigsas-mobile-profile-button {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #d5e4ef;
+    border-radius: 13px;
+    background: #ffffff;
+    color: #0b4279;
+    box-shadow: 0 5px 13px rgba(15, 79, 134, 0.07);
+  }
+
+  .sigsas-mobile-header-button:active,
+  .sigsas-mobile-profile-button:active {
+    transform: scale(0.96);
+  }
+
+  .sigsas-mobile-header-button .sigsas-mobile-icon {
+    width: 19px;
+    height: 19px;
+  }
+
+  .sigsas-mobile-header-brand {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .sigsas-mobile-logo {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(15, 79, 134, 0.18);
+  }
+
+  .sigsas-mobile-logo .sigsas-mobile-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sigsas-mobile-header-brand strong {
+    display: block;
+    color: #092f55;
+    font-size: 14px;
+    line-height: 1.1;
+    font-weight: 950;
+    letter-spacing: -0.025em;
+  }
+
+  .sigsas-mobile-header-brand small {
+    display: block;
+    max-width: 142px;
+    margin-top: 2px;
+    overflow: hidden;
+    color: #71899f;
+    font-size: 10px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sigsas-mobile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .sigsas-mobile-bell-button {
+    position: relative;
+  }
+
+  .sigsas-mobile-notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 17px;
+    height: 17px;
+    display: grid;
+    place-items: center;
+    padding: 0 4px;
+    border: 2px solid #edf5fb;
+    border-radius: 999px;
+    background: #f04455;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 950;
+  }
+
+  .sigsas-mobile-profile-button {
+    border-color: transparent;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .sigsas-mobile-content {
+    width: 100%;
+    height: 100dvh;
+    padding: calc(67px + env(safe-area-inset-top) + 14px) 14px calc(83px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .sigsas-mobile-content::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sigsas-mobile-page-transition {
+    width: 100%;
+    min-height: 100%;
+    animation: sigsasMobilePageIn 0.28s ease both;
+  }
+
+  .sigsas-mobile-bottom-nav {
+    position: fixed;
+    z-index: 310;
+    right: 10px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    left: 10px;
+    height: 63px;
+    padding: 6px 7px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    align-items: stretch;
+    border: 1px solid rgba(199, 220, 235, 0.92);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 16px 34px rgba(15, 79, 134, 0.17);
+    backdrop-filter: blur(18px);
+  }
+
+  .sigsas-mobile-bottom-nav button {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 5px 2px;
+    border: none;
+    border-radius: 14px;
+    background: transparent;
+    color: #7b92a8;
+    font-size: 8.5px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .sigsas-mobile-bottom-nav button.active {
+    background: linear-gradient(135deg, #e8f7ff, #d8f1fc);
+    color: #0b4279;
+  }
+
+  .sigsas-mobile-bottom-nav button.active .sigsas-mobile-icon {
+    transform: translateY(-1px);
+  }
+
+  .sigsas-mobile-icon {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 auto;
+    color: currentColor;
+    transition: transform 0.18s ease;
+  }
+
+  .sigsas-mobile-drawer-layer {
+    position: fixed;
+    z-index: 500;
+    inset: 0;
+  }
+
+  .sigsas-mobile-drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+    background: rgba(5, 31, 57, 0.31);
+    backdrop-filter: blur(5px);
+    animation: sigsasMobileBackdropIn 0.2s ease both;
+  }
+
+  .sigsas-mobile-drawer {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(86vw, 350px);
+    padding: calc(17px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border-right: 1px solid #cce0ee;
+    border-radius: 0 26px 26px 0;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(0, 166, 223, 0.12), transparent 26%),
+      linear-gradient(180deg, #f8fcff, #ecf5fb);
+    box-shadow: 20px 0 50px rgba(6, 42, 76, 0.20);
+    animation: sigsasMobileDrawerIn 0.28s ease both;
+    scrollbar-width: none;
+  }
+
+  .sigsas-mobile-drawer::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sigsas-mobile-drawer-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sigsas-mobile-drawer-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sigsas-mobile-drawer-brand strong {
+    display: block;
+    color: #092f55;
+    font-size: 18px;
+    font-weight: 950;
+  }
+
+  .sigsas-mobile-drawer-brand small {
+    display: block;
+    max-width: 190px;
+    margin-top: 3px;
+    color: #6c879f;
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  .sigsas-mobile-drawer-close {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #d3e4ef;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0b4279;
+  }
+
+  .sigsas-mobile-drawer-close .sigsas-mobile-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sigsas-mobile-user-card {
+    margin-top: 18px;
+    padding: 13px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border: 1px solid #d4e4ef;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 8px 18px rgba(15, 79, 134, 0.05);
+  }
+
+  .sigsas-mobile-user-card > span {
+    width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 950;
+  }
+
+  .sigsas-mobile-user-card strong,
+  .sigsas-mobile-user-card small {
+    display: block;
+  }
+
+  .sigsas-mobile-user-card strong {
+    color: #0a3159;
+    font-size: 12px;
+    font-weight: 950;
+  }
+
+  .sigsas-mobile-user-card small {
+    margin-top: 3px;
+    color: #7089a1;
+    font-size: 10px;
+    font-weight: 750;
+  }
+
+  .sigsas-mobile-drawer-nav {
+    margin-top: 16px;
+    display: grid;
+    gap: 5px;
+  }
+
+  .sigsas-mobile-drawer-nav button {
+    min-height: 43px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 0 12px;
+    border-radius: 13px;
+    background: transparent;
+    color: #59758e;
+    font-size: 12px;
+    font-weight: 900;
+    text-align: left;
+  }
+
+  .sigsas-mobile-drawer-nav button .sigsas-mobile-icon {
+    width: 18px;
+    height: 18px;
+    color: #0b76b0;
+  }
+
+  .sigsas-mobile-drawer-nav button.active {
+    background: linear-gradient(135deg, #e8f7ff, #dbf2fc);
+    color: #0b4279;
+  }
+
+  .sigsas-mobile-admin-card {
+    margin-top: 15px;
+    padding: 13px;
+    border: 1px solid #d3e4ef;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 8px 18px rgba(15, 79, 134, 0.05);
+  }
+
+  .sigsas-mobile-drawer-section-title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .sigsas-mobile-drawer-section-title > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #0a3159;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .sigsas-mobile-drawer-section-title > span .sigsas-mobile-icon {
+    width: 17px;
+    height: 17px;
+    color: #0b76b0;
+  }
+
+  .sigsas-mobile-drawer-section-title small {
+    color: #7891a7;
+    font-size: 8px;
+    font-weight: 750;
+    text-align: right;
+  }
+
+  .sigsas-mobile-admin-grid {
+    margin-top: 11px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .sigsas-mobile-admin-grid button {
+    min-height: 36px;
+    padding: 7px;
+    border: 1px solid #d7e7f1;
+    border-radius: 11px;
+    background: #f8fcff;
+    color: #0b4279;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .sigsas-mobile-admin-grid button.active {
+    border-color: #0b4279;
+    background: #0b4279;
+    color: #ffffff;
+  }
+
+  .sigsas-mobile-drawer-footer {
+    margin-top: 16px;
+    display: grid;
+    gap: 9px;
+  }
+
+  .sigsas-mobile-theme-button,
+  .sigsas-mobile-exit-button {
+    min-height: 43px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    border-radius: 13px;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .sigsas-mobile-theme-button {
+    border: 1px solid #cbdfed;
+    background: #f8fcff;
+    color: #0b4279;
+  }
+
+  .sigsas-mobile-exit-button {
+    border: 1px solid #fecdd3;
+    background: #fff1f2;
+    color: #c2414d;
+  }
+
+  .sigsas-mobile-theme-button .sigsas-mobile-icon,
+  .sigsas-mobile-exit-button .sigsas-mobile-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sigsas-mobile-notifications {
+    margin-top: 18px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .sigsas-mobile-notifications > button:not(.sigsas-mobile-notifications-refresh) {
+    min-height: 72px;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 18px;
+    align-items: center;
+    gap: 10px;
+    padding: 11px;
+    border: 1px solid #d4e4ef;
+    border-radius: 17px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #0a3159;
+    text-align: left;
+  }
+
+  .sigsas-mobile-notifications > button > span:nth-child(2) {
+    min-width: 0;
+  }
+
+  .sigsas-mobile-notifications > button strong,
+  .sigsas-mobile-notifications > button small {
+    display: block;
+  }
+
+  .sigsas-mobile-notifications > button strong {
+    color: #0b4279;
+    font-size: 18px;
+    font-weight: 950;
+  }
+
+  .sigsas-mobile-notifications > button small {
+    margin-top: 3px;
+    color: #6e879e;
+    font-size: 9px;
+    line-height: 1.35;
+    font-weight: 750;
+  }
+
+  .sigsas-mobile-notifications > button > .sigsas-mobile-icon {
+    width: 16px;
+    height: 16px;
+    color: #0b75ad;
+  }
+
+  .sigsas-mobile-notification-icon {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+  }
+
+  .sigsas-mobile-notification-icon .sigsas-mobile-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sigsas-mobile-notification-icon.booking {
+    background: #fff6df;
+    color: #b77908;
+  }
+
+  .sigsas-mobile-notification-icon.issue {
+    background: #fff0f1;
+    color: #c2414d;
+  }
+
+  .sigsas-mobile-notification-icon.idea {
+    background: #eef7ff;
+    color: #0b75ad;
+  }
+
+  .sigsas-mobile-notifications-empty {
+    padding: 20px 12px;
+    border: 1px dashed #c8ddea;
+    border-radius: 17px;
+    color: #7790a6;
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .sigsas-mobile-notifications-refresh {
+    min-height: 41px;
+    border: 1px solid #c8e3f1;
+    border-radius: 13px;
+    background: #edf8fe;
+    color: #0b4279;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  html[data-theme="dark"] .sigsas-mobile-shell {
+    background:
+      radial-gradient(circle at 94% 0%, rgba(0, 166, 223, 0.14), transparent 26%),
+      linear-gradient(180deg, #07111f, #0a1728);
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .sigsas-mobile-header,
+  html[data-theme="dark"] .sigsas-mobile-bottom-nav,
+  html[data-theme="dark"] .sigsas-mobile-drawer,
+  html[data-theme="dark"] .sigsas-mobile-user-card,
+  html[data-theme="dark"] .sigsas-mobile-admin-card,
+  html[data-theme="dark"] .sigsas-mobile-notifications > button:not(.sigsas-mobile-notifications-refresh) {
+    border-color: rgba(105, 149, 182, 0.22);
+    background: rgba(10, 23, 40, 0.94);
+  }
+
+  html[data-theme="dark"] .sigsas-mobile-header-brand strong,
+  html[data-theme="dark"] .sigsas-mobile-drawer-brand strong,
+  html[data-theme="dark"] .sigsas-mobile-user-card strong,
+  html[data-theme="dark"] .sigsas-mobile-drawer-section-title > span,
+  html[data-theme="dark"] .sigsas-mobile-notifications > button strong {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .sigsas-mobile-header-brand small,
+  html[data-theme="dark"] .sigsas-mobile-drawer-brand small,
+  html[data-theme="dark"] .sigsas-mobile-user-card small,
+  html[data-theme="dark"] .sigsas-mobile-drawer-section-title small,
+  html[data-theme="dark"] .sigsas-mobile-notifications > button small {
+    color: #a2bdd0;
+  }
+
+  html[data-theme="dark"] .sigsas-mobile-header-button,
+  html[data-theme="dark"] .sigsas-mobile-drawer-close,
+  html[data-theme="dark"] .sigsas-mobile-theme-button,
+  html[data-theme="dark"] .sigsas-mobile-admin-grid button {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #0d2138;
+    color: #d7efff;
+  }
+
+  html[data-theme="dark"] .sigsas-mobile-drawer-nav button {
+    color: #a4bed0;
+  }
+
+  html[data-theme="dark"] .sigsas-mobile-drawer-nav button.active,
+  html[data-theme="dark"] .sigsas-mobile-bottom-nav button.active {
+    background: rgba(0, 166, 223, 0.16);
+    color: #78dbff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sigsas-mobile-page-transition,
+  .sigsas-mobile-drawer,
+  .sigsas-mobile-drawer-backdrop {
+    animation: none !important;
+  }
+}
+
+@keyframes sigsasMobilePageIn {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sigsasMobileDrawerIn {
+  from {
+    opacity: 0.45;
+    transform: translateX(-28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sigsasMobileBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

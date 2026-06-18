@@ -1,0 +1,73 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .reservas-admin-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  body.admin-mobile-active .reservas-section {
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.admin-mobile-active .reservas-section > h3 {
+    margin-bottom: 2px;
+  }
+
+  body.admin-mobile-active .reserva-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0 !important;
+    gap: 12px;
+    padding: 13px 0 !important;
+    border-top: 1px solid var(--admin-mobile-border);
+  }
+
+  body.admin-mobile-active .reserva-row:first-of-type {
+    border-top: 0;
+  }
+
+  body.admin-mobile-active .admin-reserva-info,
+  body.admin-mobile-active .reserva-dados {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-active .reserva-dados > strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--admin-mobile-text);
+    font-size: 15px;
+  }
+
+  body.admin-mobile-active .reserva-dados small {
+    color: var(--admin-mobile-muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  body.admin-mobile-active .reserva-status-badge {
+    display: inline-flex;
+    margin-top: 3px;
+  }
+
+  body.admin-mobile-active .reserva-row .actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .reserva-row .actions .btn {
+    min-height: 40px;
+    height: auto !important;
+  }
+
+  body.admin-mobile-active .reserva-row .actions .btn.secondary:last-child {
+    grid-column: 1 / -1;
+  }
+
+  body.admin-mobile-active .admin-reserva-modal-form label {
+    display: grid;
+    gap: 7px;
+  }
+}

@@ -1,0 +1,567 @@
+/* =========================================================
+   REPORTAR PROBLEMA - MOBILE SIGSAS
+   Exclusivo para ReportarProblemaMobile.jsx.
+   Não altera a tela desktop nem o App.css.
+   ========================================================= */
+
+.problemas-mobile-page {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .problemas-mobile-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .problemas-mobile-hero {
+    position: relative;
+    min-height: 166px;
+    overflow: hidden;
+    padding: 19px;
+    border: 1px solid rgba(247, 208, 166, 0.84);
+    border-radius: 24px;
+    background: linear-gradient(135deg, #9a3412 0%, #c2410c 53%, #f97316 100%);
+    box-shadow: 0 17px 31px rgba(154, 52, 18, 0.20);
+    color: #ffffff;
+    animation: problemasMobileHeroIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .problemas-mobile-hero > div:not(.problemas-mobile-hero-decoration) {
+    position: relative;
+    z-index: 2;
+    max-width: 242px;
+  }
+
+  .problemas-mobile-hero > div > span {
+    display: inline-block;
+    color: #ffddbd;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.12em;
+  }
+
+  .problemas-mobile-hero h1 {
+    margin: 8px 0 7px;
+    color: #ffffff;
+    font-size: 24px;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    font-weight: 950;
+  }
+
+  .problemas-mobile-hero p {
+    margin: 0;
+    color: rgba(255, 247, 237, 0.88);
+    font-size: 11.5px;
+    line-height: 1.5;
+    font-weight: 750;
+  }
+
+  .problemas-mobile-hero-decoration {
+    position: absolute;
+    top: -45px;
+    right: -26px;
+    width: 164px;
+    height: 171px;
+    border: 1px solid rgba(255, 255, 255, 0.23);
+    border-radius: 35px;
+    transform: rotate(21deg);
+    animation: problemasMobileHeroShape 5.6s ease-in-out infinite;
+  }
+
+  .problemas-mobile-hero-decoration::before {
+    content: "";
+    position: absolute;
+    inset: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 23px;
+  }
+
+  .problemas-mobile-hero-decoration span {
+    position: absolute;
+    right: 18px;
+    bottom: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: rgba(255, 226, 194, 0.76);
+    box-shadow: 0 0 0 10px rgba(255, 226, 194, 0.11);
+    animation: problemasMobileOrb 3.8s ease-in-out infinite;
+  }
+
+  .problemas-mobile-hero-decoration i {
+    position: absolute;
+    left: 17px;
+    bottom: 18px;
+    width: 81px;
+    height: 58px;
+    border: 1px solid rgba(255, 255, 255, 0.21);
+    border-radius: 14px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .problemas-mobile-hero-icon {
+    position: absolute;
+    z-index: 3;
+    right: 15px;
+    bottom: 15px;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    backdrop-filter: blur(8px);
+  }
+
+  .problemas-mobile-hero-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .problemas-mobile-form-card {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border: 1px solid #d8e4ee;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.90);
+    box-shadow: 0 10px 24px rgba(15, 79, 134, 0.07);
+  }
+
+  .problemas-mobile-form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .problemas-mobile-form-header > div > span {
+    display: inline-block;
+    color: #bd4c1b;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.10em;
+  }
+
+  .problemas-mobile-form-header h2 {
+    margin: 4px 0 0;
+    color: #153a60;
+    font-size: 16px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    font-weight: 950;
+  }
+
+  .problemas-mobile-form-step {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #f2c7ae;
+    border-radius: 11px;
+    background: #fff4ed;
+    color: #b94714;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .problemas-mobile-alert {
+    padding: 11px;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    border-radius: 14px;
+  }
+
+  .problemas-mobile-alert > span {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+  }
+
+  .problemas-mobile-alert svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .problemas-mobile-alert p {
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 850;
+  }
+
+  .problemas-mobile-alert.success {
+    border: 1px solid #b9e7ca;
+    background: #ebfaf1;
+    color: #15803d;
+  }
+
+  .problemas-mobile-alert.success > span {
+    background: #d9f5e5;
+  }
+
+  .problemas-mobile-alert.error {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #c2414d;
+  }
+
+  .problemas-mobile-alert.error > span {
+    background: #ffe0e4;
+  }
+
+  .problemas-mobile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .problemas-mobile-field > span,
+  .problemas-mobile-group-title > span {
+    color: #264c6e;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .problemas-mobile-field input,
+  .problemas-mobile-field textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #cddfeb;
+    border-radius: 13px;
+    outline: none;
+    background: #f9fcff;
+    color: #153a60;
+    font-size: 10.5px;
+    font-weight: 800;
+  }
+
+  .problemas-mobile-field input {
+    height: 42px;
+    padding: 0 11px;
+  }
+
+  .problemas-mobile-field textarea {
+    min-height: 126px;
+    padding: 11px;
+    line-height: 1.48;
+    resize: vertical;
+  }
+
+  .problemas-mobile-field input:focus,
+  .problemas-mobile-field textarea:focus {
+    border-color: #ea5b20;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+  }
+
+  .problemas-mobile-field input::placeholder,
+  .problemas-mobile-field textarea::placeholder {
+    color: #92a5b5;
+  }
+
+  .problemas-mobile-description > small {
+    color: #7f96a9;
+    font-size: 8.5px;
+    line-height: 1.35;
+    font-weight: 750;
+  }
+
+  .problemas-mobile-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .problemas-mobile-group-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .problemas-mobile-group-title small {
+    overflow: hidden;
+    color: #8499aa;
+    font-size: 8.5px;
+    font-weight: 800;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .problemas-mobile-module-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .problemas-mobile-module-grid button {
+    min-height: 31px;
+    padding: 0 10px;
+    border: 1px solid #d0e0ea;
+    border-radius: 10px;
+    background: #f8fcff;
+    color: #5a7891;
+    font-size: 8.5px;
+    font-weight: 900;
+  }
+
+  .problemas-mobile-module-grid button.selected {
+    border-color: #ea5b20;
+    background: #fff2ea;
+    color: #b94714;
+  }
+
+  .problemas-mobile-priority-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .problemas-mobile-priority-list button {
+    min-height: 64px;
+    min-width: 0;
+    padding: 9px;
+    display: grid;
+    grid-template-columns: 23px minmax(0, 1fr) 16px;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #d3e3ed;
+    border-radius: 14px;
+    background: #fafdff;
+    color: #5c768d;
+    text-align: left;
+  }
+
+  .problemas-mobile-priority-list button > span {
+    width: 23px;
+    height: 23px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: #eaf4fa;
+    color: #4e7390;
+    font-size: 14px;
+    font-weight: 950;
+  }
+
+  .problemas-mobile-priority-list button div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .problemas-mobile-priority-list button strong {
+    overflow: hidden;
+    color: #254a6c;
+    font-size: 9.5px;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .problemas-mobile-priority-list button small {
+    margin-top: 3px;
+    color: #8298a9;
+    font-size: 7.5px;
+    line-height: 1.25;
+    font-weight: 750;
+  }
+
+  .problemas-mobile-priority-list button i {
+    width: 16px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    border-radius: 99px;
+    background: #e9f9ef;
+    color: #15803d;
+  }
+
+  .problemas-mobile-priority-list button i svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .problemas-mobile-priority-list button.priority-baixa.selected {
+    border-color: #b9e7ca;
+    background: #f0fbf4;
+  }
+
+  .problemas-mobile-priority-list button.priority-media.selected {
+    border-color: #bfdff0;
+    background: #eef9ff;
+  }
+
+  .problemas-mobile-priority-list button.priority-alta.selected {
+    border-color: #f3d19c;
+    background: #fff7e8;
+  }
+
+  .problemas-mobile-priority-list button.priority-critica.selected {
+    border-color: #f7bec5;
+    background: #fff1f2;
+  }
+
+  .problemas-mobile-submit {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #9a3412, #ea5b20);
+    box-shadow: 0 10px 20px rgba(194, 65, 12, 0.19);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .problemas-mobile-submit svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .problemas-mobile-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.64;
+  }
+
+  .problemas-mobile-info-card {
+    padding: 13px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #cae2f0;
+    border-radius: 18px;
+    background: #eef9ff;
+  }
+
+  .problemas-mobile-info-card > span {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #d9f2fe;
+    color: #0b75ad;
+  }
+
+  .problemas-mobile-info-card svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .problemas-mobile-info-card div {
+    min-width: 0;
+  }
+
+  .problemas-mobile-info-card strong {
+    display: block;
+    color: #174167;
+    font-size: 10.5px;
+    font-weight: 950;
+  }
+
+  .problemas-mobile-info-card p {
+    margin: 4px 0 0;
+    color: #66839b;
+    font-size: 9px;
+    line-height: 1.4;
+    font-weight: 750;
+  }
+
+  html[data-theme="dark"] .problemas-mobile-form-card {
+    border-color: rgba(105, 149, 182, 0.20);
+    background: rgba(10, 23, 40, 0.94);
+  }
+
+  html[data-theme="dark"] .problemas-mobile-form-header h2,
+  html[data-theme="dark"] .problemas-mobile-field > span,
+  html[data-theme="dark"] .problemas-mobile-group-title > span,
+  html[data-theme="dark"] .problemas-mobile-priority-list button strong,
+  html[data-theme="dark"] .problemas-mobile-info-card strong {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .problemas-mobile-field input,
+  html[data-theme="dark"] .problemas-mobile-field textarea,
+  html[data-theme="dark"] .problemas-mobile-module-grid button,
+  html[data-theme="dark"] .problemas-mobile-priority-list button,
+  html[data-theme="dark"] .problemas-mobile-info-card {
+    border-color: rgba(105, 149, 182, 0.22);
+    background: #0d2138;
+    color: #dcefff;
+  }
+
+  html[data-theme="dark"] .problemas-mobile-priority-list button > span {
+    background: #102941;
+    color: #a6d9f0;
+  }
+
+  html[data-theme="dark"] .problemas-mobile-field input::placeholder,
+  html[data-theme="dark"] .problemas-mobile-field textarea::placeholder,
+  html[data-theme="dark"] .problemas-mobile-group-title small,
+  html[data-theme="dark"] .problemas-mobile-description > small,
+  html[data-theme="dark"] .problemas-mobile-priority-list button small,
+  html[data-theme="dark"] .problemas-mobile-info-card p {
+    color: #a4bdce;
+  }
+}
+
+@media (max-width: 390px) {
+  .problemas-mobile-priority-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes problemasMobileHeroIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes problemasMobileHeroShape {
+  0%,
+  100% {
+    transform: rotate(21deg) translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: rotate(16deg) translate3d(-7px, 7px, 0);
+  }
+}
+
+@keyframes problemasMobileOrb {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-3px, 4px, 0) scale(1.06);
+  }
+}

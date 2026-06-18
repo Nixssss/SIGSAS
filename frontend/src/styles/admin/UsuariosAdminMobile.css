@@ -1,0 +1,560 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .usuarios-admin {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    gap: 14px;
+    padding: 12px 12px 118px;
+    box-sizing: border-box;
+  }
+
+  body.admin-mobile-active .usuarios-admin *,
+  body.admin-mobile-active .usuarios-admin *::before,
+  body.admin-mobile-active .usuarios-admin *::after {
+    box-sizing: border-box;
+  }
+
+  /* Cabeçalho compacto e neutro */
+  body.admin-mobile-active .usuarios-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+    min-width: 0;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid #d7e3ee;
+    border-left: 4px solid #0e4f88;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(20, 58, 94, 0.08);
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-hero,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-hero {
+    border-color: rgba(139, 181, 217, 0.28);
+    background: #101d2c;
+  }
+
+  body.admin-mobile-active .usuarios-hero-content {
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .usuarios-hero-eyebrow {
+    display: block;
+    margin: 0 0 4px;
+    color: #5e758a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  body.admin-mobile-active .usuarios-hero h2 {
+    max-width: 100%;
+    margin: 0;
+    color: #0a365f;
+    font-size: 24px;
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-active .usuarios-hero p {
+    max-width: 38ch;
+    margin: 6px 0 0;
+    color: #65798c;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.42;
+  }
+
+  body.admin-mobile-active .usuarios-hero-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .usuarios-hero-actions .btn {
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  body.admin-mobile-active .usuarios-list-card {
+    min-width: 0;
+    margin: 0 !important;
+    padding: 13px;
+    border: 1px solid #dbe5ee;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(20, 58, 94, 0.06);
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-list-card,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-list-card {
+    border-color: rgba(139, 181, 217, 0.24);
+    background: #101d2c;
+  }
+
+  body.admin-mobile-active .usuarios-search-area {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    min-width: 0;
+    margin: 0 0 11px;
+  }
+
+  body.admin-mobile-active .usuarios-search-area input {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0 12px;
+    border: 1px solid #c9d8e6;
+    border-radius: 11px;
+    background: #f9fbfd;
+    color: #153d63;
+    font-size: 12px;
+    font-weight: 600;
+    outline: none;
+  }
+
+  body.admin-mobile-active .usuarios-search-area input:focus {
+    border-color: #2675ae;
+    box-shadow: 0 0 0 3px rgba(38, 117, 174, 0.12);
+  }
+
+  body.admin-mobile-active .usuarios-search-area > span {
+    width: fit-content;
+    margin: 0;
+    padding: 6px 11px;
+    border: 1px solid #cfe0ee;
+    border-radius: 999px;
+    background: #f4f8fc;
+    color: #164c7b;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-list {
+    display: grid;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  /* Todos os perfis seguem a mesma paleta sóbria do projeto. */
+  body.admin-mobile-active .usuarios-mobile-card,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-administrador,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-coordenador,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-professor {
+    display: grid;
+    min-width: 0;
+    gap: 10px;
+    overflow: hidden;
+    padding: 12px;
+    border: 1px solid #cbddea;
+    border-left: 3px solid #17659c;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 5px 14px rgba(22, 64, 102, 0.06);
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-card,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-card {
+    border-color: rgba(139, 181, 217, 0.24);
+    border-left-color: #5fa9df;
+    background: #15263a;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-card-header {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 9px;
+  }
+
+  body.admin-mobile-active .usuario-identidade {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 9px;
+  }
+
+  body.admin-mobile-active .usuario-identidade > div {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  body.admin-mobile-active .usuario-identidade strong {
+    color: #103c62;
+    font-size: 13px;
+    line-height: 1.18;
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-active .usuario-identidade small {
+    color: #728497;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuario-identidade strong,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-identidade strong {
+    color: #e6f2fb;
+  }
+
+  body.admin-mobile-active .usuario-avatar,
+  body.admin-mobile-active .usuario-avatar.perfil-administrador,
+  body.admin-mobile-active .usuario-avatar.perfil-coordenador,
+  body.admin-mobile-active .usuario-avatar.perfil-professor {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border: 1px solid #a9cae4;
+    border-radius: 10px;
+    background: #edf5fb;
+    color: #145685;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  body.admin-mobile-active .usuario-badge,
+  body.admin-mobile-active .usuario-badge.perfil-administrador,
+  body.admin-mobile-active .usuario-badge.perfil-coordenador,
+  body.admin-mobile-active .usuario-badge.perfil-professor {
+    max-width: 48%;
+    padding: 4px 8px;
+    border: 1px solid #b9d4e9;
+    border-radius: 999px;
+    background: #f4f8fc;
+    color: #17517f;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    min-width: 0;
+    margin: 0;
+    border: 1px solid #e1eaf2;
+    border-radius: 11px;
+    overflow: hidden;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details > div {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+    padding: 8px 9px;
+    border-right: 1px solid #e5edf4;
+    border-bottom: 1px solid #e5edf4;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details > div:nth-child(3),
+  body.admin-mobile-active .usuarios-mobile-details > div:nth-child(4) {
+    border-bottom: 0;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details > div:first-child,
+  body.admin-mobile-active .usuarios-mobile-details > div:last-child {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details > div:first-child {
+    border-bottom: 1px solid #e5edf4;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details dt {
+    margin: 0;
+    color: #73879a;
+    font-size: 9px;
+    font-weight: 850;
+    letter-spacing: 0.045em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details dd {
+    min-width: 0;
+    margin: 0;
+    color: #173e62;
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-details,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-details,
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-details > div,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-details > div {
+    border-color: rgba(169, 204, 234, 0.16);
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-details dd,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-details dd {
+    color: #dbeeff;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-cursos {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid #e0e9f1;
+    border-radius: 10px;
+    background: #f7fafc;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-cursos > span {
+    color: #718496;
+    font-size: 9px;
+    font-weight: 850;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-cursos p {
+    margin: 0;
+    color: #173e62;
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1.28;
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-cursos small {
+    color: #728597;
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-cursos,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-cursos {
+    border-color: rgba(169, 204, 234, 0.16);
+    background: rgba(56, 91, 126, 0.18);
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-cursos p,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-cursos p {
+    color: #dbeeff;
+  }
+
+  body.admin-mobile-active .usuarios-row-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+  }
+
+  body.admin-mobile-active .usuarios-row-actions .btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+    margin: 0;
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  body.admin-mobile-active .usuarios-row-actions .usuarios-edit-btn {
+    border-color: #a9cbe5;
+    background: #f4f8fc;
+    color: #125384;
+  }
+
+  body.admin-mobile-active .usuarios-row-actions .usuarios-delete-btn {
+    border: 1px solid #e7b0b0;
+    background: #fff7f7;
+    color: #a33737;
+  }
+
+  body.admin-mobile-active .usuarios-empty {
+    padding: 22px 14px;
+    border: 1px dashed #bfd2e3;
+    border-radius: 13px;
+    background: #f9fbfd;
+    color: #64778a;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  body.admin-mobile-active .usuario-modal-overlay {
+    padding: 16px;
+  }
+
+  body.admin-mobile-active .usuario-modal {
+    width: min(100%, 520px);
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    border-radius: 18px;
+  }
+
+  body.admin-mobile-active .usuario-modal-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  body.admin-mobile-active .usuarios-cursos-box {
+    min-width: 0;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  body.admin-mobile-active .usuarios-cursos-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  body.admin-mobile-active .usuario-delete-preview {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+/*
+  Neutralização de perfis — Mobile
+  Administrador, Coordenador e Professor usam o mesmo tratamento visual.
+  Não há cor por cargo: somente superfícies neutras, tipografia escura e
+  azul institucional reservado aos botões globais do sistema.
+*/
+@media (max-width: 767px) {
+  body.admin-mobile-active .usuarios-mobile-card,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-administrador,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-coordenador,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-professor {
+    border: 1px solid #d8e0e7 !important;
+    border-left: 1px solid #d8e0e7 !important;
+    background: #ffffff !important;
+    box-shadow: 0 5px 14px rgba(28, 48, 68, 0.06) !important;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-card:hover,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-administrador:hover,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-coordenador:hover,
+  body.admin-mobile-active .usuarios-mobile-card.perfil-professor:hover {
+    border-color: #c8d2dc !important;
+    background: #ffffff !important;
+  }
+
+  body.admin-mobile-active .usuario-avatar,
+  body.admin-mobile-active .usuario-avatar.perfil-administrador,
+  body.admin-mobile-active .usuario-avatar.perfil-coordenador,
+  body.admin-mobile-active .usuario-avatar.perfil-professor {
+    border-color: #d5dde5 !important;
+    background: #f3f5f7 !important;
+    color: #405364 !important;
+  }
+
+  body.admin-mobile-active .usuario-badge,
+  body.admin-mobile-active .usuario-badge.perfil-administrador,
+  body.admin-mobile-active .usuario-badge.perfil-coordenador,
+  body.admin-mobile-active .usuario-badge.perfil-professor {
+    border-color: #d7dfe7 !important;
+    background: #f5f7f9 !important;
+    color: #405364 !important;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details,
+  body.admin-mobile-active .usuarios-mobile-details > div {
+    border-color: #e5eaef !important;
+    background: #ffffff !important;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details dt,
+  body.admin-mobile-active .usuarios-mobile-cursos > span {
+    color: #6b7b8a !important;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-details dd,
+  body.admin-mobile-active .usuarios-mobile-cursos p,
+  body.admin-mobile-active .usuario-identidade strong {
+    color: #243746 !important;
+  }
+
+  body.admin-mobile-active .usuarios-mobile-cursos {
+    border-color: #e3e8ed !important;
+    background: #f7f8fa !important;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-card,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-card,
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-card.perfil-administrador,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-card.perfil-administrador,
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-card.perfil-coordenador,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-card.perfil-coordenador,
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-card.perfil-professor,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-card.perfil-professor {
+    border-color: #334454 !important;
+    border-left-color: #334454 !important;
+    background: #17212b !important;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuario-avatar,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-avatar,
+  body[data-theme="dark"].admin-mobile-active .usuario-avatar.perfil-administrador,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-avatar.perfil-administrador,
+  body[data-theme="dark"].admin-mobile-active .usuario-avatar.perfil-coordenador,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-avatar.perfil-coordenador,
+  body[data-theme="dark"].admin-mobile-active .usuario-avatar.perfil-professor,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-avatar.perfil-professor,
+  body[data-theme="dark"].admin-mobile-active .usuario-badge,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-badge,
+  body[data-theme="dark"].admin-mobile-active .usuario-badge.perfil-administrador,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-badge.perfil-administrador,
+  body[data-theme="dark"].admin-mobile-active .usuario-badge.perfil-coordenador,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-badge.perfil-coordenador,
+  body[data-theme="dark"].admin-mobile-active .usuario-badge.perfil-professor,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-badge.perfil-professor {
+    border-color: #3d4d5d !important;
+    background: #202c37 !important;
+    color: #d9e2ea !important;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-details,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-details,
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-details > div,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-details > div {
+    border-color: #324353 !important;
+    background: #17212b !important;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-cursos,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-cursos {
+    border-color: #324353 !important;
+    background: #1d2934 !important;
+  }
+
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-details dd,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-details dd,
+  body[data-theme="dark"].admin-mobile-active .usuarios-mobile-cursos p,
+  html[data-theme="dark"] body.admin-mobile-active .usuarios-mobile-cursos p,
+  body[data-theme="dark"].admin-mobile-active .usuario-identidade strong,
+  html[data-theme="dark"] body.admin-mobile-active .usuario-identidade strong {
+    color: #e1e8ee !important;
+  }
+}

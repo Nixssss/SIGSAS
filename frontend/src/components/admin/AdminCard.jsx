@@ -1,14 +1,11 @@
-function AdminCard({ titulo, descricao, onClick }) {
-  return (
-    <div className="card admin-menu-card">
-      <h3>{titulo}</h3>
-      <p>{descricao}</p>
+import useAdminViewport from "./useAdminViewport"
+import AdminCardDesktop from "./AdminCardDesktop"
+import AdminCardMobile from "./AdminCardMobile"
 
-      <button className="btn primary" type="button" onClick={onClick}>
-        Abrir
-      </button>
-    </div>
-  )
+function AdminCard(props) {
+  const mobile = useAdminViewport()
+
+  return mobile ? <AdminCardMobile {...props} /> : <AdminCardDesktop {...props} />
 }
 
 export default AdminCard

@@ -1,0 +1,543 @@
+/* =========================================================
+   LOGIN MOBILE - SIGSAS
+   Exclusivo para LoginMobile.jsx.
+   Não altera o Login desktop nem Auth.css.
+   ========================================================= */
+
+.login-mobile-page {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .login-mobile-page {
+    position: relative;
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 96% 3%, rgba(0, 166, 223, 0.16), transparent 25%),
+      radial-gradient(circle at 0% 97%, rgba(11, 66, 121, 0.11), transparent 28%),
+      linear-gradient(165deg, #e9f3fa 0%, #f8fbff 56%, #edf5fb 100%);
+    color: #082f55;
+  }
+
+  .login-mobile-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(11, 66, 121, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(11, 66, 121, 0.035) 1px, transparent 1px);
+    background-size: 34px 34px;
+  }
+
+  .login-mobile-decoration {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 999px;
+  }
+
+  .login-mobile-decoration-top {
+    top: -92px;
+    right: -84px;
+    width: 218px;
+    height: 218px;
+    border: 1px solid rgba(0, 166, 223, 0.15);
+    background: rgba(0, 166, 223, 0.07);
+    animation: loginMobileFloat 7.2s ease-in-out infinite;
+  }
+
+  .login-mobile-decoration-bottom {
+    bottom: -128px;
+    left: -106px;
+    width: 270px;
+    height: 270px;
+    border: 1px solid rgba(11, 66, 121, 0.10);
+    background: rgba(11, 66, 121, 0.05);
+    animation: loginMobileFloat 8.8s ease-in-out infinite reverse;
+  }
+
+  .login-mobile-shell {
+    width: 100%;
+    min-height: 100dvh;
+    padding: calc(22px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+  }
+
+  .login-mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: loginMobileRise 0.4s ease both;
+  }
+
+  .login-mobile-brand .auth-logo-mark {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  .login-mobile-brand .auth-logo-hex {
+    width: 42px;
+    height: 42px;
+  }
+
+  .login-mobile-brand .auth-logo-core {
+    width: 21px;
+    height: 16px;
+  }
+
+  .login-mobile-brand .auth-logo-cube-top {
+    width: 21px;
+    height: 10px;
+  }
+
+  .login-mobile-brand .auth-logo-cube-front {
+    width: 21px;
+    height: 8px;
+  }
+
+  .login-mobile-brand strong,
+  .login-mobile-brand span {
+    display: block;
+  }
+
+  .login-mobile-brand strong {
+    color: #082f55;
+    font-size: 20px;
+    line-height: 1;
+    font-weight: 950;
+    letter-spacing: -0.035em;
+  }
+
+  .login-mobile-brand span {
+    margin-top: 4px;
+    color: #64819a;
+    font-size: 9.5px;
+    font-weight: 850;
+  }
+
+  .login-mobile-intro {
+    margin-top: clamp(36px, 8vh, 66px);
+    max-width: 330px;
+    animation: loginMobileRise 0.48s ease 0.05s both;
+  }
+
+  .login-mobile-intro > span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 0 9px;
+    border: 1px solid #c9e6f3;
+    border-radius: 999px;
+    background: #effaff;
+    color: #0b4279;
+    font-size: 8px;
+    font-weight: 950;
+    letter-spacing: 0.10em;
+  }
+
+  .login-mobile-intro h1 {
+    margin: 12px 0 7px;
+    color: #082f55;
+    font-size: clamp(29px, 9vw, 37px);
+    line-height: 1.02;
+    letter-spacing: -0.055em;
+    font-weight: 950;
+  }
+
+  .login-mobile-intro p {
+    margin: 0;
+    color: #5a7891;
+    font-size: 11.5px;
+    line-height: 1.52;
+    font-weight: 750;
+  }
+
+  .login-mobile-card {
+    margin-top: clamp(28px, 6vh, 46px);
+    padding: 17px;
+    border: 1px solid #cbdfea;
+    border-radius: 23px;
+    background:
+      radial-gradient(circle at 96% 0%, rgba(0, 166, 223, 0.08), transparent 28%),
+      rgba(255, 255, 255, 0.94);
+    box-shadow: 0 18px 38px rgba(15, 79, 134, 0.12);
+    animation: loginMobileRise 0.5s ease 0.1s both;
+  }
+
+  .login-mobile-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .login-mobile-card-header > div > span {
+    display: inline-block;
+    color: #0b75ad;
+    font-size: 8px;
+    font-weight: 950;
+    letter-spacing: 0.10em;
+  }
+
+  .login-mobile-card-header h2 {
+    margin: 4px 0 0;
+    color: #123e63;
+    font-size: 17px;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-weight: 950;
+  }
+
+  .login-mobile-card-step {
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #c9e4f3;
+    border-radius: 11px;
+    background: #ecf8ff;
+    color: #0b4279;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .login-mobile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .login-mobile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .login-mobile-field > span {
+    color: #264c6e;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .login-mobile-field > div {
+    height: 43px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 11px;
+    border: 1px solid #c9ddea;
+    border-radius: 13px;
+    background: #f9fcff;
+    color: #0b75ad;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .login-mobile-field > div:focus-within {
+    border-color: #0b75ad;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 166, 223, 0.12);
+  }
+
+  .login-mobile-field svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+  }
+
+  .login-mobile-field input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    background: transparent;
+    box-shadow: none;
+    color: #153a60;
+    font-size: 10.5px;
+    font-weight: 800;
+  }
+
+  .login-mobile-field input:focus {
+    border: none;
+    box-shadow: none;
+  }
+
+  .login-mobile-field input::placeholder {
+    color: #95aabd;
+  }
+
+  .login-mobile-error {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 23px minmax(0, 1fr);
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #fecaca;
+    border-radius: 13px;
+    background: #fff1f2;
+    color: #c2414d;
+  }
+
+  .login-mobile-error > span {
+    width: 23px;
+    height: 23px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: #ffe0e4;
+    font-size: 12px;
+    font-weight: 950;
+  }
+
+  .login-mobile-error p {
+    margin: 0;
+    font-size: 9.5px;
+    line-height: 1.4;
+    font-weight: 850;
+  }
+
+  .login-mobile-submit {
+    min-height: 43px;
+    margin-top: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    box-shadow: 0 10px 20px rgba(15, 79, 134, 0.19);
+    color: #ffffff;
+    font-size: 10.5px;
+    font-weight: 950;
+  }
+
+  .login-mobile-submit svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .login-mobile-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.66;
+  }
+
+  .login-mobile-links {
+    margin-top: 14px;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+  }
+
+  .login-mobile-links button {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #54758f;
+    font-size: 9.5px;
+    font-weight: 850;
+  }
+
+  .login-mobile-links button:first-child {
+    color: #0b75ad;
+  }
+
+  .login-mobile-links strong {
+    color: #0b4279;
+    font-weight: 950;
+  }
+
+  .login-mobile-confidence {
+    margin-top: auto;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #d1e5f1;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.66);
+    animation: loginMobileRise 0.55s ease 0.18s both;
+  }
+
+  .login-mobile-confidence > span {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #e8f8ef;
+    color: #15803d;
+  }
+
+  .login-mobile-confidence svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .login-mobile-confidence p {
+    margin: 0;
+    color: #638098;
+    font-size: 8.8px;
+    line-height: 1.4;
+    font-weight: 800;
+  }
+
+  .login-mobile-footer {
+    margin-top: 12px;
+    color: #7992a6;
+    font-size: 8.5px;
+    font-weight: 850;
+    text-align: center;
+  }
+}
+
+@media (max-height: 710px) and (max-width: 768px) {
+  .login-mobile-shell {
+    padding-top: calc(15px + env(safe-area-inset-top));
+  }
+
+  .login-mobile-intro {
+    margin-top: 24px;
+  }
+
+  .login-mobile-card {
+    margin-top: 20px;
+  }
+
+  .login-mobile-confidence {
+    margin-top: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-mobile-decoration,
+  .login-mobile-brand,
+  .login-mobile-intro,
+  .login-mobile-card,
+  .login-mobile-confidence {
+    animation: none !important;
+  }
+}
+
+@keyframes loginMobileRise {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loginMobileFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(-6px, 8px, 0);
+  }
+}
+
+
+/* =========================================================
+   CORREÇÃO VISUAL DOS CAMPOS DO LOGIN MOBILE
+   Evita que regras globais de input criem uma segunda borda
+   ou um bloco azul dentro do campo.
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .login-mobile-field > div {
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    border: 1px solid #c9ddea !important;
+    border-radius: 13px !important;
+    background: #f9fcff !important;
+    box-shadow: none !important;
+  }
+
+  .login-mobile-field > div:focus-within {
+    border-color: #0b75ad !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(0, 166, 223, 0.12) !important;
+  }
+
+  .login-mobile-field > div > svg {
+    width: 17px !important;
+    height: 17px !important;
+    flex: 0 0 17px !important;
+    margin: 0 10px 0 12px !important;
+    color: #0b75ad !important;
+  }
+
+  .login-mobile-field > div > input,
+  .login-mobile-field input,
+  .login-mobile-page input[type="email"],
+  .login-mobile-page input[type="password"] {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 41px !important;
+    min-height: 41px !important;
+    margin: 0 !important;
+    padding: 0 12px 0 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: #153a60 !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    line-height: normal !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  .login-mobile-field > div > input:focus,
+  .login-mobile-field input:focus,
+  .login-mobile-page input[type="email"]:focus,
+  .login-mobile-page input[type="password"]:focus {
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .login-mobile-field > div > input::placeholder,
+  .login-mobile-field input::placeholder {
+    color: #95aabd !important;
+    opacity: 1 !important;
+  }
+
+  .login-mobile-field > div > input:-webkit-autofill,
+  .login-mobile-field > div > input:-webkit-autofill:hover,
+  .login-mobile-field > div > input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #153a60 !important;
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    transition: background-color 9999s ease-out 0s !important;
+  }
+}

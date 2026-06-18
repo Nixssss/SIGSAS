@@ -1,0 +1,112 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .admin-accordion-list {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+  }
+
+  body.admin-mobile-active .admin-accordion-group,
+  body.admin-mobile-active .admin-accordion-subgroup {
+    min-width: 0;
+    margin: 0;
+    border: 1px solid #c7dced;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--admin-mobile-surface-soft);
+  }
+
+  body.admin-mobile-active .admin-accordion-header,
+  body.admin-mobile-active .admin-accordion-subgroup-button {
+    display: flex;
+    width: 100%;
+    min-height: 54px;
+    height: auto !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 0;
+    color: var(--admin-mobile-text);
+    background: transparent;
+    text-align: left;
+  }
+
+  body.admin-mobile-active .admin-accordion-header > div,
+  body.admin-mobile-active .admin-accordion-subgroup-button > div {
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .admin-accordion-header strong,
+  body.admin-mobile-active .admin-accordion-subgroup-button strong {
+    display: block;
+    overflow-wrap: anywhere;
+    color: var(--admin-mobile-primary-strong);
+    font-size: 13px;
+    line-height: 1.22;
+  }
+
+  body.admin-mobile-active .admin-accordion-header small,
+  body.admin-mobile-active .admin-accordion-subgroup-button small {
+    display: block;
+    margin-top: 3px;
+    color: var(--admin-mobile-muted);
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  body.admin-mobile-active .admin-accordion-header > span,
+  body.admin-mobile-active .admin-accordion-subgroup-button > span {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    place-items: center;
+    border: 1px solid #b8d7ed;
+    border-radius: 999px;
+    color: var(--admin-mobile-primary-strong);
+    background: #edf8ff;
+    font-size: 11px;
+  }
+
+  body.admin-mobile-active .admin-accordion-body,
+  body.admin-mobile-active .admin-accordion-subgroup-body {
+    min-width: 0;
+    padding: 0 12px 10px;
+  }
+
+  body.admin-mobile-active .admin-accordion-subgroup {
+    margin-top: 8px;
+    border-radius: 12px;
+    background: var(--admin-mobile-surface);
+  }
+
+  body.admin-mobile-active .admin-accordion-row {
+    display: grid;
+    min-height: 0 !important;
+    gap: 3px;
+    padding: 10px 0;
+    border-top: 1px solid var(--admin-mobile-border);
+    word-break: break-word;
+  }
+
+  body.admin-mobile-active .admin-accordion-row:first-child {
+    border-top: 0;
+  }
+
+  body.admin-mobile-active .admin-accordion-row strong {
+    color: var(--admin-mobile-text);
+    font-size: 13px;
+  }
+
+  body.admin-mobile-active .admin-accordion-row small {
+    line-height: 1.32;
+  }
+
+  body.admin-mobile-active .modal-list-item {
+    width: 100%;
+    min-height: 42px;
+    height: auto !important;
+    text-align: left;
+    word-break: break-word;
+  }
+}

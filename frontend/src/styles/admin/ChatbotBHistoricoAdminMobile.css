@@ -1,0 +1,187 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .chatbotb-admin {
+    display: grid;
+    min-width: 0;
+    gap: 12px;
+  }
+
+  body.admin-mobile-active .chatbotb-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #c7dced;
+    border-left: 5px solid var(--admin-mobile-primary);
+    border-radius: 18px;
+    background: var(--admin-mobile-surface);
+    box-shadow: var(--admin-mobile-shadow);
+  }
+
+  body.admin-mobile-active .chatbotb-kicker {
+    color: var(--admin-mobile-primary-strong);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  body.admin-mobile-active .chatbotb-hero h2 {
+    margin: 5px 0 0;
+    font-size: clamp(21px, 6vw, 26px);
+  }
+
+  body.admin-mobile-active .chatbotb-hero p {
+    margin: 6px 0 0;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  body.admin-mobile-active .chatbotb-hero-actions .btn {
+    width: 100%;
+  }
+
+  body.admin-mobile-active .chatbotb-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  body.admin-mobile-active .chatbotb-metrics article {
+    min-width: 0;
+    min-height: 0 !important;
+    padding: 11px;
+    border: 1px solid var(--admin-mobile-border);
+    border-radius: 14px;
+    background: var(--admin-mobile-surface);
+    box-shadow: var(--admin-mobile-shadow-soft);
+  }
+
+  body.admin-mobile-active .chatbotb-metrics strong {
+    font-size: 20px;
+  }
+
+  body.admin-mobile-active .chatbotb-card {
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.admin-mobile-active .chatbotb-filtros {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+    margin-bottom: 12px;
+  }
+
+  body.admin-mobile-active .chatbotb-filtros .btn {
+    width: 100%;
+  }
+
+  body.admin-mobile-active .chatbotb-table-wrapper {
+    width: 100%;
+    overflow: visible;
+    border: 0;
+  }
+
+  body.admin-mobile-active .chatbotb-table,
+  body.admin-mobile-active .chatbotb-table tbody,
+  body.admin-mobile-active .chatbotb-table tr,
+  body.admin-mobile-active .chatbotb-table td {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+  }
+
+  body.admin-mobile-active .chatbotb-table {
+    border: 0;
+    background: transparent;
+  }
+
+  body.admin-mobile-active .chatbotb-table thead {
+    display: none;
+  }
+
+  body.admin-mobile-active .chatbotb-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .chatbotb-table tbody tr {
+    min-height: 0 !important;
+    padding: 13px;
+    border: 1px solid var(--admin-mobile-border);
+    border-radius: 15px;
+    background: var(--admin-mobile-surface-soft);
+    box-shadow: var(--admin-mobile-shadow-soft);
+  }
+
+  body.admin-mobile-active .chatbotb-table td {
+    min-height: 0 !important;
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+
+  body.admin-mobile-active .chatbotb-table td:not(.chatbotb-user-cell):not(:last-child) {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    margin-top: 8px;
+    color: var(--admin-mobile-text);
+    font-size: 12px;
+    line-height: 1.32;
+  }
+
+  body.admin-mobile-active .chatbotb-table td:not(.chatbotb-user-cell):not(:last-child)::before {
+    color: var(--admin-mobile-muted);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  body.admin-mobile-active .chatbotb-table td:nth-child(2)::before { content: "Status"; }
+  body.admin-mobile-active .chatbotb-table td:nth-child(3)::before { content: "Mensagens"; }
+  body.admin-mobile-active .chatbotb-table td:nth-child(4)::before { content: "Reserva"; }
+  body.admin-mobile-active .chatbotb-table td:nth-child(5)::before { content: "Início"; }
+  body.admin-mobile-active .chatbotb-table td:nth-child(6)::before { content: "Fim"; }
+  body.admin-mobile-active .chatbotb-table td:nth-child(7)::before { content: "Sessão"; }
+
+  body.admin-mobile-active .chatbotb-user-cell > div {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+  }
+
+  body.admin-mobile-active .chatbotb-user-cell strong,
+  body.admin-mobile-active .chatbotb-user-cell small,
+  body.admin-mobile-active .chatbotb-session-cell span {
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-active .chatbotb-row-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 72px;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  body.admin-mobile-active .chatbotb-row-actions .btn {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px;
+  }
+
+  body.admin-mobile-active .chatbotb-modal-body {
+    min-width: 0;
+  }
+
+  body.admin-mobile-active .chatbotb-timeline {
+    padding-left: 0;
+  }
+
+  body.admin-mobile-active .chatbotb-message {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}

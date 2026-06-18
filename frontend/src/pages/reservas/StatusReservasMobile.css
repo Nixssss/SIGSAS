@@ -1,0 +1,1384 @@
+/* =========================================================
+   STATUS DE RESERVAS - MOBILE SIGSAS
+   Exclusivo para StatusReservasMobile.jsx.
+   Não altera a versão desktop nem o App.css.
+   ========================================================= */
+
+.reservas-mobile-page {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .reservas-mobile-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .reservas-mobile-hero {
+    position: relative;
+    min-height: 205px;
+    overflow: hidden;
+    padding: 19px 19px 72px;
+    border: 1px solid rgba(159, 213, 239, 0.82);
+    border-radius: 24px;
+    background: linear-gradient(135deg, #0b4279 0%, #0f6399 54%, #00a6df 100%);
+    box-shadow: 0 17px 31px rgba(15, 79, 134, 0.20);
+    color: #ffffff;
+    animation: reservasMobileHeroIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .reservas-mobile-hero > div:not(.reservas-mobile-hero-decoration) {
+    position: relative;
+    z-index: 2;
+    max-width: 235px;
+  }
+
+  .reservas-mobile-hero > div > span {
+    display: inline-block;
+    color: #9ce7ff !important;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.12em;
+  }
+
+  .reservas-mobile-hero h1 {
+    margin: 8px 0 7px;
+    color: #ffffff !important;
+    font-size: 24px;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-hero p {
+    margin: 0;
+    color: rgba(240, 250, 255, 0.92) !important;
+    font-size: 11.5px;
+    line-height: 1.5;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-hero-decoration {
+    position: absolute;
+    top: -45px;
+    right: -22px;
+    width: 162px;
+    height: 169px;
+    border: 1px solid rgba(255, 255, 255, 0.23);
+    border-radius: 35px;
+    transform: rotate(21deg);
+    animation: reservasMobileHeroShape 5.6s ease-in-out infinite;
+  }
+
+  .reservas-mobile-hero-decoration::before {
+    content: "";
+    position: absolute;
+    inset: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 23px;
+  }
+
+  .reservas-mobile-hero-decoration span {
+    position: absolute;
+    right: 17px;
+    bottom: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: rgba(169, 236, 255, 0.72);
+    box-shadow: 0 0 0 10px rgba(169, 236, 255, 0.10);
+    animation: reservasMobileOrb 3.8s ease-in-out infinite;
+  }
+
+  .reservas-mobile-hero-decoration i {
+    position: absolute;
+    left: 17px;
+    bottom: 18px;
+    width: 81px;
+    height: 58px;
+    border: 1px solid rgba(255, 255, 255, 0.21);
+    border-radius: 14px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .reservas-mobile-new-button {
+    position: absolute;
+    z-index: 10;
+    right: 15px;
+    bottom: 15px;
+    left: 15px;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 14px;
+    background: #ffffff !important;
+    box-shadow: 0 10px 20px rgba(3, 42, 78, 0.22);
+    color: #0b4279 !important;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-new-button svg {
+    width: 18px;
+    height: 18px;
+    color: currentColor !important;
+  }
+
+  .reservas-mobile-hero-decoration {
+    pointer-events: none;
+  }
+
+  .reservas-mobile-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .reservas-mobile-summary button {
+    min-height: 76px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 9px;
+    border: 1px solid #d4e4ef;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.89);
+    box-shadow: 0 9px 21px rgba(15, 79, 134, 0.07);
+    color: #72899e;
+  }
+
+  .reservas-mobile-summary button span {
+    color: #183f64;
+    font-size: 21px;
+    line-height: 1;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-summary button small {
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .reservas-mobile-summary button.pending.active {
+    border-color: #f0d78b;
+    background: #fff8e7;
+    color: #a76b00;
+  }
+
+  .reservas-mobile-summary button.pending.active span {
+    color: #b77908;
+  }
+
+  .reservas-mobile-summary button.approved.active {
+    border-color: #bce5cb;
+    background: #ecfaf2;
+    color: #15803d;
+  }
+
+  .reservas-mobile-summary button.approved.active span {
+    color: #15803d;
+  }
+
+  .reservas-mobile-summary button.history.active {
+    border-color: #bee2f5;
+    background: #eaf7ff;
+    color: #0b6fa7;
+  }
+
+  .reservas-mobile-summary button.history.active span {
+    color: #0b75ad;
+  }
+
+  .reservas-mobile-list-section {
+    padding: 16px;
+    border: 1px solid #d4e4ef;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 10px 24px rgba(15, 79, 134, 0.07);
+  }
+
+  .reservas-mobile-list-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .reservas-mobile-list-header > div > span {
+    display: inline-block;
+    color: #0d76b0;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.10em;
+  }
+
+  .reservas-mobile-list-header h2 {
+    margin: 4px 0 0;
+    color: #092f55;
+    font-size: 16px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-list-counter {
+    min-width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #cae4f3;
+    border-radius: 11px;
+    background: #ecf8ff;
+    color: #0b4279;
+    font-size: 12px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-list {
+    display: grid;
+    gap: 11px;
+  }
+
+  .reservas-mobile-card {
+    overflow: hidden;
+    border: 1px solid #d5e4ef;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 9px 21px rgba(15, 79, 134, 0.06);
+    animation: reservasMobileCardIn 0.32s ease both;
+  }
+
+  .reservas-mobile-card-header {
+    min-height: 78px;
+    padding: 13px;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+    background: linear-gradient(135deg, #f6fbff, #edf7fd);
+  }
+
+  .reservas-mobile-card.status-pendente .reservas-mobile-card-header {
+    background: linear-gradient(135deg, #fffaf0, #fff6e3);
+  }
+
+  .reservas-mobile-card.status-aprovada .reservas-mobile-card-header {
+    background: linear-gradient(135deg, #f2fcf6, #e9f9ef);
+  }
+
+  .reservas-mobile-card.status-recusada .reservas-mobile-card-header,
+  .reservas-mobile-card.status-cancelada .reservas-mobile-card-header {
+    background: linear-gradient(135deg, #fff7f7, #fff0f1);
+  }
+
+  .reservas-mobile-card-room-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    box-shadow: 0 8px 16px rgba(15, 79, 134, 0.16);
+    color: #ffffff;
+  }
+
+  .reservas-mobile-card-room-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .reservas-mobile-card-header > div {
+    min-width: 0;
+  }
+
+  .reservas-mobile-card-header small {
+    display: block;
+    color: #0b75ad;
+    font-size: 8.5px;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .reservas-mobile-card-header h2 {
+    margin: 3px 0 2px;
+    overflow: hidden;
+    color: #0a3159;
+    font-size: 13px;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reservas-mobile-card-header p {
+    margin: 0;
+    overflow: hidden;
+    color: #70899f;
+    font-size: 9.5px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reservas-mobile-status {
+    padding: 6px 7px;
+    border-radius: 999px;
+    font-size: 8.5px;
+    font-weight: 950;
+    white-space: nowrap;
+  }
+
+  .reservas-mobile-status.pendente {
+    background: #fff2cc;
+    color: #a96c00;
+  }
+
+  .reservas-mobile-status.aprovada {
+    background: #e3f8eb;
+    color: #15803d;
+  }
+
+  .reservas-mobile-status.recusada,
+  .reservas-mobile-status.cancelada {
+    background: #ffeaec;
+    color: #c2414d;
+  }
+
+  .reservas-mobile-card-period {
+    padding: 12px 13px;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+    border-bottom: 1px solid #e7f0f6;
+  }
+
+  .reservas-mobile-card-period > span {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #cbe7f4;
+    border-radius: 11px;
+    background: #ecf8ff;
+    color: #0b75ad;
+  }
+
+  .reservas-mobile-card-period svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .reservas-mobile-card-period div {
+    min-width: 0;
+  }
+
+  .reservas-mobile-card-period small,
+  .reservas-mobile-card-period strong {
+    display: block;
+  }
+
+  .reservas-mobile-card-period small {
+    color: #8098ac;
+    font-size: 8px;
+    font-weight: 850;
+  }
+
+  .reservas-mobile-card-period strong {
+    margin-top: 3px;
+    overflow: hidden;
+    color: #1a456a;
+    font-size: 10px;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reservas-mobile-card-info {
+    padding: 10px 13px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 12px;
+    border-bottom: 1px solid #e7f0f6;
+  }
+
+  .reservas-mobile-card-info span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #67839b;
+    font-size: 8.5px;
+    font-weight: 800;
+  }
+
+  .reservas-mobile-card-info svg {
+    width: 14px;
+    height: 14px;
+    color: #0b75ad;
+  }
+
+  .reservas-mobile-card-reason {
+    padding: 11px 13px 8px;
+  }
+
+  .reservas-mobile-card-reason small {
+    display: block;
+    color: #8098ac;
+    font-size: 8px;
+    font-weight: 850;
+  }
+
+  .reservas-mobile-card-reason p {
+    margin: 4px 0 0;
+    color: #315a7c;
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 800;
+  }
+
+  .reservas-mobile-card-details {
+    margin: 0 13px 11px;
+    border-top: 1px solid #e7eff5;
+  }
+
+  .reservas-mobile-card-details summary {
+    min-height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    cursor: pointer;
+    color: #4f7592;
+    font-size: 9.5px;
+    font-weight: 900;
+    list-style: none;
+  }
+
+  .reservas-mobile-card-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .reservas-mobile-card-details summary svg {
+    width: 15px;
+    height: 15px;
+    color: #0b75ad;
+    transition: transform 0.2s ease;
+  }
+
+  .reservas-mobile-card-details[open] summary svg {
+    transform: rotate(90deg);
+  }
+
+  .reservas-mobile-card-details > div {
+    padding-bottom: 6px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .reservas-mobile-card-details p {
+    min-width: 0;
+    margin: 0;
+    padding: 8px;
+    border-radius: 10px;
+    background: #f7fbfe;
+  }
+
+  .reservas-mobile-card-details p.reservas-mobile-card-details-full {
+    grid-column: 1 / -1;
+  }
+
+  .reservas-mobile-card-details small,
+  .reservas-mobile-card-details strong {
+    display: block;
+  }
+
+  .reservas-mobile-card-details small {
+    color: #839aaf;
+    font-size: 7.8px;
+    font-weight: 850;
+  }
+
+  .reservas-mobile-card-details strong {
+    margin-top: 3px;
+    overflow: hidden;
+    color: #284e70;
+    font-size: 8.8px;
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reservas-mobile-card-details-full strong {
+    white-space: normal;
+  }
+
+  .reservas-mobile-cancel-button {
+    width: calc(100% - 26px);
+    min-height: 39px;
+    margin: 0 13px 13px;
+    border: 1px solid #f7c6cc;
+    border-radius: 13px;
+    background: #fff1f2;
+    color: #c2414d;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-empty {
+    min-height: 192px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #c4dae9;
+    border-radius: 18px;
+    background: #f9fcff;
+    text-align: center;
+  }
+
+  .reservas-mobile-empty > span {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 11px;
+    border-radius: 15px;
+    background: #eaf6fd;
+    color: #0b75ad;
+  }
+
+  .reservas-mobile-empty svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .reservas-mobile-empty h3 {
+    margin: 0;
+    color: #153a60;
+    font-size: 14px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-empty p {
+    max-width: 245px;
+    margin: 7px 0 0;
+    color: #718a9f;
+    font-size: 10.5px;
+    line-height: 1.45;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-empty button {
+    min-height: 34px;
+    margin-top: 14px;
+    padding: 0 11px;
+    border: 1px solid #c7e5f3;
+    border-radius: 11px;
+    background: #ecf8ff;
+    color: #0b4279;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-popup-overlay {
+    position: fixed;
+    z-index: 1400;
+    inset: 0;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 31, 57, 0.46);
+    backdrop-filter: blur(6px);
+    animation: reservasMobileOverlayIn 0.2s ease both;
+  }
+
+  .reservas-mobile-popup-card,
+  .reservas-mobile-confirm-card {
+    width: min(88vw, 360px);
+    padding: 25px 20px;
+    border: 1px solid #d1e4ef;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 28px 64px rgba(4, 34, 65, 0.30);
+    text-align: center;
+    animation: reservasMobilePopupIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .reservas-mobile-popup-symbol {
+    width: 47px;
+    height: 47px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 12px;
+    border-radius: 17px;
+    font-size: 25px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-popup-symbol.success {
+    background: #e8f8ef;
+    color: #15803d;
+  }
+
+  .reservas-mobile-popup-symbol.alert {
+    background: #fff1f2;
+    color: #c2414d;
+  }
+
+  .reservas-mobile-popup-card h3,
+  .reservas-mobile-confirm-card h3 {
+    margin: 0;
+    color: #153a60;
+    font-size: 17px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-popup-card p,
+  .reservas-mobile-confirm-card p {
+    margin: 9px 0 0;
+    color: #6f899f;
+    font-size: 11px;
+    line-height: 1.45;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-popup-card > small {
+    display: block;
+    margin-top: 5px;
+    color: #6f899f;
+    font-size: 10px;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-popup-message {
+    padding: 9px;
+    border-radius: 11px;
+    background: #f4f9fd;
+  }
+
+  .reservas-mobile-popup-card > button {
+    width: 100%;
+    min-height: 42px;
+    margin-top: 16px;
+    border: none;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-confirm-icon {
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 12px;
+    border-radius: 16px;
+    background: #fff2dc;
+    color: #b77908;
+  }
+
+  .reservas-mobile-confirm-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .reservas-mobile-confirm-summary {
+    margin-top: 15px;
+    padding: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid #d8e6ef;
+    border-radius: 14px;
+    background: #f7fbfe;
+    text-align: left;
+  }
+
+  .reservas-mobile-confirm-summary strong {
+    color: #173f63;
+    font-size: 11px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-confirm-summary span {
+    color: #718a9f;
+    font-size: 9.5px;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-confirm-actions {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 9px;
+  }
+
+  .reservas-mobile-confirm-actions button {
+    min-height: 41px;
+    padding: 0 8px;
+    border-radius: 13px;
+    font-size: 9.5px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-confirm-back {
+    border: 1px solid #cbdfea;
+    background: #f3f8fc;
+    color: #315d7f;
+  }
+
+  .reservas-mobile-confirm-delete {
+    border: 1px solid transparent;
+    background: #c2414d;
+    color: #ffffff;
+  }
+
+  /* Reserva manual: seletores todos isolados */
+  .reservas-mobile-manual-modal-overlay {
+    position: fixed;
+    z-index: 1350;
+    inset: 0;
+    padding: 12px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(5, 31, 57, 0.46);
+    backdrop-filter: blur(6px);
+    animation: reservasMobileOverlayIn 0.2s ease both;
+  }
+
+  .reservas-mobile-manual-modal {
+    width: 100%;
+    max-width: 650px;
+    max-height: min(91dvh, 820px);
+    overflow: hidden;
+    border: 1px solid #d0e3ef;
+    border-radius: 25px;
+    background: #f9fcff;
+    box-shadow: 0 28px 64px rgba(4, 34, 65, 0.30);
+    animation: reservasMobileModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .reservas-mobile-manual-modal-header {
+    min-height: 91px;
+    padding: 17px 17px 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #dcebf4;
+    background: linear-gradient(135deg, #0b4279, #0f649b 54%, #00a6df);
+    color: #ffffff;
+  }
+
+  .reservas-mobile-manual-modal-header > div {
+    min-width: 0;
+  }
+
+  .reservas-mobile-manual-modal-header span {
+    display: block;
+    color: #9de8ff;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .reservas-mobile-manual-modal-header h3 {
+    margin: 4px 0;
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-manual-modal-header p {
+    margin: 0;
+    color: rgba(242, 251, 255, 0.85);
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-manual-modal-close {
+    width: 33px;
+    height: 33px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 23px;
+    line-height: 1;
+  }
+
+  .reservas-mobile-manual-form {
+    max-height: calc(min(91dvh, 820px) - 91px);
+    padding: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .reservas-mobile-manual-form::-webkit-scrollbar {
+    display: none;
+  }
+
+  .reservas-mobile-manual-form-full,
+  .reservas-mobile-manual-actions {
+    grid-column: 1 / -1;
+  }
+
+  .reservas-mobile-manual-form > label {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #254b6e;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .reservas-mobile-manual-form input,
+  .reservas-mobile-manual-form select,
+  .reservas-mobile-manual-form textarea {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid #cbdfea;
+    border-radius: 12px;
+    background: #f9fcff;
+    color: #0a3159;
+    font-size: 10px;
+    outline: none;
+  }
+
+  .reservas-mobile-manual-form textarea {
+    min-height: 70px;
+    height: auto;
+    padding: 10px;
+    resize: vertical;
+  }
+
+  .reservas-mobile-manual-form input:focus,
+  .reservas-mobile-manual-form select:focus,
+  .reservas-mobile-manual-form textarea:focus {
+    border-color: #0b75ad;
+    box-shadow: 0 0 0 3px rgba(0, 166, 223, 0.12);
+  }
+
+  .reservas-mobile-manual-sala-resumo {
+    padding: 11px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    border: 1px solid #cce5f3;
+    border-radius: 16px;
+    background: #edf8fe;
+  }
+
+  .reservas-mobile-manual-sala-resumo div {
+    min-width: 0;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.58);
+  }
+
+  .reservas-mobile-manual-sala-resumo span,
+  .reservas-mobile-manual-sala-resumo strong {
+    display: block;
+  }
+
+  .reservas-mobile-manual-sala-resumo span {
+    color: #7c95a8;
+    font-size: 8px;
+    font-weight: 850;
+  }
+
+  .reservas-mobile-manual-sala-resumo strong {
+    margin-top: 3px;
+    overflow: hidden;
+    color: #1d4669;
+    font-size: 9px;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reservas-mobile-manual-alert {
+    margin: 0;
+    padding: 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 850;
+  }
+
+  .reservas-mobile-manual-alert.erro {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #c2414d;
+  }
+
+  .reservas-mobile-manual-alert.sucesso {
+    border: 1px solid #bbebcb;
+    background: #eaf9f0;
+    color: #15803d;
+  }
+
+  .reservas-mobile-manual-actions {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 9px;
+  }
+
+  .reservas-mobile-manual-actions .btn {
+    min-height: 43px;
+    border-radius: 13px;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-manual-actions .btn.secondary {
+    border: 1px solid #cbdfeb;
+    background: #f2f8fc;
+    color: #275475;
+  }
+
+  .reservas-mobile-manual-actions .btn.primary {
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    box-shadow: 0 9px 18px rgba(15, 79, 134, 0.18);
+    color: #ffffff;
+  }
+
+  /* Calendário e horário da reserva manual */
+  .reservas-mobile-manual-calendar-box,
+  .reservas-mobile-manual-time-box {
+    position: relative;
+    min-width: 0;
+  }
+
+  .reservas-mobile-manual-calendar-box > label,
+  .reservas-mobile-manual-time-box > label {
+    display: block;
+    margin-bottom: 6px;
+    color: #476d8b;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .reservas-mobile-manual-calendar-trigger,
+  .reservas-mobile-manual-time-trigger {
+    width: 100%;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 10px;
+    border: 1px solid #caddea;
+    border-radius: 12px;
+    background: #f9fcff;
+    color: #173f63;
+    font-size: 10px;
+    font-weight: 900;
+    text-align: left;
+  }
+
+  .reservas-mobile-manual-calendar-trigger.aberto,
+  .reservas-mobile-manual-time-trigger.aberto {
+    border-color: #0b75ad;
+    box-shadow: 0 0 0 3px rgba(0, 166, 223, 0.12);
+  }
+
+  .reservas-mobile-manual-calendar-trigger strong,
+  .reservas-mobile-manual-time-trigger strong {
+    width: 17px;
+    height: 17px;
+    display: grid;
+    place-items: center;
+    color: #0b75ad;
+  }
+
+  .reservas-mobile-manual-input-icon-svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .reservas-mobile-manual-calendar-panel,
+  .reservas-mobile-manual-time-panel {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 6px);
+    right: 0;
+    left: 0;
+    max-height: 345px;
+    overflow: auto;
+    padding: 11px;
+    border: 1px solid #c7deec;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 18px 38px rgba(5, 47, 85, 0.20);
+    scrollbar-width: thin;
+  }
+
+  .reservas-mobile-manual-calendar-header {
+    display: grid;
+    grid-template-columns: 29px minmax(0, 1fr) 29px;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 9px;
+  }
+
+  .reservas-mobile-manual-calendar-header button {
+    width: 29px;
+    height: 29px;
+    padding: 0;
+    border: 1px solid #d3e3ed;
+    border-radius: 10px;
+    background: #f8fcff;
+    color: #0b4279;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .reservas-mobile-manual-calendar-header button:disabled {
+    opacity: 0.4;
+  }
+
+  .reservas-mobile-manual-calendar-header strong {
+    overflow: hidden;
+    color: #173f63;
+    font-size: 10px;
+    font-weight: 950;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reservas-mobile-manual-calendar-week,
+  .reservas-mobile-manual-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .reservas-mobile-manual-calendar-week {
+    margin-bottom: 4px;
+  }
+
+  .reservas-mobile-manual-calendar-week span {
+    color: #7b93a8;
+    font-size: 8px;
+    font-weight: 950;
+    text-align: center;
+  }
+
+  .reservas-mobile-manual-calendar-week span.domingo {
+    color: #c18585;
+  }
+
+  .reservas-mobile-manual-calendar-day,
+  .reservas-mobile-manual-calendar-days .dia-vazio {
+    min-height: 30px;
+  }
+
+  .reservas-mobile-manual-calendar-day {
+    padding: 0;
+    border: 1px solid #d4e3ed;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #1c466b;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .reservas-mobile-manual-calendar-day.selecionado {
+    border-color: #0b4279;
+    background: #0b4279;
+    color: #ffffff;
+  }
+
+  .reservas-mobile-manual-calendar-day.indisponivel,
+  .reservas-mobile-manual-calendar-day.domingo {
+    border-color: #ebeff2;
+    background: #f0f3f5;
+    color: #a2adb7;
+  }
+
+  .reservas-mobile-manual-calendar-footer {
+    margin-top: 9px;
+    display: grid;
+    gap: 7px;
+    color: #8098aa;
+    font-size: 8px;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-manual-calendar-footer button {
+    min-height: 29px;
+    border: 1px solid #c8e3f1;
+    border-radius: 10px;
+    background: #edf8fe;
+    color: #0b4279;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .reservas-mobile-manual-time-panel-header {
+    margin-bottom: 9px;
+  }
+
+  .reservas-mobile-manual-time-panel-header strong,
+  .reservas-mobile-manual-time-panel-header span {
+    display: block;
+  }
+
+  .reservas-mobile-manual-time-panel-header strong {
+    color: #173f63;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .reservas-mobile-manual-time-panel-header span {
+    margin-top: 3px;
+    color: #7a93a7;
+    font-size: 8px;
+    font-weight: 750;
+  }
+
+  .reservas-mobile-manual-time-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .reservas-mobile-manual-time-option {
+    min-height: 31px;
+    padding: 0;
+    border: 1px solid #d5e4ed;
+    border-radius: 9px;
+    background: #f9fcff;
+    color: #275173;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .reservas-mobile-manual-time-option.selecionado {
+    border-color: #0b4279;
+    background: #0b4279;
+    color: #ffffff;
+  }
+
+  .reservas-mobile-manual-time-empty {
+    grid-column: 1 / -1;
+    padding: 8px;
+    color: #8398aa;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  html[data-theme="dark"] .reservas-mobile-summary button,
+  html[data-theme="dark"] .reservas-mobile-list-section,
+  html[data-theme="dark"] .reservas-mobile-card,
+  html[data-theme="dark"] .reservas-mobile-empty {
+    border-color: rgba(105, 149, 182, 0.20);
+    background: rgba(10, 23, 40, 0.94);
+  }
+
+  html[data-theme="dark"] .reservas-mobile-list-header h2,
+  html[data-theme="dark"] .reservas-mobile-card-header h2,
+  html[data-theme="dark"] .reservas-mobile-card-period strong,
+  html[data-theme="dark"] .reservas-mobile-empty h3 {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .reservas-mobile-card-header,
+  html[data-theme="dark"] .reservas-mobile-card.status-pendente .reservas-mobile-card-header,
+  html[data-theme="dark"] .reservas-mobile-card.status-aprovada .reservas-mobile-card-header,
+  html[data-theme="dark"] .reservas-mobile-card.status-recusada .reservas-mobile-card-header,
+  html[data-theme="dark"] .reservas-mobile-card.status-cancelada .reservas-mobile-card-header,
+  html[data-theme="dark"] .reservas-mobile-card-details p {
+    border-color: rgba(105, 149, 182, 0.20);
+    background: #0d2138;
+  }
+
+  html[data-theme="dark"] .reservas-mobile-card-header p,
+  html[data-theme="dark"] .reservas-mobile-card-info span,
+  html[data-theme="dark"] .reservas-mobile-card-reason p,
+  html[data-theme="dark"] .reservas-mobile-card-details strong,
+  html[data-theme="dark"] .reservas-mobile-empty p {
+    color: #b0c9da;
+  }
+
+  html[data-theme="dark"] .reservas-mobile-card-period,
+  html[data-theme="dark"] .reservas-mobile-card-info,
+  html[data-theme="dark"] .reservas-mobile-card-details {
+    border-color: rgba(105, 149, 182, 0.16);
+  }
+
+  html[data-theme="dark"] .reservas-mobile-manual-modal,
+  html[data-theme="dark"] .reservas-mobile-popup-card,
+  html[data-theme="dark"] .reservas-mobile-confirm-card {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #0b1b2e;
+  }
+
+  html[data-theme="dark"] .reservas-mobile-manual-form,
+  html[data-theme="dark"] .reservas-mobile-manual-sala-resumo,
+  html[data-theme="dark"] .reservas-mobile-manual-form input,
+  html[data-theme="dark"] .reservas-mobile-manual-form select,
+  html[data-theme="dark"] .reservas-mobile-manual-form textarea,
+  html[data-theme="dark"] .reservas-mobile-manual-calendar-trigger,
+  html[data-theme="dark"] .reservas-mobile-manual-time-trigger {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #102941;
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .reservas-mobile-manual-form > label,
+  html[data-theme="dark"] .reservas-mobile-manual-calendar-box > label,
+  html[data-theme="dark"] .reservas-mobile-manual-time-box > label {
+    color: #dcefff;
+  }
+
+  html[data-theme="dark"] .reservas-mobile-manual-calendar-panel,
+  html[data-theme="dark"] .reservas-mobile-manual-time-panel {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #0d2138;
+  }
+}
+
+@media (max-width: 390px) {
+  .reservas-mobile-card-header {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .reservas-mobile-status {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: -2px;
+  }
+
+  .reservas-mobile-card-header {
+    min-height: 94px;
+  }
+
+  .reservas-mobile-manual-form {
+    grid-template-columns: 1fr;
+  }
+
+  .reservas-mobile-manual-actions,
+  .reservas-mobile-confirm-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes reservasMobileHeroIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes reservasMobileCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reservasMobileHeroShape {
+  0%,
+  100% {
+    transform: rotate(21deg) translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: rotate(16deg) translate3d(-7px, 7px, 0);
+  }
+}
+
+@keyframes reservasMobileOrb {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(-3px, 4px, 0) scale(1.06);
+  }
+}
+
+@keyframes reservasMobileOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reservasMobilePopupIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes reservasMobileModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

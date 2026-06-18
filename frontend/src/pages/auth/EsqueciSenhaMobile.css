@@ -1,0 +1,49 @@
+@media (max-width: 768px) {
+  .esqueceu-mobile-card {
+    margin-top: clamp(28px, 7vh, 52px);
+  }
+
+  .esqueceu-mobile-note {
+    margin-top: auto;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 27px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #d1e5f1;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.66);
+  }
+
+  .esqueceu-mobile-note > span {
+    width: 27px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #eef8ff;
+    color: #0b75ad;
+  }
+
+  .esqueceu-mobile-note svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .esqueceu-mobile-note p {
+    margin: 0;
+    color: #638098;
+    font-size: 8.8px;
+    line-height: 1.4;
+    font-weight: 800;
+  }
+
+  html[data-theme="dark"] .esqueceu-mobile-note {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: rgba(10, 23, 40, 0.70);
+  }
+
+  html[data-theme="dark"] .esqueceu-mobile-note p {
+    color: #a6c0d2;
+  }
+}

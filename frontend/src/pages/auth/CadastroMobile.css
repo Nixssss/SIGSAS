@@ -1,0 +1,265 @@
+@media (max-width: 768px) {
+  .cadastro-mobile-card {
+    margin-top: 27px;
+  }
+
+  .cadastro-mobile-profile {
+    margin-bottom: 13px;
+    padding: 9px;
+    display: grid;
+    grid-template-columns: 25px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #cfe5f1;
+    border-radius: 13px;
+    background: #f1faff;
+  }
+
+  .cadastro-mobile-profile > span {
+    width: 25px;
+    height: 25px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #0b4279, #00a6df);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 950;
+  }
+
+  .cadastro-mobile-profile p {
+    margin: 0;
+    color: #5e7c94;
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  .cadastro-mobile-profile strong {
+    color: #0b4279;
+    font-weight: 950;
+  }
+
+  .cadastro-mobile-progress {
+    margin: 1px 0 14px;
+    display: grid;
+    grid-template-columns: 24px 1fr 24px;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .cadastro-mobile-progress > span {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #cbdfea;
+    border-radius: 999px;
+    background: #f7fbff;
+    color: #7893a9;
+    font-size: 8.5px;
+    font-weight: 950;
+  }
+
+  .cadastro-mobile-progress > span.active,
+  .cadastro-mobile-progress > span.done {
+    border-color: #0b75ad;
+    background: #0b75ad;
+    color: #ffffff;
+  }
+
+  .cadastro-mobile-progress > i {
+    height: 2px;
+    border-radius: 99px;
+    background: #d8e6ef;
+  }
+
+  .cadastro-mobile-progress > i.active {
+    background: #0b75ad;
+  }
+
+  .cadastro-mobile-cursos {
+    padding: 10px;
+    border: 1px solid #d3e4ef;
+    border-radius: 14px;
+    background: #fbfdff;
+  }
+
+  .cadastro-mobile-cursos header {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+
+  .cadastro-mobile-cursos header strong {
+    color: #224b6e;
+    font-size: 9.5px;
+    font-weight: 950;
+  }
+
+  .cadastro-mobile-cursos header small {
+    color: #7892a8;
+    font-size: 8px;
+    line-height: 1.35;
+    font-weight: 750;
+  }
+
+  .cadastro-mobile-dono {
+    padding: 8px;
+    border-radius: 10px;
+    background: #eaf7fd;
+    color: #0b75ad;
+    font-size: 8.5px;
+    font-weight: 950;
+    text-align: center;
+  }
+
+  .cadastro-mobile-busca-curso {
+    height: 37px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 9px;
+    border: 1px solid #cfe0eb;
+    border-radius: 11px;
+    background: #eef7fc;
+    color: #0b75ad;
+  }
+
+  .cadastro-mobile-busca-curso svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+  }
+
+  .cadastro-mobile-busca-curso input {
+    flex: 1;
+    min-width: 0;
+    height: 35px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #153a60;
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  .cadastro-mobile-busca-curso small {
+    color: #6c8ca5;
+    font-size: 7px;
+    font-weight: 900;
+  }
+
+  .cadastro-mobile-cursos-lista {
+    max-height: 157px;
+    overflow-y: auto;
+    display: grid;
+    gap: 6px;
+    padding-right: 2px;
+  }
+
+  .cadastro-mobile-curso {
+    min-height: 34px;
+    padding: 7px;
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #d3e4ef;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #67849b;
+  }
+
+  .cadastro-mobile-curso input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cadastro-mobile-curso > span {
+    width: 16px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #c7dbe8;
+    border-radius: 6px;
+    background: #f8fcff;
+    color: transparent;
+    font-size: 9px;
+    font-weight: 950;
+  }
+
+  .cadastro-mobile-curso.ativo {
+    border-color: #8ccce7;
+    background: #eefaff;
+  }
+
+  .cadastro-mobile-curso.ativo > span {
+    border-color: #0b75ad;
+    background: #0b75ad;
+    color: #ffffff;
+  }
+
+  .cadastro-mobile-curso p {
+    overflow: hidden;
+    margin: 0;
+    color: #385e7d;
+    font-size: 8.5px;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cadastro-mobile-cursos-vazio {
+    margin: 8px 0 0;
+    color: #7a94a9;
+    font-size: 8px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .cadastro-mobile-actions {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .cadastro-mobile-back {
+    min-height: 43px;
+    border: 1px solid #c8dce9;
+    border-radius: 14px;
+    background: #f4f9fd;
+    color: #476d88;
+    font-size: 9.5px;
+    font-weight: 950;
+  }
+
+  .cadastro-mobile-actions .auth-mobile-submit {
+    min-width: 0;
+    margin: 0;
+  }
+
+  html[data-theme="dark"] .cadastro-mobile-profile,
+  html[data-theme="dark"] .cadastro-mobile-cursos {
+    border-color: rgba(105, 149, 182, 0.24);
+    background: #0d2138;
+  }
+
+  html[data-theme="dark"] .cadastro-mobile-profile p,
+  html[data-theme="dark"] .cadastro-mobile-cursos header small,
+  html[data-theme="dark"] .cadastro-mobile-curso p {
+    color: #a6c0d2;
+  }
+
+  html[data-theme="dark"] .cadastro-mobile-cursos header strong {
+    color: #eaf6ff;
+  }
+
+  html[data-theme="dark"] .cadastro-mobile-curso {
+    border-color: rgba(105, 149, 182, 0.23);
+    background: #102941;
+  }
+}

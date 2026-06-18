@@ -1,0 +1,28 @@
+@media (max-width: 767px) {
+  body.admin-mobile-active .admin-mobile-search {
+    margin: 0 0 12px;
+    padding: 8px;
+    border: 1px solid var(--admin-mobile-border);
+    border-radius: 16px;
+    background: var(--admin-mobile-surface);
+    box-shadow: var(--admin-mobile-shadow-soft);
+  }
+
+  body.admin-mobile-active .admin-mobile-search-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  body.admin-mobile-active .admin-mobile-search input {
+    min-height: 40px;
+    margin: 0;
+    font-size: 13px;
+  }
+}
