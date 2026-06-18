@@ -1,43 +1,76 @@
-from typing import List, Optional
-
-from sqlalchemy.orm import Session
-
 from app.models.resposta import Resposta
 
-from app.schemas.resposta import RespostaCreate, RespostaUpdate
+
+# =========================
+# CHATBOT
+# =========================
+
+def buscar_resposta(codigo, db):
+
+    resposta = (
+        db.query(Resposta)
+        .filter(Resposta.codigo == codigo)
+        .first()
+    )
+
+    if resposta:
+        return resposta.texto
+
+    return "Resposta não cadastrada."
 
 
-def get_all(db: Session) -> List[Resposta]:
+# =========================
+# CRUD
+# =========================
+
+def get_all(db):
     return db.query(Resposta).all()
 
 
-def get_by_id(db: Session, id: int) -> Optional[Resposta]:
-    return db.query(Resposta).filter(Resposta.id == id).first()
+def get_by_id(db, id):
+    return (
+        db.query(Resposta)
+        .filter(Resposta.id == id)
+        .first()
+    )
 
 
-def create(db: Session, obj_in: RespostaCreate) -> Resposta:
-    db_obj = Resposta(**obj_in.model_dump())
-    db.add(db_obj)
+def create(db, obj_in):
+
+    obj = Resposta(
+        codigo=obj_in.codigo,
+        texto=obj_in.texto
+    )
+
+    db.add(obj)
     db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    db.refresh(obj)
+
+    return obj
 
 
-def update(db: Session, id: int, obj_in: RespostaUpdate) -> Optional[Resposta]:
-    db_obj = db.query(Resposta).filter(Resposta.id == id).first()
-    if db_obj:
-        update_data = obj_in.model_dump(exclude_unset=True)
-        for field, value in update_data.items():
-            setattr(db_obj, field, value)
-        db.commit()
-        db.refresh(db_obj)
-    return db_obj
+def update(db, id, obj_in):
+
+    obj = get_by_id(db, id)
+
+    if not obj:
+        return None
+
+    dados = obj_in.model_dump(exclude_unset=True)
+
+    for campo, valor in dados.items():
+        setattr(obj, campo, valor)
+
+    db.commit()
+    db.refresh(obj)
+
+    return obj
 
 
-def delete(db: Session, id: int) -> bool:
-    obj = db.query(Resposta).filter(Resposta.id == id).first()
+def delete(db, id):
+
+    obj = get_by_id(db, id)
+
     if obj:
         db.delete(obj)
         db.commit()
-        return True
-    return False

@@ -1,48 +1,42 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 
-from app.database import get_db
-from app.services.ia_service import LocalAIProcessor
-
-
-class MensagemChat(BaseModel):
-    texto: str
+from app.db.session import get_db
+from app.services.chat_service import processar_mensagem
 
 
-router = APIRouter()
-
-ia_processor = LocalAIProcessor()
+router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
-@router.post("/perguntar")
-async def chat_inteligente(
-    solicitacao: MensagemChat,
-    db: Session = Depends(get_db)
-):
-    try:
-        resultado = ia_processor.processar_agendamento(
-            solicitacao.texto,
-            db=db
+@router.post("/")
+def chat(payload: dict, db: Session = Depends(get_db)):
+
+    print("PAYLOAD RECEBIDO:", payload)
+
+    user_id = payload.get("idUsuario") or payload.get("user_id")
+    message = payload.get("message")
+
+    if not message:
+        raise HTTPException(
+            status_code=400,
+            detail="message não enviada"
         )
 
-        if resultado.get("erro"):
-            raise HTTPException(
-                status_code=500,
-                detail=resultado["erro"]
-            )
+    message = str(message).strip()
 
-        return {
-            "sucesso": True,
-            "ia_resposta": resultado["dados_extraidos"],
-            "mensagem_amigavel": resultado["mensagem_usuario"]
-        }
+    if not message:
+        raise HTTPException(
+            status_code=400,
+            detail="Mensagem vazia"
+        )
 
-    except HTTPException:
-        raise
+    try:
+        response = processar_mensagem(message, db, user_id)
+        return response
 
     except Exception as e:
+        print("ERRO CHAT:", str(e))
         raise HTTPException(
             status_code=500,
-            detail=f"Erro interno no motor de IA: {str(e)}"
+            detail="Erro ao processar mensagem"
         )

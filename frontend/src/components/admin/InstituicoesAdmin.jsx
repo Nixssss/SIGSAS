@@ -240,7 +240,7 @@ function InstituicoesAdmin({
           prev.filter((edificio) => {
             const campusDoEdificio = campi.find(
               (campus) =>
-                String(campus.id || campus.idCampus) ===
+                String(campus.id || campus.id) ===
                 String(edificio.idCampus || edificio.id_campus)
             )
 

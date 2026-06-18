@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String
 from app.db.session import Base
 
 class ErroPalavra(Base):
@@ -6,5 +6,5 @@ class ErroPalavra(Base):
 
     id = Column(Integer, primary_key=True)
     palavra_id = Column(Integer, ForeignKey('palavras.id'), nullable=False)
-    quantidade_erros = Column(Integer, default=0)
+    palavraerrada = Column(String(100), nullable=False)
     

@@ -17,7 +17,7 @@ from app.services.peso_palavra_service import (
     delete
 )
 
-router = APIRouter(prefix="/pesos_palavra", tags=["pesos_palavra"])
+router = APIRouter(prefix="/pesos_palavra", tags=["Peso Palavra"])
 
 
 @router.get("/", response_model=List[PesoPalavraResponse])

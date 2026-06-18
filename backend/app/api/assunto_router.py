@@ -17,7 +17,7 @@ from app.services.assunto_service import (
     delete
 )
 
-router = APIRouter(prefix="/assuntos", tags=["assuntos"])
+router = APIRouter(prefix="/assuntos", tags=["Assunto"])
 
 
 @router.get("/", response_model=List[AssuntoResponse])

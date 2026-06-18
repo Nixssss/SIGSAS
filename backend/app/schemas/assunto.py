@@ -4,8 +4,8 @@ from typing import Optional
 
 class AssuntoBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
     nome: str = Field(..., min_length=1, max_length=100)
+    intencao: str = Field(..., min_length=1, max_length=100)
 
 
 class AssuntoCreate(AssuntoBase):
@@ -18,5 +18,6 @@ class AssuntoResponse(AssuntoBase):
 
 class AssuntoUpdate(BaseModel):
     nome: str | None = None
+    intencao: str | None = None
     ativo: bool | None = None
 

@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, Text, ForeignKey
+from sqlalchemy import Column, Integer, Text, String
 from app.db.session import Base
 
 class Resposta(Base):
-    __tablename__ = 'respostas'
+    __tablename__ = "respostas"
 
     id = Column(Integer, primary_key=True)
-    frase_id = Column(Integer, ForeignKey('frases.id'), nullable=False)
+    codigo = Column(String(100), unique=True, nullable=False)
     texto = Column(Text, nullable=False)
     

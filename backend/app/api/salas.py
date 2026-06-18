@@ -15,7 +15,7 @@ router = APIRouter(prefix="/salas", tags=["Salas"])
 
 def montar_sala_read(sala: Sala) -> dict:
     return {
-        "idSala": sala.idSala,
+        "idSala": sala.id,
         "idTipoSala": sala.idTipoSala,
         "idEdificio": sala.idEdificio,
         "nome": sala.nome,

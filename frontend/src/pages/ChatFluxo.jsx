@@ -495,7 +495,7 @@ function ChatFluxo() {
     return (
       <div className="chatbot-salas-grid premium-salas-grid">
         {msg.salas.map((sala) => (
-          <div key={sala.idSala} className="chatbot-sala-card premium-sala-card">
+          <div key={sala.id} className="chatbot-sala-card premium-sala-card">
             <div className="chatbot-sala-top">
               <div>
                 <strong>

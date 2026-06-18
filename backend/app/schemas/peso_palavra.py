@@ -5,6 +5,7 @@ class PesoPalavraBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     palavra_id: int
+    assunto_id: int
     peso: float
 
 
@@ -14,6 +15,7 @@ class PesoPalavraCreate(PesoPalavraBase):
 
 class PesoPalavraUpdate(BaseModel):
     palavra_id: int | None = None
+    assunto_id: int | None = None
     peso: float | None = None
 
 

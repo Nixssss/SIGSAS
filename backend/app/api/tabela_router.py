@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.schemas.tabela import Tabela, TabelaCreate, TabelaUpdate
 from app.services.tabela_service import TabelaService
 
-router = APIRouter(prefix="/tabelas", tags=["tabelas"])
+router = APIRouter(prefix="/tabelas", tags=["Tabelas"])
 
 service = TabelaService()
 

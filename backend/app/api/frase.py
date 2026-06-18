@@ -17,7 +17,7 @@ from app.services.frase_service import (
     delete
 )
 
-router = APIRouter(prefix="/frases", tags=["frases"])
+router = APIRouter(prefix="/frases", tags=["Frase"])
 
 
 @router.get("/", response_model=List[FraseResponse])

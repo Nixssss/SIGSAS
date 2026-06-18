@@ -1,62 +1,72 @@
-import { useEffect, useState } from "react"
-import Login from "./pages/Login"
-import Cadastro from "./pages/Cadastro"
-import EsqueciSenha from "./pages/EsqueciSenha"
-import RedefinirSenha from "./pages/RedefinirSenha"
-import Dashboard from "./pages/Dashboard"
-import "./App.css"
+import { useEffect, useState } from "react";
+
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import EsqueciSenha from "./pages/EsqueciSenha";
+import RedefinirSenha from "./pages/RedefinirSenha";
+import Dashboard from "./pages/Dashboard";
+
+import "./App.css";
 
 function App() {
   function verificarPaginaInicial() {
-    const caminho = window.location.pathname
+    const caminho = window.location.pathname;
 
-    if (caminho === "/cadastro") {
-      return "cadastro"
+    switch (caminho) {
+      case "/cadastro":
+        return "cadastro";
+
+      case "/esqueci-senha":
+        return "esqueciSenha";
+
+      case "/redefinir-senha":
+        return "redefinirSenha";
+
+      case "/dashboard":
+        return "dashboard";
+
+      default:
+        return "login";
     }
-
-    if (caminho === "/esqueci-senha") {
-      return "esqueciSenha"
-    }
-
-    if (caminho === "/redefinir-senha") {
-      return "redefinirSenha"
-    }
-
-    return "login"
   }
 
-  const [pagina, setPagina] = useState(verificarPaginaInicial)
+  const [pagina, setPagina] = useState(verificarPaginaInicial);
+
+  // futuro: usuário autenticado (sem localStorage)
+  const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
     function atualizarPagina() {
-      setPagina(verificarPaginaInicial())
+      setPagina(verificarPaginaInicial());
     }
 
-    window.addEventListener("popstate", atualizarPagina)
+    window.addEventListener("popstate", atualizarPagina);
 
     return () => {
-      window.removeEventListener("popstate", atualizarPagina)
-    }
-  }, [])
+      window.removeEventListener("popstate", atualizarPagina);
+    };
+  }, []);
+
+  function navegar(rota, paginaNome) {
+    window.history.pushState({}, "", rota);
+    setPagina(paginaNome);
+  }
 
   function irLogin() {
-    window.history.pushState({}, "", "/")
-    setPagina("login")
+    navegar("/", "login");
+    setUsuario(null);
   }
 
   function irCadastro() {
-    window.history.pushState({}, "", "/cadastro")
-    setPagina("cadastro")
+    navegar("/cadastro", "cadastro");
   }
 
   function irEsqueci() {
-    window.history.pushState({}, "", "/esqueci-senha")
-    setPagina("esqueciSenha")
+    navegar("/esqueci-senha", "esqueciSenha");
   }
 
   function irDashboard() {
-    window.history.pushState({}, "", "/")
-    setPagina("dashboard")
+    navegar("/dashboard", "dashboard");
   }
 
   return (
@@ -65,7 +75,10 @@ function App() {
         <Login
           irCadastro={irCadastro}
           irEsqueci={irEsqueci}
-          irDashboard={irDashboard}
+          irDashboard={(userData) => {
+            setUsuario(userData); // aqui entra o user real do backend
+            irDashboard();
+          }}
         />
       )}
 
@@ -82,10 +95,13 @@ function App() {
       )}
 
       {pagina === "dashboard" && (
-        <Dashboard sair={irLogin} />
+        <Dashboard
+          usuario={usuario}
+          sair={irLogin}
+        />
       )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;

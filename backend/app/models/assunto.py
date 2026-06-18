@@ -6,4 +6,5 @@ class Assunto(Base):
 
     id = Column(Integer, primary_key=True)
     nome = Column(String(100), nullable=False)
+    intencao = Column(String(100), nullable=False)
     

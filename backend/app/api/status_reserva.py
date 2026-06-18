@@ -17,7 +17,7 @@ from app.services.status_reserva_service import (
     delete
 )
 
-router = APIRouter(prefix="/status_reservas", tags=["status_reservas"])
+router = APIRouter(prefix="/status_reservas", tags=["Status Reserva"])
 
 
 @router.get("/", response_model=List[StatusReservaResponse])

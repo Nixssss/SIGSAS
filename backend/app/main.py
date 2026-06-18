@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
-    chat,
     reservas,
     auth,
     chatfluxo_router,
@@ -21,6 +20,18 @@ from app.api import (
     reportes_problemas,
     sugestoes_melhorias,
     palavras_router,
+    assunto_router,
+    cursos_router,
+    erro_palavras,
+    frase,
+    peso_palavra,
+    resposta,
+    status_reserva,
+    rota_salas,
+    rotas_usuarios,
+    tabela_router,
+    classificador,
+    chat
 )
 
 from app.db.session import Base, engine
@@ -40,7 +51,7 @@ from app.models.cargo import Cargo
 from app.models.auditoria import Auditoria
 from app.models.reporte_problema import ReporteProblema
 from app.models.sugestao_melhoria import SugestaoMelhoria
-
+from app.api.chat import router as chat_router
 
 def create_db_tables():
     Base.metadata.create_all(bind=engine)
@@ -62,7 +73,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chat.router, prefix="/api/v1/ia", tags=["Chat Inteligente"])
+# ===== APIS =====
 app.include_router(reservas.router, prefix="/api/v1", tags=["Reservas"])
 app.include_router(auth.router, prefix="/api/v1", tags=["Autenticação"])
 app.include_router(chatfluxo_router.router, prefix="/api/v1", tags=["Chatbot Fluxo"])
@@ -82,6 +93,21 @@ app.include_router(auditoria.router, prefix="/api/v1", tags=["Auditoria"])
 app.include_router(reportes_problemas.router, prefix="/api/v1", tags=["Reportes de Problemas"])
 app.include_router(sugestoes_melhorias.router, prefix="/api/v1", tags=["Sugestões de Melhorias"])
 
+# NOVAS APIs QUE ESTAVAM FALTANDO
+app.include_router(palavras_router.router, prefix="/api/v1", tags=["Palavras"])
+app.include_router(assunto_router.router, prefix="/api/v1", tags=["Assunto"])
+app.include_router(cursos_router.router, prefix="/api/v1", tags=["Cursos"])
+app.include_router(erro_palavras.router, prefix="/api/v1", tags=["Erro Palavras"])
+app.include_router(frase.router, prefix="/api/v1", tags=["Frase"])
+app.include_router(peso_palavra.router, prefix="/api/v1", tags=["Peso Palavra"])
+app.include_router(resposta.router, prefix="/api/v1", tags=["Resposta"])
+app.include_router(status_reserva.router, prefix="/api/v1", tags=["Status Reserva"])
+app.include_router(rota_salas.router, prefix="/api/v1", tags=["Salas Inteligente"])
+app.include_router(rotas_usuarios.router, prefix="/api/v1", tags=["Rotas Usuários"])
+app.include_router(tabela_router.router, prefix="/api/v1", tags=["Tabela"])
+app.include_router(classificador.router, prefix="/api/v1", tags=["Classificador"])
+app.include_router(chat_router,prefix="/api/v1",tags=["Chat"]
+)
 
 @app.get("/api/v1/health", tags=["Health Check"])
 def health_check():

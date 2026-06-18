@@ -17,7 +17,7 @@ from app.services.erro_palavra_service import (
     delete
 )
 
-router = APIRouter(prefix="/erros_palavra", tags=["erros_palavra"])
+router = APIRouter(prefix="/erros_palavra", tags=["Erro Palavras"])
 
 
 @router.get("/", response_model=List[ErroPalavraResponse])

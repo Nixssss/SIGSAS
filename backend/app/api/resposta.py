@@ -17,7 +17,7 @@ from app.services.resposta_service import (
     delete
 )
 
-router = APIRouter(prefix="/respostas", tags=["respostas"])
+router = APIRouter(prefix="/respostas", tags=["Resposta"])
 
 
 @router.get("/", response_model=List[RespostaResponse])

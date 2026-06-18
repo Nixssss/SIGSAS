@@ -7,7 +7,7 @@ from app.db.session import Base
 class Sala(Base):
     __tablename__ = "salas"
 
-    idSala = Column(Integer, primary_key=True, index=True)
+    id = Column("idSala", Integer, primary_key=True)
 
     idTipoSala = Column(Integer, ForeignKey("tipos_sala.id"), nullable=False)
     idEdificio = Column(Integer, ForeignKey("edificios.id"), nullable=False)

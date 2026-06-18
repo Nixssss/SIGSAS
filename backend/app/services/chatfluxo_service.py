@@ -510,7 +510,7 @@ class ChatbotFluxoService:
                 )
             }
 
-        sessao["salasDisponiveisReserva"] = [sala.idSala for sala in salas]
+        sessao["salasDisponiveisReserva"] = [sala.id for sala in salas]
         sessao["step"] = "escolher_sala"
 
         return {
@@ -873,7 +873,7 @@ class ChatbotFluxoService:
                 inicio = self.montar_datetime_reserva(dia.isoformat(), turno["inicio"])
                 fim = self.montar_datetime_reserva(dia.isoformat(), turno["fim"])
 
-                if self.sala_esta_disponivel(db, sala.idSala, inicio, fim):
+                if self.sala_esta_disponivel(db, sala.id, inicio, fim):
                     return True
 
         return False
@@ -891,7 +891,7 @@ class ChatbotFluxoService:
                     inicio = self.montar_datetime_reserva(data, turno["inicio"])
                     fim = self.montar_datetime_reserva(data, turno["fim"])
 
-                    if self.sala_esta_disponivel(db, sala.idSala, inicio, fim):
+                    if self.sala_esta_disponivel(db, sala.id, inicio, fim):
                         resultado.append(campus)
                         break
 
@@ -915,7 +915,7 @@ class ChatbotFluxoService:
         ids_tipos = set()
 
         for sala in salas:
-            if self.sala_esta_disponivel(db, sala.idSala, inicio, fim):
+            if self.sala_esta_disponivel(db, sala.id, inicio, fim):
                 ids_tipos.add(sala.idTipoSala)
 
         if not ids_tipos:
@@ -955,7 +955,7 @@ class ChatbotFluxoService:
         salas_disponiveis = [
             sala
             for sala in salas
-            if self.sala_esta_disponivel(db, sala.idSala, inicio, fim)
+            if self.sala_esta_disponivel(db, sala.id, inicio, fim)
         ]
 
         if not salas_disponiveis:
@@ -985,7 +985,7 @@ class ChatbotFluxoService:
         return [
             sala
             for sala in salas
-            if self.sala_esta_disponivel(db, sala.idSala, inicio, fim)
+            if self.sala_esta_disponivel(db, sala.id, inicio, fim)
         ]
 
     def get_salas_por_campus(self, db: Session, id_campus: int):
@@ -1102,11 +1102,11 @@ class ChatbotFluxoService:
     def montar_card_sala(self, db: Session, sala: Sala, numero_lista: int):
         tipo = self.get_tipo_sala(db, sala.idTipoSala)
         localizacao = self.get_localizacao_sala(db, sala.idEdificio)
-        recursos = self.get_recursos_sala(db, sala.idSala)
+        recursos = self.get_recursos_sala(db, sala.id)
 
         return {
             "numeroLista": numero_lista,
-            "idSala": sala.idSala,
+            "idSala": sala.id,
             "nome": sala.nome,
             "numero": sala.numero,
             "tipo": tipo,
@@ -1121,7 +1121,7 @@ class ChatbotFluxoService:
     def montar_texto_sala(self, db: Session, sala: Sala):
         tipo = self.get_tipo_sala(db, sala.idTipoSala)
         localizacao = self.get_localizacao_sala(db, sala.idEdificio)
-        recursos = self.get_recursos_sala(db, sala.idSala)
+        recursos = self.get_recursos_sala(db, sala.id)
         recursos_texto = ", ".join(recursos) if recursos else "nenhum recurso informado"
 
         return (

@@ -6,5 +6,6 @@ class PesoPalavra(Base):
 
     id = Column(Integer, primary_key=True)
     palavra_id = Column(Integer, ForeignKey('palavras.id'), nullable=False)
+    assunto_id = Column(Integer, ForeignKey('assuntos.id'), nullable=False)
     peso = Column(Float, nullable=False)
     

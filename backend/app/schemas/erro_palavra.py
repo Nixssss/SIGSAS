@@ -4,8 +4,8 @@ from pydantic import BaseModel, ConfigDict, Field
 class ErroPalavraBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    palavra: str = Field(..., min_length=1)
-    quantidade_erros: int = Field(..., ge=0)
+    palavra_id: int
+    palavraerrada: str = Field(..., min_length=1)
 
 
 class ErroPalavraCreate(ErroPalavraBase):
@@ -13,8 +13,8 @@ class ErroPalavraCreate(ErroPalavraBase):
 
 
 class ErroPalavraUpdate(BaseModel):
-    palavra: str | None = None
-    quantidade_erros: int | None = None
+    palavra_id: int | None = None
+    palavraerrada: str | None = None
 
 
 class ErroPalavraResponse(ErroPalavraBase):

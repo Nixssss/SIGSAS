@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional
-from backend.app.db.session import get_db
-from backend.app.services.ia_service import LocalAIProcessor
+from app.db.session import get_db
+#from app.services.ia_service import LocalAIProcessor
 
 # Schemas
 class ChatRequest(BaseModel):
@@ -25,18 +25,18 @@ class ChatResponse(BaseModel):
 router = APIRouter(prefix="/api/v1/ia", tags=["Chat Inteligente SIGSAS"])
 
 # Instância única do processador
-processor = LocalAIProcessor()
+#processor = LocalAIProcessor()
 
-@router.post("/perguntar", response_model=ChatResponse)
-def perguntar(request: ChatRequest, db: Session = Depends(get_db)):
-    resultado = processor.processar_agendamento(mensagem=request.mensagem, db=db)
-    if resultado.get("erro"):
-        raise HTTPException(status_code=400, detail=resultado["erro"])
-    return ChatResponse(
-        sucesso=True,
-        ia_resposta=DadosExtraidos(**resultado.get("dados_extraidos", {})),
-        mensagem_amigavel=resultado.get("mensagem_amigavel", "")
-    )
+#@router.post("/perguntar", response_model=ChatResponse)
+#def perguntar(request: ChatRequest, db: Session = Depends(get_db)):
+   # resultado = processor.processar_agendamento(mensagem=request.mensagem, db=db)
+    #if resultado.get("erro"):
+       # raise HTTPException(status_code=400, detail=resultado["erro"])
+    #return ChatResponse(
+     #   sucesso=True,
+      #  ia_resposta=DadosExtraidos(**resultado.get("dados_extraidos", {})),
+      #  mensagem_amigavel=resultado.get("mensagem_amigavel", "")
+   # )
 
 
 

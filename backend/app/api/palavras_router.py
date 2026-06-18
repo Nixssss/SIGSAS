@@ -17,7 +17,7 @@ from app.services.palavra_service import (
     delete
 )
 
-router = APIRouter(prefix="/palavras", tags=["palavras"])
+router = APIRouter(prefix="/palavras", tags=["Palavras"])
 
 
 @router.get("/", response_model=List[PalavraResponse])

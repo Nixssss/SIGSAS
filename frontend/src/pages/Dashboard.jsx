@@ -7,7 +7,9 @@ import ReportarProblema from "./ReportarProblema"
 import SugestaoMelhoria from "./SugestaoMelhoria"
 import SistemaResumo from "./SistemaResumo"
 import Admin from "../components/admin/Admin"
+import Chat from "./Chat"
 import api from "../services/api"
+
 
 
 function ehPerfilAdmin(perfil) {
@@ -27,7 +29,7 @@ function Dashboard({ sair }) {
   const [tela, setTela] = useState(() => (isAdmin ? "dashboard" : "salas"))
   const [adminTela, setAdminTela] = useState("resumo")
   const [tema, setTema] = useState("dark")
-
+  
   const [buscaGlobal, setBuscaGlobal] = useState("")
   const [buscandoGlobal, setBuscandoGlobal] = useState(false)
   const [resultadosBusca, setResultadosBusca] = useState([])
@@ -39,6 +41,9 @@ function Dashboard({ sair }) {
   const [campiSidebar, setCampiSidebar] = useState([])
   const [instituicoesSidebar, setInstituicoesSidebar] = useState([])
   const [carregandoCampi, setCarregandoCampi] = useState(true)
+  const [mensagemChat, setMensagemChat] = useState("")
+  const [chatResposta, setChatResposta] = useState(null)
+  const [carregandoChat, setCarregandoChat] = useState(false)
 
   const [notificacoes, setNotificacoes] = useState({
     reservasPendentes: 0,
@@ -427,7 +432,7 @@ function Dashboard({ sair }) {
 
         if (normalizarTexto(texto).includes(termoNormalizado)) {
           itens.push({
-            id: `sala-${sala.idSala || sala.id}`,
+            id: `sala-${sala.id || sala.id}`,
             tipo: "Sala",
             titulo: `${sala.nome || "Sala"} ${
               sala.numero ? `| nº ${sala.numero}` : ""
@@ -930,6 +935,9 @@ function Dashboard({ sair }) {
           <BotaoMenu id="sugestao" icon="◇">
             Sugestões
           </BotaoMenu>
+          <BotaoMenu id="chat" icon="☻">
+            Chatbot
+          </BotaoMenu>
 
           {isAdmin && (
             <>
@@ -1368,8 +1376,10 @@ function Dashboard({ sair }) {
           {tela === "problema" && <ReportarProblema />}
 
           {tela === "sugestao" && <SugestaoMelhoria />}
+           {tela === "chat" && <Chat />}
 
           {tela === "admin" && isAdmin && <Admin adminTela={adminTela} />}
+
 
           {!isAdmin && (tela === "dashboard" || tela === "admin") && <Salas />}
         </div>

@@ -609,7 +609,7 @@ function Salas() {
 
     const reservaDaSala = reservas.find(
       (reserva) =>
-        Number(reserva.idSala) === Number(sala.idSala) &&
+        Number(reserva.idSala) === Number(sala.id) &&
         reservaBloqueiaDia(reserva, data)
     )
 
@@ -676,11 +676,11 @@ function Salas() {
   }
 
   function salaEstaBloqueada(sala) {
-    return !salaEstaAtiva(sala) || Boolean(getReservaBloqueanteDaSala(sala.idSala))
+    return !salaEstaAtiva(sala) || Boolean(getReservaBloqueanteDaSala(sala.id))
   }
 
   function abrirReserva(sala) {
-    const reservaBloqueante = getReservaBloqueanteDaSala(sala.idSala)
+    const reservaBloqueante = getReservaBloqueanteDaSala(sala.id)
 
     if (!salaEstaAtiva(sala)) return
     if (reservaBloqueante) return

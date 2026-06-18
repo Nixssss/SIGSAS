@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.schemas.cursos import Curso, CursoCreate, CursoUpdate
 from app.services.curso_service import CursoService
 
-router = APIRouter(prefix="/cursos", tags=["cursos"])
+router = APIRouter(prefix="/cursos", tags=["Cursos"])
 
 service = CursoService()
 
