@@ -39,6 +39,7 @@ def estado_inicial():
 
         "slots": {
             "data_inicio": None,
+            "data_fim": None,
             "campus_id": None,
             "horario_inicio": None,
             "horario_fim": None,

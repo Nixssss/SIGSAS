@@ -124,10 +124,82 @@ def processar_mensagem(frase, db, user_id="default"):
 
     intencao = extrair_intencao(frase, db)
     status = state.get("status", "inicio")
+    # =========================
+    # BLOQUEIO TOTAL DE FLUXO ESCOLHER SALA
+    # =========================
+    if status == "escolher_sala":
+        debug("FLUXO ESCOLHER_SALA ATIVO - ignorando extração")
 
+        salas = state.get("salas_encontradas", [])
+
+        escolhida = next(
+            (s for s in salas if s["nome"].lower() == frase_norm),
+            None
+        )
+
+        if not escolhida:
+            lista = "\n".join([f"- {s['nome']} ({s['capacidade']})" for s in salas])
+            return {
+                "status": "escolher_sala",
+                "message": buscar_resposta("listar_salas", db) + "\n\n" + lista
+            }
+
+        sala_completa = {
+            **escolhida,
+            "tipo_sala": state["filtros"].get("tipo_sala"),
+            "campus": None
+        }
+
+        update_state(user_id, {
+            "status": "confirmar_reserva",
+            "sala_selecionada": sala_completa
+        })
+
+        return {
+            "status": "confirmar_reserva",
+            "message": montar_resumo_reserva(state, sala_completa),
+            "data": sala_completa
+        }
     debug("INTENÇÃO", intencao)
     debug("STATUS", status)
+     # =========================
+    # EXTRAÇÃO
+    # =========================
+    filtros = state.get("filtros", {})
 
+    debug("FILTROS ANTES", filtros)
+
+    novos = extrair_filtros(frase, db)
+    faltando_atual = proximo_slot_faltando(state)
+
+    # usuário respondeu a data final
+    if (
+        faltando_atual == "data_fim"
+        and novos.get("data_inicio")
+    ):
+        novos["data_fim"] = novos["data_inicio"]
+        novos["data_inicio"] = None
+
+    # usuário respondeu o horário final
+    if (
+        faltando_atual == "horario_fim"
+        and novos.get("horario_inicio")
+    ):
+        novos["horario_fim"] = novos["horario_inicio"]
+        novos["horario_inicio"] = None
+    debug("EXTRAIDOS", novos)
+
+    novos = resolver_filtros(novos, db)
+    debug("RESOLVIDOS", novos)
+
+    novos = normalizar_filtros(novos)
+    debug("NORMALIZADOS", novos)
+
+    filtros = merge_dict(filtros, novos)
+
+    debug("MERGE RESULTADO", filtros)
+
+    update_state(user_id, {"filtros": filtros})
     # =========================
     # RESET
     # =========================
@@ -255,43 +327,8 @@ def processar_mensagem(frase, db, user_id="default"):
             "message": montar_resumo_reserva(state, sala),
             "data": sala
         }
-    # =========================
-    # ESCOLHA SALA
-    # =========================
-    if status == "escolher_sala":
 
-        salas = state.get("salas_encontradas", [])
-
-        escolhida = next(
-            (s for s in salas if s["nome"].lower() == frase_norm),
-            None
-        )
-
-        if not escolhida:
-            lista = "\n".join([f"- {s['nome']} ({s['capacidade']})" for s in salas])
-            return {
-                "status": "escolher_sala",
-                "message": buscar_resposta("listar_salas", db) + "\n\n" + lista
-            }
-
-        sala_completa = {
-            **escolhida,
-            "tipo_sala": state["filtros"].get("tipo_sala"),
-            "campus": None
-        }
-
-        update_state(user_id, {
-            "status": "confirmar_reserva",
-            "sala_selecionada": sala_completa
-        })
-
-        return {
-            "status": "confirmar_reserva",
-            "message": montar_resumo_reserva(state, sala_completa),
-            "data": sala_completa
-        }
-
-  # =========================
+     # =========================
     # EXTRAÇÃO
     # =========================
     filtros = state.get("filtros", {})
@@ -299,6 +336,23 @@ def processar_mensagem(frase, db, user_id="default"):
     debug("FILTROS ANTES", filtros)
 
     novos = extrair_filtros(frase, db)
+    faltando_atual = proximo_slot_faltando(state)
+
+    # usuário respondeu a data final
+    if (
+        faltando_atual == "data_fim"
+        and novos.get("data_inicio")
+    ):
+        novos["data_fim"] = novos["data_inicio"]
+        novos["data_inicio"] = None
+
+    # usuário respondeu o horário final
+    if (
+        faltando_atual == "horario_fim"
+        and novos.get("horario_inicio")
+    ):
+        novos["horario_fim"] = novos["horario_inicio"]
+        novos["horario_inicio"] = None
     debug("EXTRAIDOS", novos)
 
     novos = resolver_filtros(novos, db)
@@ -362,10 +416,12 @@ def processar_mensagem(frase, db, user_id="default"):
 
     perguntas = {
         "data_inicio": "Qual a data da reserva? (ex: 17/07)",
+        "data_fim": "Qual a data de término?",
         "horario_inicio": "Qual o horário de início?",
         "horario_fim": "Qual o horário de término?",
         "capacidade": "Para quantas pessoas?",
         "campus_id": "Qual campus você deseja?"
+        
     }
 
     if faltando:
