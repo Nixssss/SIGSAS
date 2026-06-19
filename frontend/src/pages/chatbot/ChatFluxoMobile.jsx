@@ -274,6 +274,7 @@ function detectarEtapaPorResposta(resposta) {
   if (tipo === "botoes" && texto.includes("tipo")) return 4
   if (tipo === "faixas-capacidade") return 5
   if (tipo === "lista-salas") return 6
+  if (tipo === "resultado-busca-salas") return 6
   if (tipo === "confirmacao") return 7
   if (texto.includes("deseja criar")) return 7
   if (texto.includes("deseja confirmar")) return 7
@@ -416,6 +417,7 @@ function montarMensagemResposta(data) {
     instituicoes: data?.instituicoes || [],
     campi: data?.campi || [],
     salas: data?.salas || [],
+    disponibilidadesSalas: data?.disponibilidadesSalas || [],
     reservas: data?.reservas || [],
     faixasCapacidade: data?.faixasCapacidade || [],
     horarios: data?.horarios || [],
@@ -462,6 +464,25 @@ function ChatFluxoMobile() {
   function atualizarEtapaPelaResposta(data) {
     const etapa = detectarEtapaPorResposta(data)
     if (etapa !== null) setEtapaAtual(etapa)
+  }
+
+  function mensagemIniciaNovoFluxoReserva(valor, label = "") {
+    const valorNormalizado = String(valor || "").trim().toLowerCase()
+    const textoNormalizado = `${valor || ""} ${label || ""}`
+      .trim()
+      .toLowerCase()
+
+    return (
+      valorNormalizado === "1" ||
+      /^1\s*-\s*reservar/.test(textoNormalizado) ||
+      textoNormalizado.includes("reservar outra sala")
+    )
+  }
+
+  function limparSelecaoHorariosDoNovoFluxo() {
+    setTimePickerAberto(null)
+    setUltimoHorarioInicio(null)
+    setUltimoHorarioFim(null)
   }
 
   async function enviarParaBackend(mensagem, opcoes = {}) {
@@ -515,6 +536,10 @@ function ChatFluxoMobile() {
 
     if (!mensagem || carregando) return
 
+    if (mensagemIniciaNovoFluxoReserva(mensagem)) {
+      limparSelecaoHorariosDoNovoFluxo()
+    }
+
     adicionarMensagem({ autor: "user", texto: mensagem })
     setTexto("")
     setTimePickerAberto(null)
@@ -535,6 +560,10 @@ function ChatFluxoMobile() {
 
   async function enviarMensagemRapida(valor, label = null) {
     if (carregando) return
+
+    if (mensagemIniciaNovoFluxoReserva(valor, label || "")) {
+      limparSelecaoHorariosDoNovoFluxo()
+    }
 
     adicionarMensagem({ autor: "user", texto: label || valor })
     setTimePickerAberto(null)
@@ -650,8 +679,32 @@ function ChatFluxoMobile() {
     }
   }
 
-  function obterUltimoHorarioAntesDaMensagem(indiceMensagem) {
+  function mensagemMarcaInicioFluxoReserva(mensagem) {
+    if (mensagem?.autor !== "user") return false
+
+    const texto = String(mensagem?.texto || "").trim().toLowerCase()
+
+    return (
+      texto === "1" ||
+      /^1\s*-\s*reservar/.test(texto) ||
+      texto.includes("reservar outra sala")
+    )
+  }
+
+  function obterIndiceInicioFluxoReserva(indiceMensagem) {
     for (let indice = indiceMensagem - 1; indice >= 0; indice -= 1) {
+      if (mensagemMarcaInicioFluxoReserva(mensagens[indice])) {
+        return indice
+      }
+    }
+
+    return 0
+  }
+
+  function obterUltimoHorarioAntesDaMensagem(indiceMensagem) {
+    const indiceInicioFluxo = obterIndiceInicioFluxoReserva(indiceMensagem)
+
+    for (let indice = indiceMensagem - 1; indice > indiceInicioFluxo; indice -= 1) {
       const mensagem = mensagens[indice]
       if (mensagem?.autor !== "user") continue
 
@@ -1021,30 +1074,56 @@ function ChatFluxoMobile() {
   function renderizarCampi(msg) {
     if (msg.tipoInteracao !== "campi" || !msg.campi?.length) return null
 
-    return (
-      <div className="sigsas-mobile-campus-list">
-        {msg.campi.map((campus) => {
-          const disponivel = campus.disponivel === true
+    const opcoesOutraData = (msg.opcoes || []).filter(
+      (opcao) => String(opcao?.valor || "").toUpperCase() === "AJUSTE:DATA"
+    )
 
-          return (
-            <button
-              key={campus.idCampus || campus.nome}
-              type="button"
-              className={`sigsas-mobile-campus-option ${disponivel ? "disponivel" : "indisponivel"}`}
-              onClick={() => disponivel && !carregando && enviarMensagemRapida(`CAMPUS:${campus.idCampus}`, campus.nome)}
-              disabled={!disponivel || carregando}
-            >
-              <span className="sigsas-mobile-campus-label">Campus</span>
-              <strong>{campus.nome}</strong>
-              <small>
-                {disponivel
-                  ? "Disponível para reserva"
-                  : campus.motivoIndisponivel || "Não há salas ativas cadastradas neste campus."}
-              </small>
-            </button>
-          )
-        })}
-      </div>
+    return (
+      <>
+        <div className="sigsas-mobile-campus-list">
+          {msg.campi.map((campus) => {
+            const disponivel = campus.disponivel === true
+
+            return (
+              <button
+                key={campus.idCampus || campus.nome}
+                type="button"
+                className={`sigsas-mobile-campus-option ${disponivel ? "disponivel" : "indisponivel"}`}
+                onClick={() =>
+                  disponivel &&
+                  !carregando &&
+                  enviarMensagemRapida(`CAMPUS:${campus.idCampus}`, campus.nome)
+                }
+                disabled={!disponivel || carregando}
+              >
+                <span className="sigsas-mobile-campus-label">Campus</span>
+                <strong>{campus.nome}</strong>
+                <small>
+                  {disponivel
+                    ? "Disponível para reserva"
+                    : campus.motivoIndisponivel || "Não há salas ativas cadastradas neste campus."}
+                </small>
+              </button>
+            )
+          })}
+        </div>
+
+        {opcoesOutraData.length > 0 && (
+          <div className="premium-options chat-campus-adjustment-options">
+            {opcoesOutraData.map((opcao) => (
+              <button
+                key={`${opcao.valor}-${opcao.label}`}
+                type="button"
+                className="chat-option-btn"
+                onClick={() => enviarMensagemRapida(opcao.valor, opcao.label)}
+                disabled={carregando}
+              >
+                {opcao.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </>
     )
   }
 
@@ -1180,6 +1259,96 @@ function ChatFluxoMobile() {
     )
   }
 
+  function renderizarResultadosBuscaSala(msg) {
+    if (
+      msg.tipoInteracao !== "resultado-busca-salas" ||
+      !msg.disponibilidadesSalas?.length
+    ) {
+      return null
+    }
+
+    return (
+      <div className="sigsas-mobile-room-list">
+        {msg.disponibilidadesSalas.map((disponibilidade) => {
+          const numeroLista = String(disponibilidade.numeroLista || "").padStart(2, "0")
+
+          return (
+            <article
+              key={`${disponibilidade.idSala}-${disponibilidade.dataIso}-${disponibilidade.horaInicio}`}
+              className="sigsas-mobile-room-card"
+            >
+              <header className="sigsas-mobile-room-header">
+                <div className="sigsas-mobile-room-heading">
+                  <span className="sigsas-mobile-room-number">{numeroLista}</span>
+
+                  <div className="sigsas-mobile-room-title">
+                    <span className="sigsas-mobile-room-label">Disponibilidade encontrada</span>
+                    <h4>{disponibilidade.nome || "Sala sem nome"}</h4>
+                    <p>
+                      {disponibilidade.tipo || "Tipo não informado"}
+                      {disponibilidade.numero ? ` · Sala nº ${disponibilidade.numero}` : ""}
+                    </p>
+                  </div>
+                </div>
+
+                <span className="sigsas-mobile-room-capacity">
+                  <strong>{disponibilidade.capacidade || "—"}</strong>
+                  <small>pessoas</small>
+                </span>
+              </header>
+
+              <div className="sigsas-mobile-room-details">
+                <div className="sigsas-mobile-room-detail">
+                  <small>Data</small>
+                  <strong>{disponibilidade.dataBr || "—"}</strong>
+                </div>
+
+                <div className="sigsas-mobile-room-detail">
+                  <small>Horário</small>
+                  <strong>
+                    {disponibilidade.horaInicio || "—"} às {disponibilidade.horaFim || "—"}
+                  </strong>
+                </div>
+
+                <div className="sigsas-mobile-room-detail">
+                  <small>Campus</small>
+                  <strong>{disponibilidade.campus || "—"}</strong>
+                </div>
+
+                <div className="sigsas-mobile-room-detail">
+                  <small>Sede/Prédio</small>
+                  <strong>{disponibilidade.edificio || "—"}</strong>
+                </div>
+
+                <div className="sigsas-mobile-room-detail sigsas-mobile-room-detail-full">
+                  <small>Instituição</small>
+                  <strong>{disponibilidade.instituicao || "—"}</strong>
+                </div>
+              </div>
+
+              <footer className="sigsas-mobile-room-footer">
+                <button
+                  type="button"
+                  className="sigsas-mobile-room-select"
+                  onClick={() =>
+                    enviarMensagemRapida(
+                      `BUSCA_DISPONIBILIDADE:${disponibilidade.numeroLista}`,
+                      `${disponibilidade.nome} • ${disponibilidade.dataBr} • ${disponibilidade.horaInicio} às ${disponibilidade.horaFim}`
+                    )
+                  }
+                  disabled={carregando}
+                >
+                  <span>Reservar neste horário</span>
+                  <b aria-hidden="true">→</b>
+                </button>
+              </footer>
+            </article>
+          )
+        })}
+      </div>
+    )
+  }
+
   function renderizarReservas(msg) {
     if (msg.tipoInteracao !== "checkbox-reservas" || !msg.reservas?.length) return null
 
@@ -1238,6 +1407,7 @@ function ChatFluxoMobile() {
         {renderizarSeletorHorario(msg, indiceMensagem)}
         {renderizarFaixasCapacidade(msg)}
         {renderizarSalas(msg)}
+        {renderizarResultadosBuscaSala(msg)}
         {renderizarReservas(msg)}
       </>
     )

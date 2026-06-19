@@ -252,6 +252,7 @@ function detectarEtapaPorResposta(resposta) {
   if (tipo === "botoes" && texto.includes("tipo")) return 4
   if (tipo === "faixas-capacidade") return 5
   if (tipo === "lista-salas") return 6
+  if (tipo === "resultado-busca-salas") return 6
   if (tipo === "confirmacao") return 7
   if (texto.includes("deseja criar")) return 7
   if (texto.includes("deseja confirmar")) return 7
@@ -465,6 +466,25 @@ function ChatFluxoDesktop() {
     }
   }
 
+  function mensagemIniciaNovoFluxoReserva(valor, label = "") {
+    const valorNormalizado = String(valor || "").trim().toLowerCase()
+    const textoNormalizado = `${valor || ""} ${label || ""}`
+      .trim()
+      .toLowerCase()
+
+    return (
+      valorNormalizado === "1" ||
+      /^1\s*-\s*reservar/.test(textoNormalizado) ||
+      textoNormalizado.includes("reservar outra sala")
+    )
+  }
+
+  function limparSelecaoHorariosDoNovoFluxo() {
+    setTimePickerAberto(null)
+    setUltimoHorarioInicio(null)
+    setUltimoHorarioFim(null)
+  }
+
   async function enviarParaBackend(mensagem, opcoes = {}) {
     const usuario = getUsuarioLogado()
 
@@ -509,6 +529,7 @@ function ChatFluxoDesktop() {
         instituicoes: dataInstituicao.instituicoes || [],
         campi: dataInstituicao.campi || [],
         salas: dataInstituicao.salas || [],
+        disponibilidadesSalas: dataInstituicao.disponibilidadesSalas || [],
         reservas: dataInstituicao.reservas || [],
         faixasCapacidade: dataInstituicao.faixasCapacidade || [],
         horarios: dataInstituicao.horarios || [],
@@ -546,6 +567,7 @@ function ChatFluxoDesktop() {
       instituicoes: data.instituicoes || [],
       campi: data.campi || [],
       salas: data.salas || [],
+      disponibilidadesSalas: data.disponibilidadesSalas || [],
       reservas: data.reservas || [],
       faixasCapacidade: data.faixasCapacidade || [],
       horarios: data.horarios || [],
@@ -566,6 +588,10 @@ function ChatFluxoDesktop() {
 
     const mensagem = texto.trim()
     if (!mensagem || carregando) return
+
+    if (mensagemIniciaNovoFluxoReserva(mensagem)) {
+      limparSelecaoHorariosDoNovoFluxo()
+    }
 
     adicionarMensagem({
       autor: "user",
@@ -590,6 +616,10 @@ function ChatFluxoDesktop() {
 
   async function enviarMensagemRapida(valor, label = null) {
     if (carregando) return
+
+    if (mensagemIniciaNovoFluxoReserva(valor, label || "")) {
+      limparSelecaoHorariosDoNovoFluxo()
+    }
 
     adicionarMensagem({
       autor: "user",
@@ -747,8 +777,32 @@ function ChatFluxoDesktop() {
     }
   }
 
-  function obterUltimoHorarioAntesDaMensagem(indiceMensagem) {
+  function mensagemMarcaInicioFluxoReserva(mensagem) {
+    if (mensagem?.autor !== "user") return false
+
+    const texto = String(mensagem?.texto || "").trim().toLowerCase()
+
+    return (
+      texto === "1" ||
+      /^1\s*-\s*reservar/.test(texto) ||
+      texto.includes("reservar outra sala")
+    )
+  }
+
+  function obterIndiceInicioFluxoReserva(indiceMensagem) {
     for (let i = indiceMensagem - 1; i >= 0; i -= 1) {
+      if (mensagemMarcaInicioFluxoReserva(mensagens[i])) {
+        return i
+      }
+    }
+
+    return 0
+  }
+
+  function obterUltimoHorarioAntesDaMensagem(indiceMensagem) {
+    const indiceInicioFluxo = obterIndiceInicioFluxoReserva(indiceMensagem)
+
+    for (let i = indiceMensagem - 1; i > indiceInicioFluxo; i -= 1) {
       const mensagem = mensagens[i]
 
       if (mensagem?.autor === "user") {
@@ -1184,49 +1238,71 @@ function ChatFluxoDesktop() {
   function renderizarCampi(msg) {
     if (msg.tipoInteracao !== "campi" || !msg.campi?.length) return null
 
+    const opcoesOutraData = (msg.opcoes || []).filter(
+      (opcao) => String(opcao?.valor || "").toUpperCase() === "AJUSTE:DATA"
+    )
+
     return (
-      <div className="chat-campus-grid">
-        {msg.campi.map((campus) => {
-          const disponivel = campus.disponivel === true
+      <>
+        <div className="chat-campus-grid">
+          {msg.campi.map((campus) => {
+            const disponivel = campus.disponivel === true
 
-          function selecionarCampus() {
-            if (!disponivel || carregando) return
-            enviarMensagemRapida(`CAMPUS:${campus.idCampus}`, campus.nome)
-          }
-
-          function selecionarComEnter(event) {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault()
-              selecionarCampus()
+            function selecionarCampus() {
+              if (!disponivel || carregando) return
+              enviarMensagemRapida(`CAMPUS:${campus.idCampus}`, campus.nome)
             }
-          }
 
-          return (
-            <button
-              key={campus.idCampus || campus.nome}
-              type="button"
-              className={`chat-campus-card ${
-                disponivel ? "disponivel" : "indisponivel"
-              }`}
-              onClick={selecionarCampus}
-              onKeyDown={selecionarComEnter}
-              disabled={!disponivel || carregando}
-            >
-              <div className="chat-campus-top">
-                <strong>{campus.nome}</strong>
-                <span>{disponivel ? "Disponível" : "Indisponível"}</span>
-              </div>
+            function selecionarComEnter(event) {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault()
+                selecionarCampus()
+              }
+            }
 
-              {!disponivel && (
-                <small>
-                  {campus.motivoIndisponivel ||
-                    "Não há salas ativas cadastradas neste campus."}
-                </small>
-              )}
-            </button>
-          )
-        })}
-      </div>
+            return (
+              <button
+                key={campus.idCampus || campus.nome}
+                type="button"
+                className={`chat-campus-card ${
+                  disponivel ? "disponivel" : "indisponivel"
+                }`}
+                onClick={selecionarCampus}
+                onKeyDown={selecionarComEnter}
+                disabled={!disponivel || carregando}
+              >
+                <div className="chat-campus-top">
+                  <strong>{campus.nome}</strong>
+                  <span>{disponivel ? "Disponível" : "Indisponível"}</span>
+                </div>
+
+                {!disponivel && (
+                  <small>
+                    {campus.motivoIndisponivel ||
+                      "Não há salas ativas cadastradas neste campus."}
+                  </small>
+                )}
+              </button>
+            )
+          })}
+        </div>
+
+        {opcoesOutraData.length > 0 && (
+          <div className="premium-options chat-campus-adjustment-options">
+            {opcoesOutraData.map((opcao) => (
+              <button
+                key={`${opcao.valor}-${opcao.label}`}
+                type="button"
+                className="chat-option-btn"
+                onClick={() => enviarMensagemRapida(opcao.valor, opcao.label)}
+                disabled={carregando}
+              >
+                {opcao.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </>
     )
   }
 
@@ -1380,6 +1456,90 @@ function ChatFluxoDesktop() {
     )
   }
 
+  function renderizarResultadosBuscaSala(msg) {
+    if (
+      msg.tipoInteracao !== "resultado-busca-salas" ||
+      !msg.disponibilidadesSalas?.length
+    ) {
+      return null
+    }
+
+    return (
+      <div className="premium-salas-grid chatbot-salas-choice-grid chatbot-busca-salas-grid">
+        {msg.disponibilidadesSalas.map((disponibilidade) => (
+          <article
+            key={`${disponibilidade.idSala}-${disponibilidade.dataIso}-${disponibilidade.horaInicio}`}
+            className="premium-sala-card chatbot-sala-choice-card"
+          >
+            <div className="chatbot-sala-choice-head">
+              <span className="chatbot-sala-choice-index">
+                {String(disponibilidade.numeroLista).padStart(2, "0")}
+              </span>
+
+              <div className="chatbot-sala-choice-title">
+                <strong>{disponibilidade.nome}</strong>
+                <small>
+                  {disponibilidade.tipo} • Sala nº {disponibilidade.numero}
+                </small>
+              </div>
+
+              <span className="chatbot-sala-choice-capacity">
+                {disponibilidade.capacidade} pessoas
+              </span>
+            </div>
+
+            <div className="chatbot-sala-choice-meta">
+              <span>
+                <b>Data</b>
+                {disponibilidade.dataBr}
+              </span>
+
+              <span>
+                <b>Horário</b>
+                {disponibilidade.horaInicio} às {disponibilidade.horaFim}
+              </span>
+
+              <span>
+                <b>Campus</b>
+                {disponibilidade.campus}
+              </span>
+
+              <span>
+                <b>Sede/Prédio</b>
+                {disponibilidade.edificio}
+              </span>
+
+              <span>
+                <b>Instituição</b>
+                {disponibilidade.instituicao}
+              </span>
+            </div>
+
+            <div className="chatbot-sala-choice-footer">
+              <small>
+                Disponibilidade sugerida para uma reserva de {disponibilidade.duracao || "1 hora"}.
+              </small>
+
+              <button
+                type="button"
+                className="escolher-sala-btn btn primary"
+                onClick={() =>
+                  enviarMensagemRapida(
+                    `BUSCA_DISPONIBILIDADE:${disponibilidade.numeroLista}`,
+                    `${disponibilidade.nome} • ${disponibilidade.dataBr} • ${disponibilidade.horaInicio} às ${disponibilidade.horaFim}`
+                  )
+                }
+                disabled={carregando}
+              >
+                Reservar neste horário
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    )
+  }
+
   function renderizarReservas(msg) {
     if (msg.tipoInteracao !== "checkbox-reservas" || !msg.reservas?.length) {
       return null
@@ -1445,6 +1605,7 @@ function ChatFluxoDesktop() {
         {renderizarSeletorHorario(msg, indiceMensagem)}
         {renderizarFaixasCapacidade(msg)}
         {renderizarSalas(msg)}
+        {renderizarResultadosBuscaSala(msg)}
         {renderizarReservas(msg)}
       </>
     )
