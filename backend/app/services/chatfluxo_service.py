@@ -2,6 +2,7 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, date, timedelta
 from typing import Dict, Any
+from unicodedata import category as categoria_unicode, normalize as normalizar_unicode
 
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
@@ -46,6 +47,8 @@ TURNOS = {
 }
 
 QUANTIDADE_MINIMA_PADRAO = 10
+DURACAO_PADRAO_BUSCA_SALA_MINUTOS = 60
+LIMITE_RESULTADOS_BUSCA_SALA = 12
 
 
 class ChatbotFluxoService:
@@ -565,7 +568,7 @@ class ChatbotFluxoService:
                 "idTipoSala", "nomeTipoSala", "faixasCapacidade",
                 "faixaCapacidadeInicio", "faixaCapacidadeFim",
                 "faixaCapacidadeLabel", "quantidade", "salasDisponiveisReserva",
-                "idSalaReserva",
+                "idSalaReserva", "idSalaPreferidaBusca", "buscaSalaTermo", "disponibilidadesBuscaSala",
             ]:
                 sessao.pop(chave, None)
 
@@ -578,7 +581,7 @@ class ChatbotFluxoService:
                 "idTipoSala", "nomeTipoSala", "faixasCapacidade",
                 "faixaCapacidadeInicio", "faixaCapacidadeFim",
                 "faixaCapacidadeLabel", "quantidade", "salasDisponiveisReserva",
-                "idSalaReserva",
+                "idSalaReserva", "idSalaPreferidaBusca", "buscaSalaTermo", "disponibilidadesBuscaSala",
             ]:
                 sessao.pop(chave, None)
 
@@ -595,7 +598,7 @@ class ChatbotFluxoService:
                 "idTipoSala", "nomeTipoSala", "faixasCapacidade",
                 "faixaCapacidadeInicio", "faixaCapacidadeFim",
                 "faixaCapacidadeLabel", "quantidade", "salasDisponiveisReserva",
-                "idSalaReserva",
+                "idSalaReserva", "idSalaPreferidaBusca", "buscaSalaTermo", "disponibilidadesBuscaSala",
             ]:
                 sessao.pop(chave, None)
 
@@ -611,7 +614,7 @@ class ChatbotFluxoService:
                 "horaInicio", "horaFim", "idTipoSala", "nomeTipoSala",
                 "faixasCapacidade", "faixaCapacidadeInicio", "faixaCapacidadeFim",
                 "faixaCapacidadeLabel", "quantidade", "salasDisponiveisReserva",
-                "idSalaReserva",
+                "idSalaReserva", "idSalaPreferidaBusca", "buscaSalaTermo", "disponibilidadesBuscaSala",
             ]:
                 sessao.pop(chave, None)
 
@@ -627,7 +630,7 @@ class ChatbotFluxoService:
                 "idTipoSala", "nomeTipoSala", "faixasCapacidade",
                 "faixaCapacidadeInicio", "faixaCapacidadeFim",
                 "faixaCapacidadeLabel", "quantidade", "salasDisponiveisReserva",
-                "idSalaReserva",
+                "idSalaReserva", "idSalaPreferidaBusca", "buscaSalaTermo", "disponibilidadesBuscaSala",
             ]:
                 sessao.pop(chave, None)
 
@@ -775,6 +778,16 @@ class ChatbotFluxoService:
 
         if step == "tipo_sala":
             return self.etapa_tipo_sala(mensagem, sessao, db)
+
+        if step == "buscar_sala":
+            return self.etapa_buscar_sala(mensagem, sessao, db)
+
+        if step == "selecionar_disponibilidade_busca":
+            return self.etapa_selecionar_disponibilidade_busca(
+                mensagem=mensagem,
+                sessao=sessao,
+                db=db,
+            )
 
         if step == "faixa_capacidade":
             return self.etapa_faixa_capacidade(mensagem, sessao, db)
@@ -1103,6 +1116,28 @@ class ChatbotFluxoService:
                 self.opcoes_ajuste_data_instituicao(),
             )
 
+        opcoes_campi = [
+            {"label": campus["nome"], "valor": f"CAMPUS:{campus['id']}"}
+            for campus in campi_disponiveis
+        ]
+
+        # Quando ao menos um campus estiver sem disponibilidade porque todas as
+        # salas já foram ocupadas na data, o usuário também pode trocar a data
+        # sem precisar voltar ao menu ou perder a instituição/curso escolhidos.
+        ha_campus_totalmente_ocupado = any(
+            not campus.get("disponivel", False)
+            and "ocupad" in str(campus.get("motivoIndisponivel") or "").lower()
+            for campus in campi_status
+        )
+
+        if ha_campus_totalmente_ocupado:
+            opcoes_campi.append(
+                {
+                    "label": "Não encontrou disponibilidade? Escolher outra data",
+                    "valor": "AJUSTE:DATA",
+                }
+            )
+
         return {
             "resposta": (
                 f"Para {self.formatar_data_br(sessao['data'])}, estes são os campi de {nome_instituicao}.\n\n"
@@ -1110,10 +1145,7 @@ class ChatbotFluxoService:
             ),
             "tipoInteracao": "campi",
             "campi": campi_status,
-            "opcoes": [
-                {"label": campus["nome"], "valor": f"CAMPUS:{campus['id']}"}
-                for campus in campi_disponiveis
-            ],
+            "opcoes": opcoes_campi,
         }
 
     def etapa_campus(self, mensagem: str, sessao: Dict[str, Any], db: Session):
@@ -1276,6 +1308,7 @@ class ChatbotFluxoService:
         sessao["step"] = "tipo_sala"
         return self.resposta_tipo_sala(db, sessao)
 
+
     def resposta_tipo_sala(self, db: Session, sessao: Dict[str, Any]):
         tipos = self.get_tipos_disponiveis(db, sessao)
 
@@ -1288,20 +1321,34 @@ class ChatbotFluxoService:
                 self.opcoes_ajuste_horario_data_campus(),
             )
 
+        opcoes = [
+            {"label": tipo.nome, "valor": f"TIPO_SALA:{tipo.id}"}
+            for tipo in tipos
+        ]
+
+        opcoes.append(
+            {
+                "label": "Não encontrou a sala que precisa? Buscar por nome ou tipo",
+                "valor": "BUSCAR_SALA:INICIAR",
+            }
+        )
+
         return {
             "resposta": (
                 f"{self.montar_resumo_dados_informados(sessao)}\n\n"
                 "Agora escolha o tipo de sala desejado.\n\n"
-                "Essa escolha será usada como motivo da reserva."
+                "Essa escolha será usada como motivo da reserva. "
+                "Caso não encontre o ambiente necessário, use a opção de busca para localizar "
+                "a sala ou o tipo em outros campi da instituição."
             ),
             "tipoInteracao": "botoes",
-            "opcoes": [
-                {"label": tipo.nome, "valor": f"TIPO_SALA:{tipo.id}"}
-                for tipo in tipos
-            ],
+            "opcoes": opcoes,
         }
 
     def etapa_tipo_sala(self, mensagem: str, sessao: Dict[str, Any], db: Session):
+        if mensagem == "BUSCAR_SALA:INICIAR":
+            return self.iniciar_busca_sala(sessao)
+
         if not mensagem.startswith("TIPO_SALA:"):
             return self.resposta_tipo_sala(db, sessao)
 
@@ -1315,8 +1362,181 @@ class ChatbotFluxoService:
         if not tipo:
             return self.resposta_tipo_sala(db, sessao)
 
+        sessao.pop("idSalaPreferidaBusca", None)
         sessao["idTipoSala"] = id_tipo_sala
         sessao["nomeTipoSala"] = tipo.nome
+        sessao["step"] = "faixa_capacidade"
+
+        return self.resposta_faixa_capacidade(db, sessao)
+
+    def iniciar_busca_sala(self, sessao: Dict[str, Any]):
+        sessao.pop("buscaSalaTermo", None)
+        sessao.pop("disponibilidadesBuscaSala", None)
+        sessao.pop("idSalaPreferidaBusca", None)
+        sessao["step"] = "buscar_sala"
+
+        return {
+            "resposta": (
+                "Digite o nome da sala ou o tipo de ambiente que você precisa.\n\n"
+                "Exemplos: Laboratório de informática, Auditório, Sala de reunião ou "
+                "Laboratório de odontologia.\n\n"
+                "Vou buscar nas salas ativas da instituição selecionada e mostrar as "
+                "próximas disponibilidades com data, horário, campus e sede/prédio."
+            ),
+            "tipoInteracao": "entrada-busca-sala",
+            "opcoes": [
+                {"label": "Voltar para os tipos de sala", "valor": "AJUSTE:TIPO"},
+                {"label": "Escolher outra data", "valor": "AJUSTE:DATA"},
+            ],
+        }
+
+    def etapa_buscar_sala(
+        self,
+        mensagem: str,
+        sessao: Dict[str, Any],
+        db: Session,
+    ):
+        termo = str(mensagem or "").strip()
+
+        if len(termo) < 2:
+            return {
+                "resposta": (
+                    "Digite pelo menos duas letras do nome ou do tipo de sala para eu pesquisar.\n\n"
+                    "Exemplo: auditório, informática ou odontologia."
+                ),
+                "tipoInteracao": "entrada-busca-sala",
+                "opcoes": [
+                    {"label": "Voltar para os tipos de sala", "valor": "AJUSTE:TIPO"},
+                ],
+            }
+
+        disponibilidades = self.buscar_disponibilidades_sala_por_texto(
+            db=db,
+            sessao=sessao,
+            termo=termo,
+        )
+
+        sessao["buscaSalaTermo"] = termo
+
+        if not disponibilidades:
+            sessao["step"] = "buscar_sala"
+            return {
+                "resposta": (
+                    f'Não encontrei disponibilidade para "{termo}" nas salas ativas da '
+                    "instituição selecionada no período letivo atual.\n\n"
+                    "Tente outro nome/tipo, outra data ou volte para os tipos de sala."
+                ),
+                "tipoInteracao": "entrada-busca-sala",
+                "opcoes": [
+                    {"label": "Buscar outro nome ou tipo", "valor": "BUSCAR_SALA:INICIAR"},
+                    {"label": "Voltar para os tipos de sala", "valor": "AJUSTE:TIPO"},
+                    {"label": "Escolher outra data", "valor": "AJUSTE:DATA"},
+                ],
+            }
+
+        sessao["disponibilidadesBuscaSala"] = disponibilidades
+        sessao["step"] = "selecionar_disponibilidade_busca"
+
+        return {
+            "resposta": (
+                f'Encontrei {len(disponibilidades)} disponibilidade(s) para "{termo}".\n\n'
+                "Cada sugestão abaixo considera uma reserva de 1 hora. Escolha uma para "
+                "continuar a reserva já com data, horário, campus e sala preenchidos."
+            ),
+            "tipoInteracao": "resultado-busca-salas",
+            "disponibilidadesSalas": disponibilidades,
+            "opcoes": [
+                {"label": "Buscar outro nome ou tipo", "valor": "BUSCAR_SALA:INICIAR"},
+                {"label": "Voltar para os tipos de sala", "valor": "AJUSTE:TIPO"},
+                {"label": "Escolher outra data", "valor": "AJUSTE:DATA"},
+            ],
+        }
+
+    def etapa_selecionar_disponibilidade_busca(
+        self,
+        mensagem: str,
+        sessao: Dict[str, Any],
+        db: Session,
+    ):
+        if mensagem == "BUSCAR_SALA:INICIAR":
+            return self.iniciar_busca_sala(sessao)
+
+        if not mensagem.startswith("BUSCA_DISPONIBILIDADE:"):
+            return self.etapa_buscar_sala(
+                mensagem=sessao.get("buscaSalaTermo", ""),
+                sessao=sessao,
+                db=db,
+            )
+
+        try:
+            indice = int(mensagem.replace("BUSCA_DISPONIBILIDADE:", "").strip())
+        except ValueError:
+            indice = 0
+
+        disponibilidades = sessao.get("disponibilidadesBuscaSala", [])
+        disponibilidade = next(
+            (
+                item
+                for item in disponibilidades
+                if int(item.get("numeroLista", 0)) == indice
+            ),
+            None,
+        )
+
+        if not disponibilidade:
+            sessao["step"] = "buscar_sala"
+            return {
+                "resposta": (
+                    "Essa disponibilidade não é mais válida. Faça uma nova busca para "
+                    "receber as opções atualizadas."
+                ),
+                "tipoInteracao": "entrada-busca-sala",
+                "opcoes": [
+                    {"label": "Buscar novamente", "valor": "BUSCAR_SALA:INICIAR"},
+                    {"label": "Voltar para os tipos de sala", "valor": "AJUSTE:TIPO"},
+                ],
+            }
+
+        inicio = self.montar_datetime_reserva(
+            disponibilidade["dataIso"],
+            disponibilidade["horaInicio"],
+        )
+        fim = self.montar_datetime_reserva(
+            disponibilidade["dataIso"],
+            disponibilidade["horaFim"],
+        )
+
+        conflito = self.buscar_conflito_sala(
+            db=db,
+            id_sala=int(disponibilidade["idSala"]),
+            inicio_novo=inicio,
+            fim_novo=fim,
+        )
+
+        if conflito:
+            return self.etapa_buscar_sala(
+                mensagem=sessao.get("buscaSalaTermo", ""),
+                sessao=sessao,
+                db=db,
+            )
+
+        sessao["data"] = disponibilidade["dataIso"]
+        sessao["idInstituicaoReserva"] = disponibilidade["idInstituicao"]
+        sessao["nomeInstituicaoReserva"] = disponibilidade["instituicao"]
+        sessao["idCampus"] = disponibilidade["idCampus"]
+        sessao["nomeCampus"] = disponibilidade["campus"]
+        sessao["horaInicio"] = disponibilidade["horaInicio"]
+        sessao["horaFim"] = disponibilidade["horaFim"]
+        sessao["idTipoSala"] = disponibilidade["idTipoSala"]
+        sessao["nomeTipoSala"] = disponibilidade["tipo"]
+        sessao["idSalaPreferidaBusca"] = disponibilidade["idSala"]
+        sessao.pop("faixasCapacidade", None)
+        sessao.pop("faixaCapacidadeInicio", None)
+        sessao.pop("faixaCapacidadeFim", None)
+        sessao.pop("faixaCapacidadeLabel", None)
+        sessao.pop("quantidade", None)
+        sessao.pop("salasDisponiveisReserva", None)
+        sessao.pop("idSalaReserva", None)
         sessao["step"] = "faixa_capacidade"
 
         return self.resposta_faixa_capacidade(db, sessao)
@@ -2204,6 +2424,218 @@ class ChatbotFluxoService:
             )
         }
 
+
+    def normalizar_texto_busca_sala(self, texto: str | None):
+        texto_normalizado = normalizar_unicode("NFD", str(texto or "").strip().lower())
+        return "".join(
+            caractere
+            for caractere in texto_normalizado
+            if categoria_unicode(caractere) != "Mn"
+        )
+
+    def data_eh_valida_para_busca_sala(self, dia: date):
+        return dia.weekday() != 6 and not self.esta_em_ferias_academicas(dia)
+
+    def arredondar_horario_para_intervalo(
+        self,
+        horario: datetime,
+        intervalo_minutos: int = 15,
+    ):
+        segundos = horario.second + horario.microsecond / 1_000_000
+        minutos_total = horario.hour * 60 + horario.minute
+
+        if segundos > 0 or minutos_total % intervalo_minutos:
+            minutos_total += intervalo_minutos - (minutos_total % intervalo_minutos)
+
+        hora = minutos_total // 60
+        minuto = minutos_total % 60
+
+        return horario.replace(
+            hour=hora,
+            minute=minuto,
+            second=0,
+            microsecond=0,
+        )
+
+    def encontrar_primeiro_horario_livre_busca(
+        self,
+        id_sala: int,
+        dia: date,
+        indice_reservas: Dict[int, list[tuple[datetime, datetime, Reserva]]],
+        duracao_minutos: int = DURACAO_PADRAO_BUSCA_SALA_MINUTOS,
+    ):
+        inicio_expediente = self.montar_datetime_reserva(dia, "08:00")
+        ultimo_inicio = self.montar_datetime_reserva(dia, "22:30") - timedelta(
+            minutes=duracao_minutos
+        )
+        candidato = inicio_expediente
+        fim_dia = self.montar_datetime_reserva(dia, "22:30")
+
+        bloqueios = sorted(
+            indice_reservas.get(id_sala, []),
+            key=lambda item: item[0],
+        )
+
+        for inicio_reserva, fim_reserva, _ in bloqueios:
+            if fim_reserva <= candidato or inicio_reserva >= fim_dia:
+                continue
+
+            fim_candidato = candidato + timedelta(minutes=duracao_minutos)
+
+            if inicio_reserva >= fim_candidato:
+                return candidato, fim_candidato
+
+            if fim_reserva > candidato:
+                candidato = self.arredondar_horario_para_intervalo(fim_reserva)
+
+            if candidato > ultimo_inicio:
+                return None
+
+        fim_candidato = candidato + timedelta(minutes=duracao_minutos)
+
+        if fim_candidato <= fim_dia:
+            return candidato, fim_candidato
+
+        return None
+
+    def buscar_disponibilidades_sala_por_texto(
+        self,
+        db: Session,
+        sessao: Dict[str, Any],
+        termo: str,
+        limite: int = LIMITE_RESULTADOS_BUSCA_SALA,
+    ):
+        termo_normalizado = self.normalizar_texto_busca_sala(termo)
+
+        if not termo_normalizado:
+            return []
+
+        query = (
+            db.query(Sala, TipoSala, Edificio, Campus, Instituicao)
+            .join(TipoSala, Sala.idTipoSala == TipoSala.id)
+            .join(Edificio, Sala.idEdificio == Edificio.id)
+            .join(Campus, Edificio.idCampus == Campus.id)
+            .join(Instituicao, Campus.idInstituicao == Instituicao.id)
+            .filter(Sala.ativo == True)
+        )
+
+        id_instituicao = sessao.get("idInstituicaoReserva")
+
+        if id_instituicao:
+            query = query.filter(Campus.idInstituicao == int(id_instituicao))
+
+        registros = query.order_by(
+            Campus.nome.asc(),
+            Edificio.nome.asc(),
+            Sala.nome.asc(),
+            Sala.numero.asc(),
+        ).all()
+
+        salas_encontradas = []
+
+        for sala, tipo, edificio, campus, instituicao in registros:
+            campos_pesquisa = " ".join(
+                [
+                    str(sala.nome or ""),
+                    str(sala.numero or ""),
+                    str(tipo.nome or ""),
+                    str(edificio.nome or ""),
+                    str(campus.nome or ""),
+                ]
+            )
+            campos_normalizados = self.normalizar_texto_busca_sala(campos_pesquisa)
+
+            if termo_normalizado in campos_normalizados:
+                salas_encontradas.append(
+                    {
+                        "sala": sala,
+                        "tipo": tipo,
+                        "edificio": edificio,
+                        "campus": campus,
+                        "instituicao": instituicao,
+                    }
+                )
+
+        if not salas_encontradas:
+            return []
+
+        indice_reservas = self.get_indice_reservas_ativas(
+            db=db,
+            ids_salas=[item["sala"].idSala for item in salas_encontradas],
+        )
+
+        hoje = date.today()
+        data_inicial = hoje
+
+        try:
+            data_sessao = datetime.strptime(
+                str(sessao.get("data") or "")[:10],
+                "%Y-%m-%d",
+            ).date()
+
+            if data_sessao > data_inicial:
+                data_inicial = data_sessao
+        except ValueError:
+            pass
+
+        data_final = date(data_inicial.year, 12, 31)
+        resultados = []
+        data_atual = data_inicial
+
+        while data_atual <= data_final and len(resultados) < limite:
+            if not self.data_eh_valida_para_busca_sala(data_atual):
+                data_atual += timedelta(days=1)
+                continue
+
+            for item in salas_encontradas:
+                horario = self.encontrar_primeiro_horario_livre_busca(
+                    id_sala=item["sala"].idSala,
+                    dia=data_atual,
+                    indice_reservas=indice_reservas,
+                )
+
+                if not horario:
+                    continue
+
+                hora_inicio, hora_fim = horario
+                sala = item["sala"]
+                tipo = item["tipo"]
+                edificio = item["edificio"]
+                campus = item["campus"]
+                instituicao = item["instituicao"]
+
+                resultados.append(
+                    {
+                        "numeroLista": len(resultados) + 1,
+                        "idSala": sala.idSala,
+                        "idTipoSala": sala.idTipoSala,
+                        "idInstituicao": campus.idInstituicao,
+                        "idCampus": campus.id,
+                        "nome": sala.nome,
+                        "numero": sala.numero,
+                        "tipo": tipo.nome,
+                        "capacidade": sala.capacidade,
+                        "andar": sala.andar,
+                        "instituicao": instituicao.nome,
+                        "campus": campus.nome,
+                        "edificio": edificio.nome,
+                        "dataIso": data_atual.isoformat(),
+                        "dataBr": self.formatar_data_br(data_atual.isoformat()),
+                        "horaInicio": hora_inicio.strftime("%H:%M"),
+                        "horaFim": hora_fim.strftime("%H:%M"),
+                        "duracao": "1 hora",
+                        "valor": f"BUSCA_DISPONIBILIDADE:{len(resultados) + 1}",
+                    }
+                )
+
+                if len(resultados) >= limite:
+                    break
+
+            data_atual += timedelta(days=1)
+
+        return resultados
+
+
     def get_indice_reservas_ativas(
         self,
         db: Session,
@@ -2651,6 +3083,14 @@ class ChatbotFluxoService:
             if sala.idTipoSala == id_tipo_sala and int(sala.capacidade or 0) > 0
         ]
 
+        id_sala_preferida = sessao.get("idSalaPreferidaBusca")
+        if id_sala_preferida:
+            salas = [
+                sala
+                for sala in salas
+                if int(sala.idSala) == int(id_sala_preferida)
+            ]
+
         return sorted({int(sala.capacidade) for sala in salas})
 
     def get_faixas_capacidade_disponiveis(self, db: Session, sessao: Dict[str, Any]):
@@ -2697,6 +3137,14 @@ class ChatbotFluxoService:
             if sala.idTipoSala == id_tipo_sala
         ]
 
+        id_sala_preferida = sessao.get("idSalaPreferidaBusca")
+        if id_sala_preferida:
+            salas_disponiveis = [
+                sala
+                for sala in salas_disponiveis
+                if int(sala.idSala) == int(id_sala_preferida)
+            ]
+
         if not salas_disponiveis:
             return QUANTIDADE_MINIMA_PADRAO, None
 
@@ -2717,6 +3165,14 @@ class ChatbotFluxoService:
             for sala in self.get_salas_livres_no_periodo(db, sessao)
             if sala.idTipoSala == id_tipo_sala
         ]
+
+        id_sala_preferida = sessao.get("idSalaPreferidaBusca")
+        if id_sala_preferida:
+            salas = [
+                sala
+                for sala in salas
+                if int(sala.idSala) == int(id_sala_preferida)
+            ]
 
         if faixa_inicio is not None and faixa_fim is not None:
             salas = [
@@ -3021,6 +3477,9 @@ class ChatbotFluxoService:
             "faixaCapacidadeLabel",
             "salasDisponiveisReserva",
             "idSalaReserva",
+            "idSalaPreferidaBusca",
+            "buscaSalaTermo",
+            "disponibilidadesBuscaSala",
             "idCursoReserva",
             "cursoUsuarioReserva",
             "cursosReserva",

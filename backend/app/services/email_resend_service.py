@@ -1,4 +1,5 @@
 import os
+from datetime import date, datetime
 from html import escape
 
 import resend
@@ -45,6 +46,87 @@ def obter_template_reserva_recusada():
 
 def obter_template_reserva_cancelada():
     return os.getenv("RESEND_TEMPLATE_RESERVA_CANCELADA", "reserva_cancelada")
+
+
+DIAS_SEMANA_PT = [
+    "segunda-feira",
+    "terça-feira",
+    "quarta-feira",
+    "quinta-feira",
+    "sexta-feira",
+    "sábado",
+    "domingo",
+]
+
+
+def converter_data_reserva(data_reserva):
+    if not data_reserva:
+        return None
+
+    if isinstance(data_reserva, datetime):
+        return data_reserva.date()
+
+    if isinstance(data_reserva, date):
+        return data_reserva
+
+    data_texto = str(data_reserva).strip()
+
+    if not data_texto:
+        return None
+
+    data_sem_hora = data_texto.split("T", 1)[0].split(" ", 1)[0]
+
+    for formato in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(data_sem_hora, formato).date()
+        except ValueError:
+            pass
+
+    try:
+        return datetime.fromisoformat(data_texto.replace("Z", "+00:00")).date()
+    except ValueError:
+        return None
+
+
+def formatar_data_com_dia_semana(data_reserva):
+    data_convertida = converter_data_reserva(data_reserva)
+
+    if not data_convertida:
+        if data_reserva:
+            return f"dia {data_reserva}"
+
+        return "data não informada"
+
+    dia_semana = DIAS_SEMANA_PT[data_convertida.weekday()]
+    data_formatada = data_convertida.strftime("%d/%m/%Y")
+
+    return f"{dia_semana}, dia {data_formatada}"
+
+
+def montar_preview_reserva_status(
+    nome_sala: str | None = None,
+    data_inicio: str | date | datetime | None = None,
+    status_texto: str = "atualizada",
+):
+    sala = str(nome_sala or "Não informada")
+    data_formatada = formatar_data_com_dia_semana(data_inicio)
+
+    return (
+        f"A reserva da sala {sala}, para {data_formatada}, "
+        f"foi {status_texto}."
+    )
+
+
+def montar_assunto_reserva_status(
+    nome_sala: str | None = None,
+    status_texto: str = "atualizada",
+):
+    sala = str(nome_sala or "").strip()
+
+    if sala:
+        return f"SIGSAS | Reserva da sala {sala} {status_texto}"
+
+    return f"SIGSAS | Reserva {status_texto}"
 
 
 def enviar_email_resend(destinatario: str, assunto: str, html: str):
@@ -107,8 +189,23 @@ def enviar_email_template_resend(
     return resposta
 
 
-def layout_email(titulo: str, subtitulo: str, conteudo: str):
+def layout_email(
+    titulo: str,
+    subtitulo: str,
+    conteudo: str,
+    preheader: str | None = None,
+):
+    preheader_html = ""
+
+    if preheader:
+        preheader_html = f"""
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;line-height:1px;font-size:1px;">
+      {escape(str(preheader))}
+    </div>
+    """
+
     return f"""
+    {preheader_html}
     <div style="font-family:Arial,sans-serif;background:#020617;padding:28px;color:#e5e7eb;">
       <div style="max-width:760px;margin:0 auto;background:#111827;border:1px solid #283243;border-radius:18px;padding:26px;">
         <div style="margin-bottom:22px;">
@@ -227,6 +324,7 @@ def montar_html_fallback_reserva(
     qtd_pessoas: int | None = None,
     status_reserva: str | None = None,
     justificativa: str | None = None,
+    preheader: str | None = None,
 ):
     link_historico = obter_link_historico_reservas()
 
@@ -269,6 +367,7 @@ def montar_html_fallback_reserva(
         titulo=titulo,
         subtitulo=subtitulo,
         conteudo=conteudo,
+        preheader=preheader or mensagem,
     )
 
 
@@ -409,13 +508,21 @@ def enviar_email_reserva_criada(
         qtd_pessoas=qtd_pessoas,
     )
 
+    preview_reserva = montar_preview_reserva_status(
+        nome_sala=nome_sala,
+        data_inicio=data_inicio,
+        status_texto="registrada e está aguardando análise do coordenador",
+    )
+    assunto_reserva = montar_assunto_reserva_status(
+        nome_sala=nome_sala,
+        status_texto="registrada",
+    )
+    data_reserva_formatada = formatar_data_com_dia_semana(data_inicio)
+
     html_fallback = montar_html_fallback_reserva(
         titulo="Solicitação de reserva registrada",
         subtitulo="Sua reserva foi registrada no SIGSAS.",
-        mensagem=(
-            "Sua solicitação de reserva foi registrada com sucesso no SIGSAS "
-            "e está aguardando análise do coordenador."
-        ),
+        mensagem=preview_reserva,
         nome_sala=nome_sala,
         solicitante=solicitante,
         matricula=matricula,
@@ -429,16 +536,21 @@ def enviar_email_reserva_criada(
         motivo=motivo,
         qtd_pessoas=qtd_pessoas,
         status_reserva="Pendente",
+        preheader=preview_reserva,
     )
 
     return enviar_template_com_fallback(
         destinatario=email,
-        assunto="SIGSAS | Solicitação de reserva registrada",
+        assunto=assunto_reserva,
         template_id=obter_template_reserva_pendente(),
         variaveis={
             "nome_usuario": solicitante or "usuário",
             "dados_reserva": dados_reserva,
             "link_historico": obter_link_historico_reservas(),
+            "preheader": preview_reserva,
+            "mensagem": preview_reserva,
+            "nome_sala": nome_sala or "Não informado",
+            "data_reserva_formatada": data_reserva_formatada,
         },
         html_fallback=html_fallback,
     )
@@ -476,10 +588,21 @@ def enviar_email_reserva_aprovada(
         qtd_pessoas=qtd_pessoas,
     )
 
+    preview_reserva = montar_preview_reserva_status(
+        nome_sala=nome_sala,
+        data_inicio=data_inicio,
+        status_texto="aprovada pelo coordenador",
+    )
+    assunto_reserva = montar_assunto_reserva_status(
+        nome_sala=nome_sala,
+        status_texto="aprovada",
+    )
+    data_reserva_formatada = formatar_data_com_dia_semana(data_inicio)
+
     html_fallback = montar_html_fallback_reserva(
         titulo="Reserva aprovada",
         subtitulo="Sua reserva foi aprovada no SIGSAS.",
-        mensagem="Sua reserva foi aprovada pelo coordenador responsável.",
+        mensagem=preview_reserva,
         nome_sala=nome_sala,
         solicitante=solicitante,
         matricula=matricula,
@@ -494,16 +617,21 @@ def enviar_email_reserva_aprovada(
         qtd_pessoas=qtd_pessoas,
         status_reserva="Aprovada",
         justificativa=justificativa,
+        preheader=preview_reserva,
     )
 
     return enviar_template_com_fallback(
         destinatario=email,
-        assunto="SIGSAS | Reserva aprovada",
+        assunto=assunto_reserva,
         template_id=obter_template_reserva_aprovada(),
         variaveis={
             "nome_usuario": solicitante or "usuário",
             "dados_reserva": dados_reserva,
             "link_historico": obter_link_historico_reservas(),
+            "preheader": preview_reserva,
+            "mensagem": preview_reserva,
+            "nome_sala": nome_sala or "Não informado",
+            "data_reserva_formatada": data_reserva_formatada,
         },
         html_fallback=html_fallback,
     )
@@ -527,6 +655,16 @@ def enviar_email_reserva_recusada(
     **kwargs,
 ):
     motivo_recusa = justificativa or "Motivo não informado pelo coordenador."
+    preview_reserva = montar_preview_reserva_status(
+        nome_sala=nome_sala,
+        data_inicio=data_inicio,
+        status_texto="reprovada pelo coordenador",
+    )
+    assunto_reserva = montar_assunto_reserva_status(
+        nome_sala=nome_sala,
+        status_texto="reprovada",
+    )
+    data_reserva_formatada = formatar_data_com_dia_semana(data_inicio)
 
     dados_reserva = montar_dados_reserva_texto(
         nome_sala=nome_sala,
@@ -546,7 +684,7 @@ def enviar_email_reserva_recusada(
     html_fallback = montar_html_fallback_reserva(
         titulo="Reserva reprovada",
         subtitulo="Sua reserva foi reprovada no SIGSAS.",
-        mensagem="Sua reserva foi reprovada pelo coordenador responsável.",
+        mensagem=preview_reserva,
         nome_sala=nome_sala,
         solicitante=solicitante,
         matricula=matricula,
@@ -561,17 +699,22 @@ def enviar_email_reserva_recusada(
         qtd_pessoas=qtd_pessoas,
         status_reserva="Reprovada",
         justificativa=motivo_recusa,
+        preheader=preview_reserva,
     )
 
     return enviar_template_com_fallback(
         destinatario=email,
-        assunto="SIGSAS | Reserva reprovada",
+        assunto=assunto_reserva,
         template_id=obter_template_reserva_recusada(),
         variaveis={
             "nome_usuario": solicitante or "usuário",
             "dados_reserva": dados_reserva,
             "motivo_recusa": motivo_recusa,
             "link_historico": obter_link_historico_reservas(),
+            "preheader": preview_reserva,
+            "mensagem": preview_reserva,
+            "nome_sala": nome_sala or "Não informado",
+            "data_reserva_formatada": data_reserva_formatada,
         },
         html_fallback=html_fallback,
     )
@@ -595,6 +738,16 @@ def enviar_email_reserva_cancelada(
     **kwargs,
 ):
     motivo_cancelamento = justificativa or "Cancelamento registrado no sistema."
+    preview_reserva = montar_preview_reserva_status(
+        nome_sala=nome_sala,
+        data_inicio=data_inicio,
+        status_texto="cancelada no SIGSAS",
+    )
+    assunto_reserva = montar_assunto_reserva_status(
+        nome_sala=nome_sala,
+        status_texto="cancelada",
+    )
+    data_reserva_formatada = formatar_data_com_dia_semana(data_inicio)
 
     dados_reserva = montar_dados_reserva_texto(
         nome_sala=nome_sala,
@@ -614,7 +767,7 @@ def enviar_email_reserva_cancelada(
     html_fallback = montar_html_fallback_reserva(
         titulo="Reserva cancelada",
         subtitulo="Sua reserva foi cancelada no SIGSAS.",
-        mensagem="Sua reserva foi cancelada no SIGSAS.",
+        mensagem=preview_reserva,
         nome_sala=nome_sala,
         solicitante=solicitante,
         matricula=matricula,
@@ -629,17 +782,22 @@ def enviar_email_reserva_cancelada(
         qtd_pessoas=qtd_pessoas,
         status_reserva="Cancelada",
         justificativa=motivo_cancelamento,
+        preheader=preview_reserva,
     )
 
     return enviar_template_com_fallback(
         destinatario=email,
-        assunto="SIGSAS | Reserva cancelada",
+        assunto=assunto_reserva,
         template_id=obter_template_reserva_cancelada(),
         variaveis={
             "nome_usuario": solicitante or "usuário",
             "dados_reserva": dados_reserva,
             "motivo_cancelamento": motivo_cancelamento,
             "link_historico": obter_link_historico_reservas(),
+            "preheader": preview_reserva,
+            "mensagem": preview_reserva,
+            "nome_sala": nome_sala or "Não informado",
+            "data_reserva_formatada": data_reserva_formatada,
         },
         html_fallback=html_fallback,
     )
