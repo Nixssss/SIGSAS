@@ -31167,3 +31167,182 @@ body[data-theme="dark"] .modern-sidebar .sidebar-footer .logout-btn {
     font-size: 9px !important;
   }
 }
+
+
+/* ===== SIGSAS - correção v4: alinhamento da sidebar e cores no card escuro ===== */
+.sidebar-instituicao-campus-row,
+.mobile-instituicao-campus-row {
+  width: 100% !important;
+  min-height: 74px !important;
+  padding: 12px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-instituicao-campus-row > .campus-row-header,
+.mobile-instituicao-campus-row > .campus-row-header {
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  text-align: left !important;
+}
+
+.sidebar-instituicao-campus-row .campus-row-main-info,
+.mobile-instituicao-campus-row .campus-row-main-info {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  text-align: left !important;
+}
+
+.modern-sidebar .sidebar-instituicao-campus-row .campus-row-main-info strong,
+.modern-sidebar .mobile-instituicao-campus-row .campus-row-main-info strong,
+.sidebar-instituicao-card .sidebar-instituicao-campus-row .campus-row-main-info strong,
+.sidebar-instituicao-card .mobile-instituicao-campus-row .campus-row-main-info strong,
+html[data-theme="light"] .modern-sidebar .campus-row-main-info strong,
+body[data-theme="light"] .modern-sidebar .campus-row-main-info strong,
+html[data-theme="dark"] .modern-sidebar .campus-row-main-info strong,
+body[data-theme="dark"] .modern-sidebar .campus-row-main-info strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+  text-align: left !important;
+}
+
+.modern-sidebar .sidebar-instituicao-campus-row .campus-row-main-info small,
+.modern-sidebar .mobile-instituicao-campus-row .campus-row-main-info small,
+.sidebar-instituicao-card .sidebar-instituicao-campus-row .campus-row-main-info small,
+.sidebar-instituicao-card .mobile-instituicao-campus-row .campus-row-main-info small,
+html[data-theme="light"] .modern-sidebar .campus-row-main-info small,
+body[data-theme="light"] .modern-sidebar .campus-row-main-info small,
+html[data-theme="dark"] .modern-sidebar .campus-row-main-info small,
+body[data-theme="dark"] .modern-sidebar .campus-row-main-info small {
+  color: #d9ecf8 !important;
+  -webkit-text-fill-color: #d9ecf8 !important;
+  font-size: 9.5px !important;
+  font-weight: 850 !important;
+  line-height: 1.1 !important;
+  text-align: left !important;
+}
+
+.sidebar-instituicao-campus-row .campus-status-badge,
+.sidebar-instituicao-campus-row .campus-status-badge-button,
+.mobile-instituicao-campus-row .campus-status-badge,
+.mobile-instituicao-campus-row .campus-status-badge-button {
+  min-width: 70px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  max-height: 26px !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.sidebar-instituicao-campus-row .campus-status-badge.online,
+.sidebar-instituicao-campus-row .campus-status-badge-button.online,
+.mobile-instituicao-campus-row .campus-status-badge.online,
+.mobile-instituicao-campus-row .campus-status-badge-button.online {
+  color: #b7f7c8 !important;
+  -webkit-text-fill-color: #b7f7c8 !important;
+  background: rgba(34, 197, 94, 0.16) !important;
+  border: 1px solid rgba(34, 197, 94, 0.32) !important;
+}
+
+.sidebar-instituicao-campus-row .campus-status-badge.offline,
+.sidebar-instituicao-campus-row .campus-status-badge-button.offline,
+.mobile-instituicao-campus-row .campus-status-badge.offline,
+.mobile-instituicao-campus-row .campus-status-badge-button.offline {
+  color: #fecaca !important;
+  -webkit-text-fill-color: #fecaca !important;
+  background: rgba(239, 68, 68, 0.16) !important;
+  border: 1px solid rgba(239, 68, 68, 0.34) !important;
+}
+
+.sidebar-instituicao-campus-row .campus-status-badge i,
+.sidebar-instituicao-campus-row .campus-status-badge-button i,
+.mobile-instituicao-campus-row .campus-status-badge i,
+.mobile-instituicao-campus-row .campus-status-badge-button i {
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 9px !important;
+  min-height: 9px !important;
+}
+
+.sidebar-instituicao-campus-row .campus-motivo-card,
+.mobile-instituicao-campus-row .campus-motivo-card {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  background: rgba(15, 23, 42, 0.24) !important;
+  border: 1px solid rgba(248, 113, 113, 0.18) !important;
+  box-shadow: inset 2px 0 0 rgba(239, 68, 68, 0.40) !important;
+}
+
+.modern-sidebar .campus-motivo-label,
+.sidebar-instituicao-card .campus-motivo-label {
+  color: #fca5a5 !important;
+  -webkit-text-fill-color: #fca5a5 !important;
+}
+
+.modern-sidebar .campus-motivo-texto,
+.sidebar-instituicao-card .campus-motivo-texto,
+html[data-theme="light"] .modern-sidebar .campus-motivo-texto,
+body[data-theme="light"] .modern-sidebar .campus-motivo-texto {
+  color: #d9ecf8 !important;
+  -webkit-text-fill-color: #d9ecf8 !important;
+}
+
+.sidebar-instituicao-campus-row.active,
+.mobile-instituicao-campus-row.active {
+  border-color: rgba(143, 210, 238, 0.24) !important;
+  background: rgba(19, 43, 56, 0.72) !important;
+}
+
+.sidebar-instituicao-campus-row.inactive,
+.mobile-instituicao-campus-row.inactive {
+  border-color: rgba(143, 210, 238, 0.24) !important;
+  background: rgba(19, 43, 56, 0.72) !important;
+}
+
+.sidebar-instituicao-campus-row.motivo-aberto,
+.mobile-instituicao-campus-row.motivo-aberto {
+  min-height: 118px !important;
+}
+
+.modern-sidebar .sidebar-wave-card {
+  margin-top: 18px !important;
+  flex-shrink: 0 !important;
+}
+
+.modern-sidebar .sidebar-footer {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  margin-top: 16px !important;
+}
