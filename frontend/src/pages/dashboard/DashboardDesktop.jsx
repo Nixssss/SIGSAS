@@ -38,6 +38,7 @@ function DashboardDesktop({ sair }) {
   const [campiSidebar, setCampiSidebar] = useState([])
   const [instituicoesSidebar, setInstituicoesSidebar] = useState([])
   const [carregandoCampi, setCarregandoCampi] = useState(true)
+  const [campusMotivoAberto, setCampusMotivoAberto] = useState(null)
 
   const [notificacoes, setNotificacoes] = useState({
     reservasPendentes: 0,
@@ -700,10 +701,12 @@ function DashboardDesktop({ sair }) {
             const statusCampus = getStatusCampusSidebar(campus)
             const nomeCampus = getNomeCampus(campus)
             const motivoCampus = statusCampus.motivo || "Motivo não informado"
+            const chaveMotivo = `mobile-${getIdCampus(campus)}`
+            const motivoAberto = campusMotivoAberto === chaveMotivo
 
             return (
               <div
-                className={`mobile-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"}`}
+                className={`mobile-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"} ${motivoAberto ? "motivo-aberto" : ""}`}
                 key={getIdCampus(campus)}
               >
                 <div className="campus-row-header">
@@ -712,15 +715,25 @@ function DashboardDesktop({ sair }) {
                     <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
                   </div>
 
-                  <span
-                    className={`campus-status-badge ${statusCampus.ativo ? "online" : "offline"}`}
+                  <button
+                    type="button"
+                    className={`campus-status-badge campus-status-badge-button ${statusCampus.ativo ? "online" : "offline"}`}
+                    onClick={() => {
+                      if (!statusCampus.ativo) {
+                        setCampusMotivoAberto((atual) =>
+                          atual === chaveMotivo ? null : chaveMotivo
+                        )
+                      }
+                    }}
+                    aria-expanded={!statusCampus.ativo ? motivoAberto : undefined}
+                    title={statusCampus.ativo ? "Campus ativo" : "Clique para ver o motivo"}
                   >
                     <i className={statusCampus.ativo ? "online" : "offline"} />
                     {statusCampus.ativo ? "Online" : "Inativo"}
-                  </span>
+                  </button>
                 </div>
 
-                {!statusCampus.ativo && (
+                {!statusCampus.ativo && motivoAberto && (
                   <div className="campus-motivo-card mobile">
                     <span className="campus-motivo-label">Motivo da inatividade</span>
                     <span className="campus-motivo-texto">{motivoCampus}</span>
@@ -783,10 +796,12 @@ function DashboardDesktop({ sair }) {
             const statusCampus = getStatusCampusSidebar(campus)
             const nomeCampus = getNomeCampus(campus)
             const motivoCampus = statusCampus.motivo || "Motivo não informado"
+            const chaveMotivo = `sidebar-${getIdCampus(campus)}`
+            const motivoAberto = campusMotivoAberto === chaveMotivo
 
             return (
               <div
-                className={`sidebar-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"}`}
+                className={`sidebar-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"} ${motivoAberto ? "motivo-aberto" : ""}`}
                 key={getIdCampus(campus)}
               >
                 <div className="campus-row-header">
@@ -795,15 +810,25 @@ function DashboardDesktop({ sair }) {
                     <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
                   </div>
 
-                  <span
-                    className={`campus-status-badge ${statusCampus.ativo ? "online" : "offline"}`}
+                  <button
+                    type="button"
+                    className={`campus-status-badge campus-status-badge-button ${statusCampus.ativo ? "online" : "offline"}`}
+                    onClick={() => {
+                      if (!statusCampus.ativo) {
+                        setCampusMotivoAberto((atual) =>
+                          atual === chaveMotivo ? null : chaveMotivo
+                        )
+                      }
+                    }}
+                    aria-expanded={!statusCampus.ativo ? motivoAberto : undefined}
+                    title={statusCampus.ativo ? "Campus ativo" : "Clique para ver o motivo"}
                   >
                     <i className={statusCampus.ativo ? "online" : "offline"} />
                     {statusCampus.ativo ? "Online" : "Inativo"}
-                  </span>
+                  </button>
                 </div>
 
-                {!statusCampus.ativo && (
+                {!statusCampus.ativo && motivoAberto && (
                   <div className="campus-motivo-card">
                     <span className="campus-motivo-label">Motivo da inatividade</span>
                     <span className="campus-motivo-texto">{motivoCampus}</span>
