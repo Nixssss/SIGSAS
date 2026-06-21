@@ -14,6 +14,21 @@ from app.services.auditoria_service import registrar_log
 router = APIRouter(prefix="/instituicoes", tags=["Instituições"])
 
 
+def normalizar_motivo_inativo(ativo: bool, motivo: str | None):
+    if ativo:
+        return None
+
+    motivo_limpo = str(motivo or "").strip()
+
+    if not motivo_limpo:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe o motivo da inatividade.",
+        )
+
+    return motivo_limpo
+
+
 @router.get("", response_model=list[InstituicaoRead])
 def listar_instituicoes(db: Session = Depends(get_db)):
     try:
@@ -39,7 +54,16 @@ def criar_instituicao(
 ):
     try:
         nome = dados.nome.strip()
-        nova = Instituicao(nome=nome)
+        motivo_inativo = normalizar_motivo_inativo(
+            ativo=dados.ativo,
+            motivo=dados.motivoInativo,
+        )
+
+        nova = Instituicao(
+            nome=nome,
+            ativo=dados.ativo,
+            motivoInativo=motivo_inativo,
+        )
 
         db.add(nova)
         db.commit()
@@ -50,12 +74,16 @@ def criar_instituicao(
             acao="CRIAR_INSTITUICAO",
             modulo="Instituições",
             etapa="criar",
-            descricao=f"Instituição {nova.nome} foi criada",
+            descricao=f"Instituição {nova.nome} foi criada com status {'ativo' if nova.ativo else 'inativo'}",
             status="sucesso",
             request=request,
         )
 
         return nova
+
+    except HTTPException:
+        db.rollback()
+        raise
 
     except Exception as error:
         db.rollback()
@@ -100,19 +128,38 @@ def atualizar_instituicao(
             raise HTTPException(status_code=404, detail="Instituição não encontrada")
 
         nome_anterior = instituicao.nome
+        status_anterior = "ativo" if instituicao.ativo else "inativo"
 
         if dados.nome is not None:
             instituicao.nome = dados.nome.strip()
 
+        novo_ativo = instituicao.ativo if dados.ativo is None else dados.ativo
+        novo_motivo = (
+            instituicao.motivoInativo
+            if dados.motivoInativo is None
+            else dados.motivoInativo
+        )
+
+        instituicao.ativo = novo_ativo
+        instituicao.motivoInativo = normalizar_motivo_inativo(
+            ativo=novo_ativo,
+            motivo=novo_motivo,
+        )
+
         db.commit()
         db.refresh(instituicao)
+
+        status_atual = "ativo" if instituicao.ativo else "inativo"
 
         registrar_log(
             db=db,
             acao="ATUALIZAR_INSTITUICAO",
             modulo="Instituições",
             etapa="atualizar",
-            descricao=f"Instituição #{instituicao.id} alterada de {nome_anterior} para {instituicao.nome}",
+            descricao=(
+                f"Instituição #{instituicao.id} alterada de {nome_anterior} para {instituicao.nome}. "
+                f"Status: {status_anterior} -> {status_atual}."
+            ),
             status="sucesso",
             request=request,
         )
@@ -120,6 +167,7 @@ def atualizar_instituicao(
         return instituicao
 
     except HTTPException:
+        db.rollback()
         raise
 
     except Exception as error:
@@ -181,6 +229,7 @@ def excluir_instituicao(
         return {"message": "Instituição excluída com sucesso"}
 
     except HTTPException:
+        db.rollback()
         raise
 
     except Exception as error:

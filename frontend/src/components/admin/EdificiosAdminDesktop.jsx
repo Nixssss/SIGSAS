@@ -23,6 +23,8 @@ function EdificiosAdminDesktop({
 
   const [nomeEdificio, setNomeEdificio] = useState("")
   const [idCampus, setIdCampus] = useState("")
+  const [ativo, setAtivo] = useState(true)
+  const [motivoInativo, setMotivoInativo] = useState("")
   const [itemSelecionado, setItemSelecionado] = useState(null)
   const [carregando, setCarregando] = useState(false)
 
@@ -111,6 +113,8 @@ function EdificiosAdminDesktop({
   function limparFormulario() {
     setNomeEdificio("")
     setIdCampus("")
+    setAtivo(true)
+    setMotivoInativo("")
     setItemSelecionado(null)
   }
 
@@ -155,6 +159,92 @@ function EdificiosAdminDesktop({
       "Edifício sem nome"
     )
   }
+
+  function itemEstaAtivo(item) {
+    if (item?.ativo === undefined || item?.ativo === null) return true
+
+    return (
+      item.ativo === true ||
+      item.ativo === 1 ||
+      item.ativo === "1" ||
+      String(item.ativo).toLowerCase() === "true" ||
+      String(item.ativo).toLowerCase() === "ativo"
+    )
+  }
+
+  function getMotivoInativo(item) {
+    return (
+      item?.motivoInativo ||
+      item?.motivo_inativo ||
+      item?.motivoInatividade ||
+      item?.motivo_inatividade ||
+      ""
+    )
+  }
+
+  function validarStatusInativo() {
+    if (!ativo && !motivoInativo.trim()) {
+      showToast?.("Informe o motivo da inatividade", "erro")
+      return false
+    }
+
+    return true
+  }
+
+  function montarPayloadStatus() {
+    return {
+      ativo,
+      motivoInativo: ativo ? null : motivoInativo.trim(),
+    }
+  }
+
+  function renderizarCamposStatus() {
+    return (
+      <>
+        <select
+          value={ativo ? "ativo" : "inativo"}
+          onChange={(e) => {
+            const novoAtivo = e.target.value === "ativo"
+            setAtivo(novoAtivo)
+
+            if (novoAtivo) {
+              setMotivoInativo("")
+            }
+          }}
+          required
+        >
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+        </select>
+
+        {!ativo && (
+          <textarea
+            className="textarea"
+            value={motivoInativo}
+            onChange={(e) => setMotivoInativo(e.target.value)}
+            placeholder="Motivo da inatividade"
+            required
+          />
+        )}
+      </>
+    )
+  }
+
+  function renderizarStatusItem(item) {
+    const ativoItem = itemEstaAtivo(item)
+    const motivo = getMotivoInativo(item)
+
+    return (
+      <span
+        className={`admin-status-inline ${ativoItem ? "ativo" : "inativo"}`}
+        title={!ativoItem && motivo ? motivo : undefined}
+      >
+        <i />
+        {ativoItem ? "Ativo" : "Inativo"}
+      </span>
+    )
+  }
+
 
   function getIdCampusEdificio(edificio) {
     return (
@@ -335,6 +425,8 @@ function EdificiosAdminDesktop({
     setItemSelecionado(item)
     setNomeEdificio(getNomeEdificio(item))
     setIdCampus(String(getIdCampusEdificio(item) || ""))
+    setAtivo(itemEstaAtivo(item))
+    setMotivoInativo(getMotivoInativo(item))
   }
 
   async function adicionarEdificio(e) {
@@ -379,6 +471,8 @@ function EdificiosAdminDesktop({
       showToast?.("Selecione um edifício e preencha os dados", "erro")
       return
     }
+
+    if (!validarStatusInativo()) return
 
     try {
       setCarregando(true)
@@ -544,6 +638,7 @@ function EdificiosAdminDesktop({
                               >
                                 <strong>{getNomeEdificio(edificio)}</strong>
                                 <small>Campus: {campusGrupo.nome}</small>
+                                {renderizarStatusItem(edificio)}
                               </div>
                             ))}
                           </div>
@@ -593,6 +688,8 @@ function EdificiosAdminDesktop({
               required
             />
 
+            {renderizarCamposStatus()}
+
             <button className="btn primary" type="submit" disabled={carregando}>
               {carregando ? "Salvando..." : "Adicionar"}
             </button>
@@ -640,7 +737,8 @@ function EdificiosAdminDesktop({
                     type="button"
                     disabled={carregando}
                   >
-                    {getNomeEdificio(edificio)} - {nomeCampus(idCampusEdificio)}
+                    <span>{getNomeEdificio(edificio)} - {nomeCampus(idCampusEdificio)}</span>
+                    {renderizarStatusItem(edificio)}
                   </button>
                 )
               })}
@@ -679,6 +777,8 @@ function EdificiosAdminDesktop({
                     placeholder="Nome do edifício"
                     required
                   />
+
+                  {renderizarCamposStatus()}
 
                   <button
                     className="btn primary"

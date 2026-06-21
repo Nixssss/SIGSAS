@@ -18,6 +18,8 @@ function InstituicoesAdminDesktop({
   const [modalCadastro, setModalCadastro] = useState(false)
   const [modalEditar, setModalEditar] = useState(false)
   const [nomeInstituicao, setNomeInstituicao] = useState("")
+  const [ativo, setAtivo] = useState(true)
+  const [motivoInativo, setMotivoInativo] = useState("")
   const [itemSelecionado, setItemSelecionado] = useState(null)
   const [carregando, setCarregando] = useState(false)
 
@@ -86,6 +88,8 @@ function InstituicoesAdminDesktop({
 
   function limparFormulario() {
     setNomeInstituicao("")
+    setAtivo(true)
+    setMotivoInativo("")
     setItemSelecionado(null)
   }
 
@@ -132,9 +136,97 @@ function InstituicoesAdminDesktop({
     )
   }
 
+  function itemEstaAtivo(item) {
+    if (item?.ativo === undefined || item?.ativo === null) return true
+
+    return (
+      item.ativo === true ||
+      item.ativo === 1 ||
+      item.ativo === "1" ||
+      String(item.ativo).toLowerCase() === "true" ||
+      String(item.ativo).toLowerCase() === "ativo"
+    )
+  }
+
+  function getMotivoInativo(item) {
+    return (
+      item?.motivoInativo ||
+      item?.motivo_inativo ||
+      item?.motivoInatividade ||
+      item?.motivo_inatividade ||
+      ""
+    )
+  }
+
+  function validarStatusInativo() {
+    if (!ativo && !motivoInativo.trim()) {
+      showToast?.("Informe o motivo da inatividade", "erro")
+      return false
+    }
+
+    return true
+  }
+
+  function montarPayloadStatus() {
+    return {
+      ativo,
+      motivoInativo: ativo ? null : motivoInativo.trim(),
+    }
+  }
+
+  function renderizarCamposStatus() {
+    return (
+      <>
+        <select
+          value={ativo ? "ativo" : "inativo"}
+          onChange={(e) => {
+            const novoAtivo = e.target.value === "ativo"
+            setAtivo(novoAtivo)
+
+            if (novoAtivo) {
+              setMotivoInativo("")
+            }
+          }}
+          required
+        >
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+        </select>
+
+        {!ativo && (
+          <textarea
+            className="textarea"
+            value={motivoInativo}
+            onChange={(e) => setMotivoInativo(e.target.value)}
+            placeholder="Motivo da inatividade"
+            required
+          />
+        )}
+      </>
+    )
+  }
+
+  function renderizarStatusItem(item) {
+    const ativoItem = itemEstaAtivo(item)
+    const motivo = getMotivoInativo(item)
+
+    return (
+      <span
+        className={`admin-status-inline ${ativoItem ? "ativo" : "inativo"}`}
+        title={!ativoItem && motivo ? motivo : undefined}
+      >
+        <i />
+        {ativoItem ? "Ativo" : "Inativo"}
+      </span>
+    )
+  }
+
+
   function selecionarInstituicao(item) {
     setItemSelecionado(item)
     setNomeInstituicao(getNomeInstituicao(item))
+    setAtivo(itemEstaAtivo(item))
+    setMotivoInativo(getMotivoInativo(item))
   }
 
   async function adicionarInstituicao(e) {
@@ -145,11 +237,14 @@ function InstituicoesAdminDesktop({
       return
     }
 
+    if (!validarStatusInativo()) return
+
     try {
       setCarregando(true)
 
       await instituicoesService.criar({
         nome: nomeInstituicao.trim(),
+        ...montarPayloadStatus(),
       })
 
       await carregarInstituicoes()
@@ -179,6 +274,8 @@ function InstituicoesAdminDesktop({
       return
     }
 
+    if (!validarStatusInativo()) return
+
     try {
       setCarregando(true)
 
@@ -186,6 +283,7 @@ function InstituicoesAdminDesktop({
 
       await instituicoesService.atualizar(idInstituicao, {
         nome: nomeInstituicao.trim(),
+        ...montarPayloadStatus(),
       })
 
       await carregarInstituicoes()
@@ -292,6 +390,8 @@ function InstituicoesAdminDesktop({
               required
             />
 
+            {renderizarCamposStatus()}
+
             <button className="btn primary" type="submit" disabled={carregando}>
               {carregando ? "Salvando..." : "Adicionar"}
             </button>
@@ -338,7 +438,8 @@ function InstituicoesAdminDesktop({
                     type="button"
                     disabled={carregando}
                   >
-                    {getNomeInstituicao(instituicao)}
+                    <span>{getNomeInstituicao(instituicao)}</span>
+                    {renderizarStatusItem(instituicao)}
                   </button>
                 )
               })}
@@ -359,6 +460,8 @@ function InstituicoesAdminDesktop({
                     placeholder="Nome da instituição"
                     required
                   />
+
+                  {renderizarCamposStatus()}
 
                   <button
                     className="btn primary"
@@ -430,6 +533,7 @@ function InstituicoesAdminDesktop({
           >
             <span>
               <strong>{getNomeInstituicao(instituicao)}</strong>
+              {renderizarStatusItem(instituicao)}
             </span>
           </div>
         ))}

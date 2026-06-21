@@ -11,6 +11,21 @@ from app.services.auditoria_service import registrar_log
 router = APIRouter(prefix="/campi", tags=["Campi"])
 
 
+def normalizar_motivo_inativo(ativo: bool, motivo: str | None):
+    if ativo:
+        return None
+
+    motivo_limpo = str(motivo or "").strip()
+
+    if not motivo_limpo:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe o motivo da inatividade.",
+        )
+
+    return motivo_limpo
+
+
 @router.get("", response_model=list[CampusRead])
 def listar_campi(db: Session = Depends(get_db)):
     try:
@@ -44,10 +59,17 @@ def criar_campus(
         if not instituicao:
             raise HTTPException(status_code=404, detail="Instituição não encontrada")
 
+        motivo_inativo = normalizar_motivo_inativo(
+            ativo=dados.ativo,
+            motivo=dados.motivoInativo,
+        )
+
         novo = Campus(
             nome=dados.nome.strip(),
             endereco=dados.endereco,
             idInstituicao=dados.idInstituicao,
+            ativo=dados.ativo,
+            motivoInativo=motivo_inativo,
         )
 
         db.add(novo)
@@ -59,7 +81,7 @@ def criar_campus(
             acao="CRIAR_CAMPUS",
             modulo="Campi",
             etapa="criar",
-            descricao=f"Campus {novo.nome} foi criado para a instituição {instituicao.nome}",
+            descricao=f"Campus {novo.nome} foi criado para a instituição {instituicao.nome} com status {'ativo' if novo.ativo else 'inativo'}",
             status="sucesso",
             request=request,
         )
@@ -75,7 +97,7 @@ def criar_campus(
             etapa="criar",
             descricao=f"Erro ao criar campus {dados.nome}",
             status="erro",
-            erro="Instituição não encontrada",
+            erro="Instituição não encontrada ou dados inválidos",
             request=request,
         )
         raise
@@ -109,6 +131,7 @@ def atualizar_campus(
             raise HTTPException(status_code=404, detail="Campus não encontrado")
 
         nome_anterior = campus.nome
+        status_anterior = "ativo" if campus.ativo else "inativo"
 
         if dados.idInstituicao is not None:
             instituicao = (
@@ -128,15 +151,33 @@ def atualizar_campus(
         if dados.endereco is not None:
             campus.endereco = dados.endereco
 
+        novo_ativo = campus.ativo if dados.ativo is None else dados.ativo
+        novo_motivo = (
+            campus.motivoInativo
+            if dados.motivoInativo is None
+            else dados.motivoInativo
+        )
+
+        campus.ativo = novo_ativo
+        campus.motivoInativo = normalizar_motivo_inativo(
+            ativo=novo_ativo,
+            motivo=novo_motivo,
+        )
+
         db.commit()
         db.refresh(campus)
+
+        status_atual = "ativo" if campus.ativo else "inativo"
 
         registrar_log(
             db=db,
             acao="ATUALIZAR_CAMPUS",
             modulo="Campi",
             etapa="atualizar",
-            descricao=f"Campus #{campus.id} alterado de {nome_anterior} para {campus.nome}",
+            descricao=(
+                f"Campus #{campus.id} alterado de {nome_anterior} para {campus.nome}. "
+                f"Status: {status_anterior} -> {status_atual}."
+            ),
             status="sucesso",
             request=request,
         )

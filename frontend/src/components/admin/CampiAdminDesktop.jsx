@@ -20,6 +20,8 @@ function CampiAdminDesktop({
   const [nomeCampus, setNomeCampus] = useState("")
   const [endereco, setEndereco] = useState("")
   const [idInstituicao, setIdInstituicao] = useState("")
+  const [ativo, setAtivo] = useState(true)
+  const [motivoInativo, setMotivoInativo] = useState("")
   const [itemSelecionado, setItemSelecionado] = useState(null)
   const [carregando, setCarregando] = useState(false)
 
@@ -41,6 +43,8 @@ function CampiAdminDesktop({
     setNomeCampus("")
     setEndereco("")
     setIdInstituicao("")
+    setAtivo(true)
+    setMotivoInativo("")
     setItemSelecionado(null)
   }
 
@@ -85,6 +89,92 @@ function CampiAdminDesktop({
       "Campus sem nome"
     )
   }
+
+  function itemEstaAtivo(item) {
+    if (item?.ativo === undefined || item?.ativo === null) return true
+
+    return (
+      item.ativo === true ||
+      item.ativo === 1 ||
+      item.ativo === "1" ||
+      String(item.ativo).toLowerCase() === "true" ||
+      String(item.ativo).toLowerCase() === "ativo"
+    )
+  }
+
+  function getMotivoInativo(item) {
+    return (
+      item?.motivoInativo ||
+      item?.motivo_inativo ||
+      item?.motivoInatividade ||
+      item?.motivo_inatividade ||
+      ""
+    )
+  }
+
+  function validarStatusInativo() {
+    if (!ativo && !motivoInativo.trim()) {
+      showToast?.("Informe o motivo da inatividade", "erro")
+      return false
+    }
+
+    return true
+  }
+
+  function montarPayloadStatus() {
+    return {
+      ativo,
+      motivoInativo: ativo ? null : motivoInativo.trim(),
+    }
+  }
+
+  function renderizarCamposStatus() {
+    return (
+      <>
+        <select
+          value={ativo ? "ativo" : "inativo"}
+          onChange={(e) => {
+            const novoAtivo = e.target.value === "ativo"
+            setAtivo(novoAtivo)
+
+            if (novoAtivo) {
+              setMotivoInativo("")
+            }
+          }}
+          required
+        >
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+        </select>
+
+        {!ativo && (
+          <textarea
+            className="textarea"
+            value={motivoInativo}
+            onChange={(e) => setMotivoInativo(e.target.value)}
+            placeholder="Motivo da inatividade"
+            required
+          />
+        )}
+      </>
+    )
+  }
+
+  function renderizarStatusItem(item) {
+    const ativoItem = itemEstaAtivo(item)
+    const motivo = getMotivoInativo(item)
+
+    return (
+      <span
+        className={`admin-status-inline ${ativoItem ? "ativo" : "inativo"}`}
+        title={!ativoItem && motivo ? motivo : undefined}
+      >
+        <i />
+        {ativoItem ? "Ativo" : "Inativo"}
+      </span>
+    )
+  }
+
 
   function getIdInstituicaoCampus(campus) {
     return (
@@ -170,6 +260,8 @@ function CampiAdminDesktop({
     setNomeCampus(getNomeCampus(item))
     setEndereco(item.endereco || "")
     setIdInstituicao(String(getIdInstituicaoCampus(item) || ""))
+    setAtivo(itemEstaAtivo(item))
+    setMotivoInativo(getMotivoInativo(item))
   }
 
   async function addCampus(e) {
@@ -180,6 +272,8 @@ function CampiAdminDesktop({
       return
     }
 
+    if (!validarStatusInativo()) return
+
     try {
       setCarregando(true)
 
@@ -187,6 +281,7 @@ function CampiAdminDesktop({
         nome: nomeCampus.trim(),
         endereco,
         idInstituicao: Number(idInstituicao),
+        ...montarPayloadStatus(),
       })
 
       if (setCampi) {
@@ -218,6 +313,8 @@ function CampiAdminDesktop({
       return
     }
 
+    if (!validarStatusInativo()) return
+
     try {
       setCarregando(true)
 
@@ -227,6 +324,7 @@ function CampiAdminDesktop({
         nome: nomeCampus.trim(),
         endereco,
         idInstituicao: Number(idInstituicao),
+        ...montarPayloadStatus(),
       })
 
       if (setCampi) {
@@ -350,6 +448,7 @@ function CampiAdminDesktop({
                       <strong>{getNomeCampus(campus)}</strong>
 
                       {campus.endereco && <small>{campus.endereco}</small>}
+                      {renderizarStatusItem(campus)}
                     </div>
                   ))}
                 </div>
@@ -400,6 +499,8 @@ function CampiAdminDesktop({
               placeholder="Endereço"
             />
 
+            {renderizarCamposStatus()}
+
             <button className="btn primary" type="submit" disabled={carregando}>
               {carregando ? "Salvando..." : "Adicionar"}
             </button>
@@ -446,7 +547,8 @@ function CampiAdminDesktop({
                     type="button"
                     disabled={carregando}
                   >
-                    {getNomeCampus(c)} - {nomeInstituicao(idInstituicaoCampus)}
+                    <span>{getNomeCampus(c)} - {nomeInstituicao(idInstituicaoCampus)}</span>
+                    {renderizarStatusItem(c)}
                   </button>
                 )
               })}
@@ -492,6 +594,8 @@ function CampiAdminDesktop({
                     onChange={(e) => setEndereco(e.target.value)}
                     placeholder="Endereço"
                   />
+
+                  {renderizarCamposStatus()}
 
                   <button
                     className="btn primary"

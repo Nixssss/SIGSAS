@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, text
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -11,6 +11,8 @@ class Campus(Base):
     nome = Column(String, nullable=False)
     endereco = Column(String, nullable=True)
     idInstituicao = Column(Integer, ForeignKey("instituicoes.id"), nullable=False)
+    ativo = Column(Boolean, nullable=False, default=True, server_default=text("true"))
+    motivoInativo = Column("motivo_inativo", String, nullable=True)
 
     instituicao = relationship("Instituicao", back_populates="campi")
 

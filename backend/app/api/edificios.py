@@ -11,6 +11,21 @@ from app.services.auditoria_service import registrar_log
 router = APIRouter(prefix="/edificios", tags=["Edifícios"])
 
 
+def normalizar_motivo_inativo(ativo: bool, motivo: str | None):
+    if ativo:
+        return None
+
+    motivo_limpo = str(motivo or "").strip()
+
+    if not motivo_limpo:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe o motivo da inatividade.",
+        )
+
+    return motivo_limpo
+
+
 @router.get("", response_model=list[EdificioRead])
 def listar_edificios(db: Session = Depends(get_db)):
     try:
@@ -40,9 +55,16 @@ def criar_edificio(
         if not campus:
             raise HTTPException(status_code=404, detail="Campus não encontrado")
 
+        motivo_inativo = normalizar_motivo_inativo(
+            ativo=dados.ativo,
+            motivo=dados.motivoInativo,
+        )
+
         novo = Edificio(
             nome=dados.nome.strip(),
             idCampus=dados.idCampus,
+            ativo=dados.ativo,
+            motivoInativo=motivo_inativo,
         )
 
         db.add(novo)
@@ -54,7 +76,7 @@ def criar_edificio(
             acao="CRIAR_EDIFICIO",
             modulo="Edifícios",
             etapa="criar",
-            descricao=f"Edifício {novo.nome} foi criado no campus {campus.nome}",
+            descricao=f"Edifício {novo.nome} foi criado no campus {campus.nome} com status {'ativo' if novo.ativo else 'inativo'}",
             status="sucesso",
             request=request,
         )
@@ -94,6 +116,7 @@ def atualizar_edificio(
             raise HTTPException(status_code=404, detail="Edifício não encontrado")
 
         nome_anterior = edificio.nome
+        status_anterior = "ativo" if edificio.ativo else "inativo"
 
         if dados.idCampus is not None:
             campus = db.query(Campus).filter(Campus.id == dados.idCampus).first()
@@ -106,15 +129,33 @@ def atualizar_edificio(
         if dados.nome is not None:
             edificio.nome = dados.nome.strip()
 
+        novo_ativo = edificio.ativo if dados.ativo is None else dados.ativo
+        novo_motivo = (
+            edificio.motivoInativo
+            if dados.motivoInativo is None
+            else dados.motivoInativo
+        )
+
+        edificio.ativo = novo_ativo
+        edificio.motivoInativo = normalizar_motivo_inativo(
+            ativo=novo_ativo,
+            motivo=novo_motivo,
+        )
+
         db.commit()
         db.refresh(edificio)
+
+        status_atual = "ativo" if edificio.ativo else "inativo"
 
         registrar_log(
             db=db,
             acao="ATUALIZAR_EDIFICIO",
             modulo="Edifícios",
             etapa="atualizar",
-            descricao=f"Edifício #{edificio.id} alterado de {nome_anterior} para {edificio.nome}",
+            descricao=(
+                f"Edifício #{edificio.id} alterado de {nome_anterior} para {edificio.nome}. "
+                f"Status: {status_anterior} -> {status_atual}."
+            ),
             status="sucesso",
             request=request,
         )

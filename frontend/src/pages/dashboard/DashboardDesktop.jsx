@@ -391,16 +391,61 @@ function DashboardDesktop({ sair }) {
       : "Instituição não informada"
   }
 
-  function campusEstaAtivo(campus) {
-    if (campus?.ativo === undefined || campus?.ativo === null) return true
+  function itemEstaAtivo(item) {
+    if (item?.ativo === undefined || item?.ativo === null) return true
 
     return (
-      campus.ativo === true ||
-      campus.ativo === 1 ||
-      campus.ativo === "1" ||
-      String(campus.ativo).toLowerCase() === "true" ||
-      String(campus.ativo).toLowerCase() === "ativo"
+      item.ativo === true ||
+      item.ativo === 1 ||
+      item.ativo === "1" ||
+      String(item.ativo).toLowerCase() === "true" ||
+      String(item.ativo).toLowerCase() === "ativo"
     )
+  }
+
+  function campusEstaAtivo(campus) {
+    return itemEstaAtivo(campus)
+  }
+
+  function getMotivoInativo(item) {
+    return (
+      item?.motivoInativo ||
+      item?.motivo_inativo ||
+      item?.motivoInatividade ||
+      item?.motivo_inatividade ||
+      ""
+    )
+  }
+
+  function getInstituicaoDoCampus(campus) {
+    const idInstituicaoCampus = getIdInstituicaoCampus(campus)
+
+    return (
+      instituicoesSidebar.find(
+        (instituicao) =>
+          String(getIdInstituicao(instituicao)) === String(idInstituicaoCampus)
+      ) || null
+    )
+  }
+
+  function getStatusCampusSidebar(campus) {
+    const instituicao = getInstituicaoDoCampus(campus)
+
+    if (instituicao && !itemEstaAtivo(instituicao)) {
+      return {
+        ativo: false,
+        motivo: getMotivoInativo(instituicao) || "Instituição inativa",
+      }
+    }
+
+    if (!campusEstaAtivo(campus)) {
+      return {
+        ativo: false,
+        motivo: getMotivoInativo(campus) || "Campus inativo",
+      }
+    }
+
+    return { ativo: true, motivo: "" }
   }
 
   async function buscarNoSistema(termo) {
@@ -652,16 +697,23 @@ function DashboardDesktop({ sair }) {
 
         <div className="mobile-instituicao-campi-list">
           {grupo.campi.map((campus) => {
-            const ativo = campusEstaAtivo(campus)
+            const statusCampus = getStatusCampusSidebar(campus)
 
             return (
-              <div className="mobile-instituicao-campus-row" key={getIdCampus(campus)}>
+              <div
+                className="mobile-instituicao-campus-row"
+                key={getIdCampus(campus)}
+                title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
+              >
                 <div>
                   <strong>{getNomeCampus(campus)}</strong>
-                  <small>{ativo ? "Online" : "Inativo"}</small>
+                  <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
                 </div>
 
-                <i className={ativo ? "online" : "offline"} />
+                <i
+                  className={statusCampus.ativo ? "online" : "offline"}
+                  title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
+                />
               </div>
             )
           })}
@@ -716,16 +768,23 @@ function DashboardDesktop({ sair }) {
 
         <div className="sidebar-instituicao-campi-list">
           {grupo.campi.map((campus) => {
-            const ativo = campusEstaAtivo(campus)
+            const statusCampus = getStatusCampusSidebar(campus)
 
             return (
-              <div className="sidebar-instituicao-campus-row" key={getIdCampus(campus)}>
+              <div
+                className="sidebar-instituicao-campus-row"
+                key={getIdCampus(campus)}
+                title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
+              >
                 <div>
                   <strong>{getNomeCampus(campus)}</strong>
-                  <small>{ativo ? "Online" : "Inativo"}</small>
+                  <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
                 </div>
 
-                <i className={ativo ? "online" : "offline"} />
+                <i
+                  className={statusCampus.ativo ? "online" : "offline"}
+                  title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
+                />
               </div>
             )
           })}
