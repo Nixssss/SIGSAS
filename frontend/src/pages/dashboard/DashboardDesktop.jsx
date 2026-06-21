@@ -706,35 +706,26 @@ function DashboardDesktop({ sair }) {
                 className={`mobile-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"}`}
                 key={getIdCampus(campus)}
               >
-                <div className="campus-row-main-info">
-                  <strong>{nomeCampus}</strong>
-                  <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
-                  {!statusCampus.ativo && (
-                    <div className="campus-motivo-inline mobile">
-                      <span className="campus-motivo-label">Motivo da inatividade</span>
-                      <span className="campus-motivo-texto">{motivoCampus}</span>
-                    </div>
-                  )}
-                </div>
+                <div className="campus-row-header">
+                  <div className="campus-row-main-info">
+                    <strong>{nomeCampus}</strong>
+                    <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
+                  </div>
 
-                <div className="campus-status-stack">
                   <span
                     className={`campus-status-badge ${statusCampus.ativo ? "online" : "offline"}`}
                   >
                     <i className={statusCampus.ativo ? "online" : "offline"} />
                     {statusCampus.ativo ? "Online" : "Inativo"}
                   </span>
-
-                  {!statusCampus.ativo && (
-                    <div className="campus-motivo-tooltip-wrap">
-                      <span className="campus-motivo-chip">Motivo</span>
-                      <div className="campus-motivo-tooltip">
-                        <strong>Motivo da inatividade</strong>
-                        <span>{motivoCampus}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
+
+                {!statusCampus.ativo && (
+                  <div className="campus-motivo-card mobile">
+                    <span className="campus-motivo-label">Motivo da inatividade</span>
+                    <span className="campus-motivo-texto">{motivoCampus}</span>
+                  </div>
+                )}
               </div>
             )
           })}
@@ -798,35 +789,26 @@ function DashboardDesktop({ sair }) {
                 className={`sidebar-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"}`}
                 key={getIdCampus(campus)}
               >
-                <div className="campus-row-main-info">
-                  <strong>{nomeCampus}</strong>
-                  <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
-                  {!statusCampus.ativo && (
-                    <div className="campus-motivo-inline">
-                      <span className="campus-motivo-label">Motivo da inatividade</span>
-                      <span className="campus-motivo-texto">{motivoCampus}</span>
-                    </div>
-                  )}
-                </div>
+                <div className="campus-row-header">
+                  <div className="campus-row-main-info">
+                    <strong>{nomeCampus}</strong>
+                    <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
+                  </div>
 
-                <div className="campus-status-stack">
                   <span
                     className={`campus-status-badge ${statusCampus.ativo ? "online" : "offline"}`}
                   >
                     <i className={statusCampus.ativo ? "online" : "offline"} />
                     {statusCampus.ativo ? "Online" : "Inativo"}
                   </span>
-
-                  {!statusCampus.ativo && (
-                    <div className="campus-motivo-tooltip-wrap">
-                      <span className="campus-motivo-chip">Motivo</span>
-                      <div className="campus-motivo-tooltip">
-                        <strong>Motivo da inatividade</strong>
-                        <span>{motivoCampus}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
+
+                {!statusCampus.ativo && (
+                  <div className="campus-motivo-card">
+                    <span className="campus-motivo-label">Motivo da inatividade</span>
+                    <span className="campus-motivo-texto">{motivoCampus}</span>
+                  </div>
+                )}
               </div>
             )
           })}
