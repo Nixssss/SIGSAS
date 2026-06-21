@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import "./StatusReservasMobile.css"
 import {
@@ -494,8 +494,19 @@ function StatusReservasMobile() {
   const [instituicoes, setInstituicoes] = useState([])
 
   const [notificacoesVistas, setNotificacoesVistas] = useState(() => {
-    return JSON.parse(localStorage.getItem("notificacoesReservas")) || []
+    try {
+      const salvas = JSON.parse(
+        localStorage.getItem("notificacoesReservas") || "[]"
+      )
+
+      return Array.isArray(salvas) ? salvas.map(String) : []
+    } catch {
+      return []
+    }
   })
+  const notificacoesVistasRef = useRef(notificacoesVistas)
+  const primeiraCargaNotificacoesRef = useRef(true)
+  const statusReservasAnterioresRef = useRef(new Map())
   const [popupNotificacao, setPopupNotificacao] = useState(null)
   const [filtroAtivo, setFiltroAtivo] = useState("pendentes")
   const [reservaParaCancelar, setReservaParaCancelar] = useState(null)
@@ -854,27 +865,106 @@ function StatusReservasMobile() {
     })
   }
 
+  function obterIdReservaNotificacao(reserva) {
+    return reserva?.idReserva || reserva?.id || reserva?.id_reserva || null
+  }
+
+  function ehStatusNotificavel(status) {
+    return Number(status) === 2 || Number(status) === 3 || Number(status) === 4
+  }
+
+  function montarChaveNotificacaoReserva(reserva) {
+    const idReserva = obterIdReservaNotificacao(reserva)
+    const status = Number(reserva?.idStatusReserva)
+
+    if (!idReserva || !ehStatusNotificavel(status)) return null
+
+    return `reserva:${idReserva}:status:${status}`
+  }
+
+  function salvarNotificacoesVistas(chaves) {
+    const chavesUnicas = Array.from(
+      new Set((chaves || []).filter(Boolean).map(String))
+    )
+
+    notificacoesVistasRef.current = chavesUnicas
+    setNotificacoesVistas(chavesUnicas)
+    localStorage.setItem("notificacoesReservas", JSON.stringify(chavesUnicas))
+  }
+
+  function montarMapaStatusReservas(listaReservas) {
+    const mapa = new Map()
+
+    ;(listaReservas || []).forEach((reserva) => {
+      const idReserva = obterIdReservaNotificacao(reserva)
+
+      if (!idReserva) return
+
+      mapa.set(String(idReserva), Number(reserva.idStatusReserva))
+    })
+
+    return mapa
+  }
+
   function verificarNotificacoes() {
     const usuarioId = getUsuarioLogadoId()
 
-    const novasNotificacoes = reservas.filter(
-      (r) =>
-        Number(r.idUsuarioReserva) === Number(usuarioId) &&
-        (Number(r.idStatusReserva) === 2 ||
-          Number(r.idStatusReserva) === 3 ||
-          Number(r.idStatusReserva) === 4) &&
-        !notificacoesVistas.includes(r.idReserva)
+    if (!usuarioId || !Array.isArray(reservas) || reservas.length === 0) return
+
+    const minhasReservasParaNotificacao = reservas.filter(
+      (r) => Number(r.idUsuarioReserva) === Number(usuarioId)
     )
 
-    if (novasNotificacoes.length === 0) return
+    const reservasComStatusNotificavel = minhasReservasParaNotificacao.filter(
+      (r) => ehStatusNotificavel(r.idStatusReserva)
+    )
 
-    const ultima = novasNotificacoes[0]
+    const mapaStatusAtual = montarMapaStatusReservas(
+      minhasReservasParaNotificacao
+    )
 
-    setPopupNotificacao(ultima)
+    if (primeiraCargaNotificacoesRef.current) {
+      const chavesHistoricas = reservasComStatusNotificavel
+        .map(montarChaveNotificacaoReserva)
+        .filter(Boolean)
 
-    const atualizadas = [...notificacoesVistas, ultima.idReserva]
-    setNotificacoesVistas(atualizadas)
-    localStorage.setItem("notificacoesReservas", JSON.stringify(atualizadas))
+      salvarNotificacoesVistas([
+        ...notificacoesVistasRef.current,
+        ...chavesHistoricas,
+      ])
+
+      statusReservasAnterioresRef.current = mapaStatusAtual
+      primeiraCargaNotificacoesRef.current = false
+      return
+    }
+
+    const notificacaoNova = reservasComStatusNotificavel.find((reserva) => {
+      const idReserva = obterIdReservaNotificacao(reserva)
+      const chave = montarChaveNotificacaoReserva(reserva)
+      const statusAtual = Number(reserva.idStatusReserva)
+      const statusAnterior = statusReservasAnterioresRef.current.get(
+        String(idReserva)
+      )
+
+      return (
+        chave &&
+        statusAnterior !== undefined &&
+        Number(statusAnterior) !== statusAtual &&
+        !notificacoesVistasRef.current.includes(chave)
+      )
+    })
+
+    statusReservasAnterioresRef.current = mapaStatusAtual
+
+    if (!notificacaoNova) return
+
+    const chaveNotificacao = montarChaveNotificacaoReserva(notificacaoNova)
+
+    setPopupNotificacao(notificacaoNova)
+    salvarNotificacoesVistas([
+      ...notificacoesVistasRef.current,
+      chaveNotificacao,
+    ])
   }
 
   function abrirModalReservaManual() {
