@@ -698,22 +698,43 @@ function DashboardDesktop({ sair }) {
         <div className="mobile-instituicao-campi-list">
           {grupo.campi.map((campus) => {
             const statusCampus = getStatusCampusSidebar(campus)
+            const nomeCampus = getNomeCampus(campus)
+            const motivoCampus = statusCampus.motivo || "Motivo não informado"
 
             return (
               <div
-                className="mobile-instituicao-campus-row"
+                className={`mobile-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"}`}
                 key={getIdCampus(campus)}
-                title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
               >
-                <div>
-                  <strong>{getNomeCampus(campus)}</strong>
+                <div className="campus-row-main-info">
+                  <strong>{nomeCampus}</strong>
                   <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
+                  {!statusCampus.ativo && (
+                    <div className="campus-motivo-inline mobile">
+                      <span className="campus-motivo-label">Motivo da inatividade</span>
+                      <span className="campus-motivo-texto">{motivoCampus}</span>
+                    </div>
+                  )}
                 </div>
 
-                <i
-                  className={statusCampus.ativo ? "online" : "offline"}
-                  title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
-                />
+                <div className="campus-status-stack">
+                  <span
+                    className={`campus-status-badge ${statusCampus.ativo ? "online" : "offline"}`}
+                  >
+                    <i className={statusCampus.ativo ? "online" : "offline"} />
+                    {statusCampus.ativo ? "Online" : "Inativo"}
+                  </span>
+
+                  {!statusCampus.ativo && (
+                    <div className="campus-motivo-tooltip-wrap">
+                      <span className="campus-motivo-chip">Motivo</span>
+                      <div className="campus-motivo-tooltip">
+                        <strong>Motivo da inatividade</strong>
+                        <span>{motivoCampus}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )
           })}
@@ -769,22 +790,43 @@ function DashboardDesktop({ sair }) {
         <div className="sidebar-instituicao-campi-list">
           {grupo.campi.map((campus) => {
             const statusCampus = getStatusCampusSidebar(campus)
+            const nomeCampus = getNomeCampus(campus)
+            const motivoCampus = statusCampus.motivo || "Motivo não informado"
 
             return (
               <div
-                className="sidebar-instituicao-campus-row"
+                className={`sidebar-instituicao-campus-row ${statusCampus.ativo ? "active" : "inactive"}`}
                 key={getIdCampus(campus)}
-                title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
               >
-                <div>
-                  <strong>{getNomeCampus(campus)}</strong>
+                <div className="campus-row-main-info">
+                  <strong>{nomeCampus}</strong>
                   <small>{statusCampus.ativo ? "Online" : "Inativo"}</small>
+                  {!statusCampus.ativo && (
+                    <div className="campus-motivo-inline">
+                      <span className="campus-motivo-label">Motivo da inatividade</span>
+                      <span className="campus-motivo-texto">{motivoCampus}</span>
+                    </div>
+                  )}
                 </div>
 
-                <i
-                  className={statusCampus.ativo ? "online" : "offline"}
-                  title={!statusCampus.ativo && statusCampus.motivo ? statusCampus.motivo : undefined}
-                />
+                <div className="campus-status-stack">
+                  <span
+                    className={`campus-status-badge ${statusCampus.ativo ? "online" : "offline"}`}
+                  >
+                    <i className={statusCampus.ativo ? "online" : "offline"} />
+                    {statusCampus.ativo ? "Online" : "Inativo"}
+                  </span>
+
+                  {!statusCampus.ativo && (
+                    <div className="campus-motivo-tooltip-wrap">
+                      <span className="campus-motivo-chip">Motivo</span>
+                      <div className="campus-motivo-tooltip">
+                        <strong>Motivo da inatividade</strong>
+                        <span>{motivoCampus}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )
           })}
