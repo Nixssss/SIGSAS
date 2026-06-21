@@ -516,6 +516,8 @@ button:disabled,
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  justify-self: end;
+  align-self: center;
   width: 18px;
   height: 18px;
   margin-left: 8px;
@@ -30561,13 +30563,13 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
 .sidebar-instituicao-campus-row,
 .mobile-instituicao-campus-row {
   width: 100%;
-  min-height: 42px;
-  padding: 8px 10px;
+  min-height: 38px;
+  padding: 7px 9px;
   border-radius: 12px;
   border: 1px solid rgba(143, 210, 238, 0.24);
   background: rgba(19, 43, 56, 0.72);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(96px, 1fr) max-content;
   align-items: center;
   column-gap: 10px;
   row-gap: 8px;
@@ -30602,7 +30604,8 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  word-break: normal;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .sidebar-instituicao-campus-row .campus-sidebar-info small,
@@ -30617,13 +30620,16 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  word-break: normal;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .campus-sidebar-status {
-  min-width: 76px;
-  height: 24px;
-  padding: 0 10px;
+  width: auto;
+  min-width: 64px;
+  max-width: max-content;
+  height: 22px;
+  padding: 0 9px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -30637,6 +30643,8 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   white-space: nowrap;
   appearance: none;
   -webkit-appearance: none;
+  justify-self: end;
+  align-self: center;
 }
 
 .campus-sidebar-status.online {
