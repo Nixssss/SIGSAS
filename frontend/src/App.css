@@ -30556,21 +30556,21 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
 
 /* =========================================================
    SIDEBAR - STATUS DE CAMPI
-   Seção única para o status dos campi.
+   Seção única, sem tooltip flutuante e sem !important.
    ========================================================= */
 .sidebar-instituicao-campus-row,
 .mobile-instituicao-campus-row {
   width: 100%;
   min-height: 42px;
-  padding: 8px 9px;
+  padding: 8px 10px;
   border-radius: 12px;
   border: 1px solid rgba(143, 210, 238, 0.24);
   background: rgba(19, 43, 56, 0.72);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 7px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 8px;
   box-sizing: border-box;
   text-align: left;
 }
@@ -30580,31 +30580,8 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   border-color: rgba(239, 68, 68, 0.32);
 }
 
-.sidebar-instituicao-campus-row.motivo-aberto,
-.mobile-instituicao-campus-row.motivo-aberto {
-  min-height: 42px;
-}
-
-.sidebar-instituicao-campus-row > .campus-row-header,
-.mobile-instituicao-campus-row > .campus-row-header {
-  width: 100%;
+.campus-sidebar-info {
   min-width: 0;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.sidebar-instituicao-campus-row > .campus-motivo-card,
-.mobile-instituicao-campus-row > .campus-motivo-card {
-  flex: 0 0 auto;
-}
-
-.campus-row-header > .campus-row-main-info {
-  min-width: 0;
-  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -30613,28 +30590,39 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   text-align: left;
 }
 
-.campus-row-main-info strong {
+.sidebar-instituicao-campus-row .campus-sidebar-info strong,
+.mobile-instituicao-campus-row .campus-sidebar-info strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
   color: #ffffff;
   font-size: 11px;
   font-weight: 950;
-  line-height: 1.1;
+  line-height: 1.12;
   text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: normal;
 }
 
-.campus-row-main-info small {
+.sidebar-instituicao-campus-row .campus-sidebar-info small,
+.mobile-instituicao-campus-row .campus-sidebar-info small {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
   color: #d9ecf8;
   font-size: 9.5px;
   font-weight: 850;
-  line-height: 1.1;
+  line-height: 1.12;
   text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: normal;
 }
 
-.campus-status-badge,
-.campus-status-badge-button {
-  min-width: 70px;
+.campus-sidebar-status {
+  min-width: 76px;
   height: 24px;
-  flex: 0 0 auto;
-  margin: 0;
   padding: 0 10px;
   border-radius: 999px;
   display: inline-flex;
@@ -30642,39 +30630,30 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   justify-content: center;
   gap: 6px;
   border: 1px solid transparent;
+  font-family: inherit;
   font-size: 10px;
   font-weight: 950;
   line-height: 1;
   white-space: nowrap;
-  font-family: inherit;
   appearance: none;
   -webkit-appearance: none;
 }
 
-.campus-status-badge-button.online {
-  cursor: default;
-}
-
-.campus-status-badge-button.offline {
-  cursor: pointer;
-}
-
-.campus-status-badge.online,
-.campus-status-badge-button.online {
+.campus-sidebar-status.online {
   color: #b7f7c8;
   background: rgba(34, 197, 94, 0.16);
   border-color: rgba(34, 197, 94, 0.32);
+  cursor: default;
 }
 
-.campus-status-badge.offline,
-.campus-status-badge-button.offline {
+.campus-sidebar-status.offline {
   color: #fecaca;
   background: rgba(239, 68, 68, 0.16);
   border-color: rgba(239, 68, 68, 0.34);
+  cursor: pointer;
 }
 
-.campus-status-badge i,
-.campus-status-badge-button i {
+.campus-sidebar-status i {
   width: 9px;
   height: 9px;
   min-width: 9px;
@@ -30685,21 +30664,20 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   flex-shrink: 0;
 }
 
-.campus-status-badge i.online,
-.campus-status-badge-button i.online {
+.campus-sidebar-status i.online {
   background: #22c55e;
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.45);
 }
 
-.campus-status-badge i.offline,
-.campus-status-badge-button i.offline {
+.campus-sidebar-status i.offline {
   background: #ef4444;
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
 }
 
-.campus-motivo-card {
+.campus-sidebar-motivo {
+  grid-column: 1 / -1;
   width: 100%;
-  margin: 2px 0 0;
+  margin: 0;
   padding: 8px 10px;
   border-radius: 10px;
   background: #f8fafc;
@@ -30711,7 +30689,7 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   box-sizing: border-box;
 }
 
-.campus-motivo-label {
+.campus-sidebar-motivo .campus-motivo-label {
   color: #ef4444;
   font-size: 8.5px;
   font-weight: 950;
@@ -30720,7 +30698,7 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
   letter-spacing: 0.055em;
 }
 
-.campus-motivo-texto {
+.campus-sidebar-motivo .campus-motivo-texto {
   color: #334155;
   font-size: 10px;
   line-height: 1.35;
@@ -30746,11 +30724,9 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
     padding: 9px 10px;
   }
 
-  .campus-status-badge,
-  .campus-status-badge-button {
-    min-width: 62px;
+  .campus-sidebar-status {
+    min-width: 72px;
     height: 24px;
-    padding: 0 8px;
-    font-size: 9px;
+    font-size: 9.5px;
   }
 }
