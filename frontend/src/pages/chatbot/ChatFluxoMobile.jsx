@@ -3,8 +3,8 @@ import "./ChatFluxoMobile.css"
 import api from "../../services/api"
 import chatbotRobo from "../../assets/chatbot-robo.png"
 
-const SESSION_KEY = "sigsas_chatbot_session_id"
-const MENSAGENS_KEY = "sigsas_chatbot_mensagens"
+const SESSION_KEY_PREFIX = "sigsas_chatbot_session_id"
+const MENSAGENS_KEY_PREFIX = "sigsas_chatbot_mensagens"
 
 const HORARIO_MINIMO_RESERVA = "08:00"
 const HORARIO_MAXIMO_RESERVA = "22:30"
@@ -159,11 +159,11 @@ function obterHorarioValidoDoTexto(texto) {
 }
 
 function obterSessionId() {
-  let sessionId = localStorage.getItem(SESSION_KEY)
+  let sessionId = localStorage.getItem(obterSessionKeyUsuario())
 
   if (!sessionId) {
     sessionId = `sessao-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    localStorage.setItem(SESSION_KEY, sessionId)
+    localStorage.setItem(obterSessionKeyUsuario(), sessionId)
   }
 
   return sessionId
@@ -175,6 +175,35 @@ function getUsuarioLogado() {
   } catch {
     return null
   }
+}
+
+function normalizarChaveLocalStorage(valor) {
+  return String(valor || "anonimo")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .toLowerCase()
+}
+
+function obterIdentificadorUsuarioChatbot() {
+  const usuario = getUsuarioLogado()
+
+  return normalizarChaveLocalStorage(
+    usuario?.id ||
+      usuario?.idUsuario ||
+      usuario?.email ||
+      usuario?.matricula ||
+      usuario?.nome ||
+      "anonimo"
+  )
+}
+
+function obterSessionKeyUsuario() {
+  return `${SESSION_KEY_PREFIX}_${obterIdentificadorUsuarioChatbot()}`
+}
+
+function obterMensagensKeyUsuario() {
+  return `${MENSAGENS_KEY_PREFIX}_${obterIdentificadorUsuarioChatbot()}`
 }
 
 function obterFusoHorarioBrasil() {
@@ -252,7 +281,7 @@ function criarMensagemMenuInicial() {
 
 function obterMensagensSalvas() {
   try {
-    const mensagens = JSON.parse(localStorage.getItem(MENSAGENS_KEY) || "[]")
+    const mensagens = JSON.parse(localStorage.getItem(obterMensagensKeyUsuario()) || "[]")
     return Array.isArray(mensagens) ? mensagens : []
   } catch {
     return []
@@ -260,7 +289,7 @@ function obterMensagensSalvas() {
 }
 
 function salvarMensagens(mensagens) {
-  localStorage.setItem(MENSAGENS_KEY, JSON.stringify(mensagens))
+  localStorage.setItem(obterMensagensKeyUsuario(), JSON.stringify(mensagens))
 }
 
 function detectarEtapaPorResposta(resposta) {
@@ -631,8 +660,8 @@ function ChatFluxoMobile() {
       console.error("Erro ao registrar limpeza do chatbot:", error)
     }
 
-    localStorage.removeItem(MENSAGENS_KEY)
-    localStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(obterMensagensKeyUsuario())
+    localStorage.removeItem(obterSessionKeyUsuario())
     sessionIdRef.current = obterSessionId()
 
     const mensagensReiniciadas = [criarMensagemMenuInicial()]
@@ -1353,47 +1382,85 @@ function ChatFluxoMobile() {
     if (msg.tipoInteracao !== "checkbox-reservas" || !msg.reservas?.length) return null
 
     return (
-      <div className="chat-reservas-box">
-        <div className="chat-reservas-grid">
+      <div className="chat-reservas-box sigsas-mobile-reservation-box">
+        <div className="sigsas-mobile-room-list sigsas-mobile-reservation-list">
           {msg.reservas.map((reserva) => {
             const selecionada = reservaEstaSelecionada(reserva.idReserva)
+            const textoData = reserva.data
+              ? `${reserva.data} · ${reserva.horaInicio || "--:--"} às ${reserva.horaFim || "--:--"}`
+              : "Data não informada"
+            const numeroReserva = String(reserva.idReserva || "").padStart(2, "0")
 
             return (
               <label
                 key={reserva.idReserva}
-                className={`chat-reserva-check ${selecionada ? "selected" : ""}`}
+                className={`sigsas-mobile-room-card sigsas-mobile-reservation-card ${selecionada ? "selected" : ""}`}
               >
                 <input
+                  className="sigsas-mobile-reservation-check"
                   type="checkbox"
                   checked={selecionada}
                   onChange={() => alternarReservaSelecionada(reserva.idReserva)}
                   disabled={carregando}
                 />
 
-                <span>
-                  <strong>Reserva #{reserva.idReserva} · {reserva.status}</strong>
-                  <small>Sala: {reserva.sala}</small>
-                  <small>Data: {reserva.data} · {reserva.horaInicio} às {reserva.horaFim}</small>
-                  <small>Solicitante: {reserva.solicitante}</small>
-                  <small>Curso: {reserva.curso || "Não informado"}</small>
-                  <small>Motivo: {reserva.motivo}</small>
-                </span>
+                <header className="sigsas-mobile-room-header">
+                  <div className="sigsas-mobile-room-heading">
+                    <span className="sigsas-mobile-room-number">{numeroReserva}</span>
+
+                    <div className="sigsas-mobile-room-title">
+                      <span className="sigsas-mobile-room-label">
+                        {reserva.status || "Pendente"}
+                      </span>
+                      <h4>Reserva #{reserva.idReserva}</h4>
+                      <p>{reserva.sala || "Sala não informada"}</p>
+                    </div>
+                  </div>
+
+                  <span className="sigsas-mobile-room-capacity sigsas-mobile-reservation-status">
+                    <strong>{selecionada ? "✓" : "+"}</strong>
+                    <small>{selecionada ? "selecionada" : "selecionar"}</small>
+                  </span>
+                </header>
+
+                <div className="sigsas-mobile-room-details">
+                  <div className="sigsas-mobile-room-detail sigsas-mobile-room-detail-full">
+                    <small>Data</small>
+                    <strong>{textoData}</strong>
+                  </div>
+
+                  <div className="sigsas-mobile-room-detail">
+                    <small>Solicitante</small>
+                    <strong>{reserva.solicitante || "Não informado"}</strong>
+                  </div>
+
+                  <div className="sigsas-mobile-room-detail">
+                    <small>Curso</small>
+                    <strong>{reserva.curso || "Não informado"}</strong>
+                  </div>
+                </div>
+
+                <div className="sigsas-mobile-room-resources">
+                  <span>Motivo: {reserva.motivo || "Não informado"}</span>
+                </div>
               </label>
             )
           })}
         </div>
 
-        <div className="chat-reservas-actions">
-          <span>{reservasSelecionadas.length} selecionada(s)</span>
+        <footer className="sigsas-mobile-room-footer sigsas-mobile-reservation-actions">
+          <small>{reservasSelecionadas.length} selecionada(s)</small>
+
           <button
             type="button"
-            className="chat-primary-action"
+            className="sigsas-mobile-room-select"
             onClick={() => confirmarReservasSelecionadas(msg)}
             disabled={!reservasSelecionadas.length || carregando}
           >
-            {msg.textoBotaoReservas || "Confirmar selecionadas"}
+            <span>{msg.textoBotaoReservas || "Confirmar selecionadas"}</span>
+            <b aria-hidden="true">→</b>
           </button>
-        </div>
+        </footer>
       </div>
     )
   }

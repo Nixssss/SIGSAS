@@ -2216,3 +2216,82 @@
     color: #c6dfef !important;
   }
 }
+
+
+/* =========================================================
+   AJUSTE SIGSAS - CHATBOT RESERVAS EM CARDS
+   Mantém o mesmo modelo visual usado na seleção de salas.
+   ========================================================= */
+@media (max-width: 768px) {
+  .chatbot-mobile-card .sigsas-mobile-reservation-box {
+    width: 100% !important;
+    margin-top: 12px !important;
+    display: grid !important;
+    gap: 12px !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-list {
+    width: 100% !important;
+    display: grid !important;
+    gap: 12px !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-card {
+    position: relative !important;
+    cursor: pointer !important;
+    user-select: none !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-card.selected {
+    border-color: #0b75ad !important;
+    background: linear-gradient(180deg, #f7fcff 0%, #e8f7ff 100%) !important;
+    box-shadow:
+      0 12px 26px rgba(8, 103, 159, 0.13),
+      0 0 0 3px rgba(0, 166, 223, 0.08) !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-check {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-status {
+    border-color: #c5ddea !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-card.selected .sigsas-mobile-reservation-status {
+    border-color: #0b75ad !important;
+    background: #0b75ad !important;
+    color: #ffffff !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-card.selected .sigsas-mobile-reservation-status strong,
+  .chatbot-mobile-card .sigsas-mobile-reservation-card.selected .sigsas-mobile-reservation-status small {
+    color: #ffffff !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-actions {
+    margin-top: 0 !important;
+    padding: 13px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+    border: 1px solid #d1e2ed !important;
+    border-radius: 17px !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%) !important;
+    box-shadow: 0 8px 18px rgba(12, 75, 116, 0.06) !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-actions > small {
+    color: #55758e !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+  }
+
+  .chatbot-mobile-card .sigsas-mobile-reservation-actions .sigsas-mobile-room-select {
+    width: 100% !important;
+  }
+}

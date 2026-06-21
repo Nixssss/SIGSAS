@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react"
 import api from "../../services/api"
 import chatbotRobo from "../../assets/chatbot-robo.png"
 
-const SESSION_KEY = "sigsas_chatbot_session_id"
-const MENSAGENS_KEY = "sigsas_chatbot_mensagens"
+const SESSION_KEY_PREFIX = "sigsas_chatbot_session_id"
+const MENSAGENS_KEY_PREFIX = "sigsas_chatbot_mensagens"
 
 const etapasReserva = [
   "Instituição",
@@ -109,11 +109,11 @@ function obterHorarioValidoDoTexto(texto) {
 }
 
 function obterSessionId() {
-  let sessionId = localStorage.getItem(SESSION_KEY)
+  let sessionId = localStorage.getItem(obterSessionKeyUsuario())
 
   if (!sessionId) {
     sessionId = `sessao-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    localStorage.setItem(SESSION_KEY, sessionId)
+    localStorage.setItem(obterSessionKeyUsuario(), sessionId)
   }
 
   return sessionId
@@ -125,6 +125,35 @@ function getUsuarioLogado() {
   } catch {
     return null
   }
+}
+
+function normalizarChaveLocalStorage(valor) {
+  return String(valor || "anonimo")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .toLowerCase()
+}
+
+function obterIdentificadorUsuarioChatbot() {
+  const usuario = getUsuarioLogado()
+
+  return normalizarChaveLocalStorage(
+    usuario?.id ||
+      usuario?.idUsuario ||
+      usuario?.email ||
+      usuario?.matricula ||
+      usuario?.nome ||
+      "anonimo"
+  )
+}
+
+function obterSessionKeyUsuario() {
+  return `${SESSION_KEY_PREFIX}_${obterIdentificadorUsuarioChatbot()}`
+}
+
+function obterMensagensKeyUsuario() {
+  return `${MENSAGENS_KEY_PREFIX}_${obterIdentificadorUsuarioChatbot()}`
 }
 
 const TIMEZONE_PADRAO_BRASIL = "America/Sao_Paulo"
@@ -230,7 +259,7 @@ function criarMensagemMenuInicial() {
 
 function obterMensagensSalvas() {
   try {
-    const mensagens = JSON.parse(localStorage.getItem(MENSAGENS_KEY) || "[]")
+    const mensagens = JSON.parse(localStorage.getItem(obterMensagensKeyUsuario()) || "[]")
     return Array.isArray(mensagens) ? mensagens : []
   } catch {
     return []
@@ -238,7 +267,7 @@ function obterMensagensSalvas() {
 }
 
 function salvarMensagens(mensagens) {
-  localStorage.setItem(MENSAGENS_KEY, JSON.stringify(mensagens))
+  localStorage.setItem(obterMensagensKeyUsuario(), JSON.stringify(mensagens))
 }
 
 function detectarEtapaPorResposta(resposta) {
@@ -712,8 +741,8 @@ function ChatFluxoDesktop() {
       console.error("Erro ao registrar limpeza do chatbot:", error)
     }
 
-    localStorage.removeItem(MENSAGENS_KEY)
-    localStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(obterMensagensKeyUsuario())
+    localStorage.removeItem(obterSessionKeyUsuario())
 
     const novaSessao = obterSessionId()
     sessionIdRef.current = novaSessao
@@ -1546,46 +1575,78 @@ function ChatFluxoDesktop() {
     }
 
     return (
-      <div className="chat-reservas-box">
-        <div className="chat-reservas-grid">
+      <div className="chat-reservas-box chatbot-reservas-choice-box">
+        <div className="premium-salas-grid chatbot-salas-choice-grid chatbot-reservas-choice-grid">
           {msg.reservas.map((reserva) => {
             const selecionada = reservaEstaSelecionada(reserva.idReserva)
+            const textoData = reserva.data
+              ? `${reserva.data} das ${reserva.horaInicio || "--:--"} às ${reserva.horaFim || "--:--"}`
+              : "Data não informada"
 
             return (
               <label
                 key={reserva.idReserva}
-                className={`chat-reserva-check ${selecionada ? "selected" : ""}`}
+                className={`premium-sala-card chatbot-sala-choice-card chatbot-reserva-choice-card ${selecionada ? "selected" : ""}`}
               >
                 <input
+                  className="chatbot-reserva-choice-checkbox"
                   type="checkbox"
                   checked={selecionada}
                   onChange={() => alternarReservaSelecionada(reserva.idReserva)}
                   disabled={carregando}
                 />
 
-                <span>
-                  <strong>
-                    Reserva #{reserva.idReserva} {reserva.status}
-                  </strong>
-                  <small>Sala: {reserva.sala}</small>
-                  <small>
-                    Data: {reserva.data} das {reserva.horaInicio} às {reserva.horaFim}
-                  </small>
-                  <small>Solicitante: {reserva.solicitante}</small>
-                  <small>Curso: {reserva.curso || "Não informado"}</small>
-                  <small>Motivo: {reserva.motivo}</small>
-                </span>
+                <div className="chatbot-sala-choice-head">
+                  <span className="chatbot-sala-choice-index">
+                    {String(reserva.idReserva || "").padStart(2, "0")}
+                  </span>
+
+                  <div className="chatbot-sala-choice-title">
+                    <strong>Reserva #{reserva.idReserva}</strong>
+                    <small>{reserva.status || "Pendente"}</small>
+                  </div>
+
+                  <span className="chatbot-sala-choice-capacity">
+                    {selecionada ? "Selecionada" : "Selecionar"}
+                  </span>
+                </div>
+
+                <div className="chatbot-sala-choice-meta">
+                  <span>
+                    <b>Sala</b>
+                    {reserva.sala || "Não informada"}
+                  </span>
+
+                  <span>
+                    <b>Data</b>
+                    {textoData}
+                  </span>
+
+                  <span>
+                    <b>Solicitante</b>
+                    {reserva.solicitante || "Não informado"}
+                  </span>
+
+                  <span>
+                    <b>Curso</b>
+                    {reserva.curso || "Não informado"}
+                  </span>
+                </div>
+
+                <div className="chatbot-sala-choice-recursos" title={reserva.motivo || "Motivo não informado"}>
+                  <span>Motivo: {reserva.motivo || "Não informado"}</span>
+                </div>
               </label>
             )
           })}
         </div>
 
-        <div className="chat-reservas-actions">
-          <span>{reservasSelecionadas.length} selecionada(s)</span>
+        <div className="chatbot-sala-choice-footer chatbot-reservas-choice-actions">
+          <small>{reservasSelecionadas.length} selecionada(s)</small>
 
           <button
             type="button"
-            className="btn primary"
+            className="escolher-sala-btn btn primary"
             onClick={() => confirmarReservasSelecionadas(msg)}
             disabled={!reservasSelecionadas.length || carregando}
           >
