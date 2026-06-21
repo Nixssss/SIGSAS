@@ -735,7 +735,7 @@ function DashboardDesktop({ sair }) {
 
                 {!statusCampus.ativo && motivoAberto && (
                   <section className="campus-sidebar-motivo mobile">
-                    <span className="campus-motivo-label">Motivo da inatividade</span>
+                    <span className="campus-motivo-label">Motivo da inatividade:</span>
                     <span className="campus-motivo-texto">{motivoCampus}</span>
                   </section>
                 )}
@@ -830,7 +830,7 @@ function DashboardDesktop({ sair }) {
 
                 {!statusCampus.ativo && motivoAberto && (
                   <section className="campus-sidebar-motivo">
-                    <span className="campus-motivo-label">Motivo da inatividade</span>
+                    <span className="campus-motivo-label">Motivo da inatividade:</span>
                     <span className="campus-motivo-texto">{motivoCampus}</span>
                   </section>
                 )}
