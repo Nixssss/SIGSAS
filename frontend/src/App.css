@@ -31346,3 +31346,21 @@ body[data-theme="light"] .modern-sidebar .campus-motivo-texto {
   position: relative !important;
   margin-top: 16px !important;
 }
+
+/* Ajuste da cor do motivo dentro do card inativo */
+.sidebar-instituicao-campus-row .campus-motivo-card,
+.mobile-instituicao-campus-row .campus-motivo-card {
+  background: #f8fafc;
+  border-color: rgba(248, 113, 113, 0.45);
+}
+
+.sidebar-instituicao-campus-row .campus-motivo-label,
+.mobile-instituicao-campus-row .campus-motivo-label {
+  color: #ef4444;
+}
+
+.sidebar-instituicao-campus-row .campus-motivo-texto,
+.mobile-instituicao-campus-row .campus-motivo-texto {
+  color: #334155;
+  font-weight: 800;
+}
