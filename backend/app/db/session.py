@@ -21,7 +21,7 @@ if not DB_USER or not DB_PASSWORD or not DB_HOST or not DB_NAME:
 
 DATABASE_URL = URL.create(
     drivername="postgresql+psycopg2",
-    username=DB_USER,
+    username=DB_USER,s
     password=DB_PASSWORD,
     host=DB_HOST,
     port=int(DB_PORT),
