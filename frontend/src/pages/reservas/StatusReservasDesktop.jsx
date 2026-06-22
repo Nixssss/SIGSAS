@@ -48,6 +48,146 @@ const HORARIOS_MANUAIS = Array.from({ length: 61 }, (_, index) => {
   return `${hora}:${minuto}`
 })
 
+function CampoObrigatorioReservaManual() {
+  return (
+    <span
+      aria-hidden="true"
+      title="Campo obrigatório"
+      style={{
+        color: "#dc2626",
+        marginLeft: "4px",
+        fontSize: "14px",
+        lineHeight: 1,
+        fontWeight: 900,
+      }}
+    >
+      *
+    </span>
+  )
+}
+
+
+function ConfirmacaoSaidaReservaManual({ onContinuar, onConfirmar }) {
+  return (
+    <div
+      onMouseDown={(e) => e.stopPropagation()}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 10050,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+        background: "rgba(15, 23, 42, 0.34)",
+        backdropFilter: "blur(2px)",
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmar-saida-reserva-titulo"
+        onMouseDown={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          maxWidth: "390px",
+          borderRadius: "24px",
+          padding: "26px 24px 22px",
+          background: "#ffffff",
+          border: "1px solid #dbeafe",
+          boxShadow: "0 28px 70px rgba(15, 23, 42, 0.32)",
+          textAlign: "center",
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            width: "58px",
+            height: "58px",
+            margin: "0 auto 14px",
+            borderRadius: "999px",
+            display: "grid",
+            placeItems: "center",
+            background: "#fff3e6",
+            color: "#f59e0b",
+            fontSize: "32px",
+            fontWeight: 900,
+          }}
+        >
+          ⚠
+        </div>
+
+        <h3
+          id="confirmar-saida-reserva-titulo"
+          style={{
+            margin: "0 0 8px",
+            color: "#082f55",
+            fontSize: "23px",
+            lineHeight: 1.1,
+            fontWeight: 950,
+          }}
+        >
+          Cancelar reserva?
+        </h3>
+
+        <p
+          style={{
+            margin: "0 auto 20px",
+            maxWidth: "310px",
+            color: "#475569",
+            fontSize: "14px",
+            lineHeight: 1.45,
+            fontWeight: 700,
+          }}
+        >
+          Tem certeza que deseja sair? Os dados preenchidos não serão salvos.
+        </p>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "10px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={onContinuar}
+            style={{
+              minHeight: "44px",
+              borderRadius: "14px",
+              border: "1px solid #cbd5e1",
+              background: "#eef2f7",
+              color: "#0f172a",
+              fontSize: "13px",
+              fontWeight: 900,
+            }}
+          >
+            Continuar editando
+          </button>
+
+          <button
+            type="button"
+            onClick={onConfirmar}
+            style={{
+              minHeight: "44px",
+              borderRadius: "14px",
+              border: "1px solid #dc2626",
+              background: "#ef4444",
+              color: "#ffffff",
+              fontSize: "13px",
+              fontWeight: 900,
+              boxShadow: "0 12px 24px rgba(239, 68, 68, 0.24)",
+            }}
+          >
+            Sair e cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function IconeReservaManual({ tipo }) {
   if (tipo === "calendario") {
     return (
@@ -98,6 +238,7 @@ function SeletorHorarioManual({
   onAbrir,
   onFechar,
   horarioMinimo = "08:00",
+  obrigatorio = false,
 }) {
   const horariosDisponiveis = HORARIOS_MANUAIS.filter((horario) => {
     const minutosHorario = horarioParaMinutos(horario)
@@ -115,7 +256,7 @@ function SeletorHorarioManual({
 
   return (
     <div className="reserva-manual-time-box">
-      <label>{label}</label>
+      <label><span>{label}{obrigatorio && <CampoObrigatorioReservaManual />}</span></label>
 
       <button
         type="button"
@@ -231,6 +372,7 @@ function CalendarioLetivoManual({
   onAbrir,
   onFechar,
   minDate,
+  obrigatorio = false,
 }) {
   const hoje = new Date(minDate || new Date())
   hoje.setHours(0, 0, 0, 0)
@@ -309,7 +451,7 @@ function CalendarioLetivoManual({
 
   return (
     <div className="reserva-manual-calendar-box">
-      <label>{label}</label>
+      <label><span>{label}{obrigatorio && <CampoObrigatorioReservaManual />}</span></label>
 
       <button
         type="button"
@@ -448,6 +590,7 @@ function StatusReservasDesktop() {
   const [erroReservaManual, setErroReservaManual] = useState("")
   const [sucessoReservaManual, setSucessoReservaManual] = useState("")
   const [salvandoReservaManual, setSalvandoReservaManual] = useState(false)
+  const [confirmarSaidaReservaManualAberto, setConfirmarSaidaReservaManualAberto] = useState(false)
 
   async function carregarDados() {
     try {
@@ -493,7 +636,7 @@ function StatusReservasDesktop() {
   }, [reservas])
 
   useEffect(() => {
-    if (modalReservaAberto || popupNotificacao) {
+    if (modalReservaAberto || popupNotificacao || confirmarSaidaReservaManualAberto) {
       document.body.style.overflow = "hidden"
     } else {
       document.body.style.overflow = ""
@@ -502,7 +645,7 @@ function StatusReservasDesktop() {
     return () => {
       document.body.style.overflow = ""
     }
-  }, [modalReservaAberto, popupNotificacao])
+  }, [modalReservaAberto, popupNotificacao, confirmarSaidaReservaManualAberto])
 
   useEffect(() => {
     if (!horaInicioManual || !horaFimManual) return
@@ -906,15 +1049,34 @@ function StatusReservasDesktop() {
     setJustificativaManual("")
     setCalendarioManualAberto("")
     setSeletorHoraManualAberto("")
+    setConfirmarSaidaReservaManualAberto(false)
   }
 
   function fecharModalReservaManual() {
     if (salvandoReservaManual) return
 
+    setConfirmarSaidaReservaManualAberto(false)
     setModalReservaAberto(false)
     setErroReservaManual("")
     setSucessoReservaManual("")
     setCalendarioManualAberto("")
+    setSeletorHoraManualAberto("")
+  }
+
+  function solicitarFechamentoReservaManual() {
+    if (salvandoReservaManual) return
+
+    setCalendarioManualAberto("")
+    setSeletorHoraManualAberto("")
+    setConfirmarSaidaReservaManualAberto(true)
+  }
+
+  function continuarEditandoReservaManual() {
+    setConfirmarSaidaReservaManualAberto(false)
+  }
+
+  function confirmarFechamentoReservaManual() {
+    fecharModalReservaManual()
   }
 
   async function criarReservaManual(e) {
@@ -1201,7 +1363,7 @@ function StatusReservasDesktop() {
     createPortal(
       <div
         className="reserva-manual-modal-overlay"
-        onMouseDown={fecharModalReservaManual}
+        onMouseDown={solicitarFechamentoReservaManual}
       >
         <div
           className="reserva-manual-modal"
@@ -1217,7 +1379,7 @@ function StatusReservasDesktop() {
             <button
               type="button"
               className="reserva-manual-modal-close"
-              onClick={fecharModalReservaManual}
+              onClick={solicitarFechamentoReservaManual}
               disabled={salvandoReservaManual}
               aria-label="Fechar modal"
             >
@@ -1227,7 +1389,7 @@ function StatusReservasDesktop() {
 
           <form onSubmit={criarReservaManual} className="reserva-manual-form">
             <label className="reserva-manual-form-full">
-              Sala
+              <span>Sala <CampoObrigatorioReservaManual /></span>
               <select
                 value={salaManualId}
                 onChange={(e) => setSalaManualId(e.target.value)}
@@ -1298,6 +1460,7 @@ function StatusReservasDesktop() {
               }}
               onFechar={() => setCalendarioManualAberto("")}
               minDate={new Date()}
+              obrigatorio
             />
 
             <SeletorHorarioManual
@@ -1311,6 +1474,7 @@ function StatusReservasDesktop() {
               }}
               onFechar={() => setSeletorHoraManualAberto("")}
               horarioMinimo="08:00"
+              obrigatorio
             />
 
             <CalendarioLetivoManual
@@ -1324,6 +1488,7 @@ function StatusReservasDesktop() {
               }}
               onFechar={() => setCalendarioManualAberto("")}
               minDate={new Date()}
+              obrigatorio
             />
 
             <SeletorHorarioManual
@@ -1339,10 +1504,11 @@ function StatusReservasDesktop() {
               horarioMinimo={
                 horaInicioManual ? somarMinutosHorario(horaInicioManual, 15) : "08:00"
               }
+              obrigatorio
             />
 
             <label>
-              Quantidade de pessoas
+              <span>Quantidade de pessoas <CampoObrigatorioReservaManual /></span>
               <input
                 type="number"
                 min="1"
@@ -1354,7 +1520,7 @@ function StatusReservasDesktop() {
             </label>
 
             <label>
-              Tipo de atividade
+              <span>Tipo de atividade <CampoObrigatorioReservaManual /></span>
               <select
                 value={tipoAtividadeManual}
                 onChange={(e) => setTipoAtividadeManual(e.target.value)}
@@ -1381,7 +1547,7 @@ function StatusReservasDesktop() {
             </label>
 
             <label className="reserva-manual-form-full">
-              Descrição da atividade
+              <span>Descrição da atividade <CampoObrigatorioReservaManual /></span>
               <input
                 placeholder="Ex: Aula prática, reunião de projeto, apresentação..."
                 value={motivoManual}
@@ -1415,7 +1581,7 @@ function StatusReservasDesktop() {
               <button
                 className="btn secondary"
                 type="button"
-                onClick={fecharModalReservaManual}
+                onClick={solicitarFechamentoReservaManual}
                 disabled={salvandoReservaManual}
               >
                 Cancelar
@@ -1431,6 +1597,13 @@ function StatusReservasDesktop() {
             </div>
           </form>
         </div>
+
+        {confirmarSaidaReservaManualAberto && (
+          <ConfirmacaoSaidaReservaManual
+            onContinuar={continuarEditandoReservaManual}
+            onConfirmar={confirmarFechamentoReservaManual}
+          />
+        )}
       </div>,
       document.body
     )

@@ -94,6 +94,7 @@ function IconeReserva({ tipo }) {
   )
 }
 
+
 function horarioParaMinutos(horario) {
   if (!horario) return null
 
@@ -420,6 +421,146 @@ function CalendarioReserva({
   )
 }
 
+
+function ConfirmarCancelamentoReserva({ onContinuar, onConfirmar }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1400,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+        background: "rgba(15, 23, 42, 0.18)",
+        backdropFilter: "blur(1.5px)",
+      }}
+      onMouseDown={(evento) => evento.stopPropagation()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmar-cancelamento-reserva-titulo"
+        style={{
+          width: "min(420px, 100%)",
+          padding: "26px 24px 22px",
+          borderRadius: "22px",
+          background: "#ffffff",
+          border: "1px solid rgba(203, 213, 225, 0.95)",
+          boxShadow: "0 28px 80px rgba(15, 23, 42, 0.34)",
+          textAlign: "center",
+        }}
+        onMouseDown={(evento) => evento.stopPropagation()}
+      >
+        <div
+          style={{
+            width: "64px",
+            height: "64px",
+            margin: "0 auto 15px",
+            display: "grid",
+            placeItems: "center",
+            borderRadius: "999px",
+            background: "rgba(249, 115, 22, 0.12)",
+            color: "#f59e0b",
+          }}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+            style={{
+              width: "34px",
+              height: "34px",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: 2,
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+            }}
+          >
+            <path d="M12 4.2 20.2 19H3.8L12 4.2z" />
+            <path d="M12 9.3v4.4" />
+            <path d="M12 16.8h.01" />
+          </svg>
+        </div>
+
+        <h3
+          id="confirmar-cancelamento-reserva-titulo"
+          style={{
+            margin: "0 0 8px",
+            color: "#082f55",
+            fontSize: "25px",
+            lineHeight: 1.15,
+            fontWeight: 950,
+            letterSpacing: "-0.03em",
+          }}
+        >
+          Cancelar reserva?
+        </h3>
+
+        <p
+          style={{
+            maxWidth: "320px",
+            margin: "0 auto 20px",
+            color: "#475569",
+            fontSize: "15px",
+            lineHeight: 1.45,
+            fontWeight: 750,
+          }}
+        >
+          Tem certeza que deseja sair? Os dados preenchidos não serão salvos.
+        </p>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "10px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={onContinuar}
+            style={{
+              minHeight: "46px",
+              padding: "0 14px",
+              borderRadius: "14px",
+              border: "1px solid #cbd5e1",
+              background: "#eef2f7",
+              color: "#0f172a",
+              fontSize: "14px",
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+          >
+            Continuar editando
+          </button>
+
+          <button
+            type="button"
+            onClick={onConfirmar}
+            style={{
+              minHeight: "46px",
+              padding: "0 14px",
+              borderRadius: "14px",
+              border: "1px solid rgba(239, 68, 68, 0.22)",
+              background: "#ef4444",
+              color: "#ffffff",
+              boxShadow: "0 12px 24px rgba(239, 68, 68, 0.22)",
+              fontSize: "14px",
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+          >
+            Sair e cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function SalasDesktop() {
   const [salas, setSalas] = useState([])
   const [edificios, setEdificios] = useState([])
@@ -431,6 +572,7 @@ function SalasDesktop() {
 
   const [busca, setBusca] = useState("")
   const [salaSelecionada, setSalaSelecionada] = useState(null)
+  const [confirmacaoSaidaAberta, setConfirmacaoSaidaAberta] = useState(false)
 
   const [dataInicio, setDataInicio] = useState("")
   const [horaInicio, setHoraInicio] = useState("")
@@ -816,6 +958,7 @@ function SalasDesktop() {
     if (reservaBloqueante) return
 
     setSalaSelecionada(sala)
+    setConfirmacaoSaidaAberta(false)
     setErroReserva("")
     setDataInicio("")
     setHoraInicio("08:00")
@@ -828,13 +971,26 @@ function SalasDesktop() {
     setCalendarioAberto("")
   }
 
-  function fecharReserva() {
+  function solicitarFechamentoReserva() {
+    if (carregando) return
+
+    setRelogioAberto("")
+    setCalendarioAberto("")
+    setConfirmacaoSaidaAberta(true)
+  }
+
+  function continuarEditandoReserva() {
+    setConfirmacaoSaidaAberta(false)
+  }
+
+  function fecharReservaConfirmado() {
     if (carregando) return
 
     setSalaSelecionada(null)
     setErroReserva("")
     setRelogioAberto("")
     setCalendarioAberto("")
+    setConfirmacaoSaidaAberta(false)
   }
 
   async function confirmarReserva(e) {
@@ -932,7 +1088,7 @@ function SalasDesktop() {
       const reservaCriada = await reservasService.criar(novaReserva)
 
       setReservas((prev) => [...prev, reservaCriada])
-      fecharReserva()
+      fecharReservaConfirmado()
 
       setSucessoReserva(true)
       window.dispatchEvent(new Event("reservas-atualizadas"))
@@ -980,7 +1136,7 @@ function SalasDesktop() {
   const modalReserva =
     salaSelecionada &&
     createPortal(
-      <div className="reserva-modal-overlay" onMouseDown={fecharReserva}>
+      <div className="reserva-modal-overlay" onMouseDown={solicitarFechamentoReserva}>
         <div
           className="reserva-modal"
           onMouseDown={(e) => e.stopPropagation()}
@@ -996,7 +1152,7 @@ function SalasDesktop() {
             <button
               type="button"
               className="reserva-modal-close"
-              onClick={fecharReserva}
+              onClick={solicitarFechamentoReserva}
               disabled={carregando}
               aria-label="Fechar modal"
             >
@@ -1012,7 +1168,7 @@ function SalasDesktop() {
 
             <form onSubmit={confirmarReserva} className="reserva-form">
               <CalendarioReserva
-                label="Data de início"
+                label="Data de início *"
                 valor={dataInicio}
                 onChange={setDataInicio}
                 isDiaIndisponivel={salaSelecionadaIndisponivelNoDia}
@@ -1026,7 +1182,7 @@ function SalasDesktop() {
               />
 
               <RelogioReserva
-                label="Hora de início"
+                label="Hora de início *"
                 valor={horaInicio}
                 onChange={setHoraInicio}
                 aberto={relogioAberto === "inicio"}
@@ -1039,7 +1195,7 @@ function SalasDesktop() {
               />
 
               <CalendarioReserva
-                label="Data de fim"
+                label="Data de fim *"
                 valor={dataFim}
                 onChange={setDataFim}
                 isDiaIndisponivel={salaSelecionadaIndisponivelNoDia}
@@ -1053,7 +1209,7 @@ function SalasDesktop() {
               />
 
               <RelogioReserva
-                label="Hora de fim"
+                label="Hora de fim *"
                 valor={horaFim}
                 onChange={setHoraFim}
                 aberto={relogioAberto === "fim"}
@@ -1068,7 +1224,7 @@ function SalasDesktop() {
               />
 
               <label className="reserva-form-full">
-                Motivo da reserva
+                Motivo da reserva *
                 <input
                   placeholder="Ex: Aula, reunião, apresentação..."
                   value={motivo}
@@ -1078,7 +1234,7 @@ function SalasDesktop() {
               </label>
 
               <label>
-                Quantidade de pessoas
+                Quantidade de pessoas *
                 <input
                   type="number"
                   min="1"
@@ -1106,7 +1262,7 @@ function SalasDesktop() {
                 <button
                   className="btn secondary"
                   type="button"
-                  onClick={fecharReserva}
+                  onClick={solicitarFechamentoReserva}
                   disabled={carregando}
                 >
                   Cancelar
@@ -1123,6 +1279,13 @@ function SalasDesktop() {
             </form>
           </div>
         </div>
+
+        {confirmacaoSaidaAberta && (
+          <ConfirmarCancelamentoReserva
+            onContinuar={continuarEditandoReserva}
+            onConfirmar={fecharReservaConfirmado}
+          />
+        )}
       </div>,
       document.body
     )
