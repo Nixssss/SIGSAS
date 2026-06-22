@@ -21,20 +21,25 @@ if not DB_USER or not DB_PASSWORD or not DB_HOST or not DB_NAME:
 
 DATABASE_URL = URL.create(
     drivername="postgresql+psycopg2",
-    username=DB_USER,s
+    username=DB_USER,
     password=DB_PASSWORD,
     host=DB_HOST,
     port=int(DB_PORT),
     database=DB_NAME,
 )
 
+DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "20"))
+DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "20"))
+DB_POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "30"))
+DB_POOL_RECYCLE = int(os.getenv("DB_POOL_RECYCLE", "900"))
+
 engine = create_engine(
     DATABASE_URL,
     poolclass=QueuePool,
-    pool_size=8,
-    max_overflow=5,
-    pool_timeout=60,
-    pool_recycle=300,
+    pool_size=DB_POOL_SIZE,
+    max_overflow=DB_MAX_OVERFLOW,
+    pool_timeout=DB_POOL_TIMEOUT,
+    pool_recycle=DB_POOL_RECYCLE,
     pool_pre_ping=True,
     pool_use_lifo=True,
     connect_args={
