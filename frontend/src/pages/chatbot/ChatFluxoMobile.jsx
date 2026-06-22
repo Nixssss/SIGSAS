@@ -468,6 +468,7 @@ function ChatFluxoMobile() {
   const [reservasSelecionadas, setReservasSelecionadas] = useState([])
   const [etapaAtual, setEtapaAtual] = useState(null)
   const [timePickerAberto, setTimePickerAberto] = useState(null)
+  const [controlesAbertos, setControlesAbertos] = useState(false)
   const [ultimoHorarioInicio, setUltimoHorarioInicio] = useState(null)
   const [ultimoHorarioFim, setUltimoHorarioFim] = useState(null)
 
@@ -1489,6 +1490,10 @@ function ChatFluxoMobile() {
   const usuarioLogado = getUsuarioLogado()
   const inicialUsuario =
     String(usuarioLogado?.nome || usuarioLogado?.email || "A").trim().charAt(0).toUpperCase() || "A"
+  const textoEtapaAtual =
+    etapaAtual !== null && ETAPAS_RESERVA[etapaAtual]
+      ? `Etapa ${etapaAtual + 1}/8`
+      : "Menu inicial"
 
   return (
     <div className="chatbot-mobile-page">
@@ -1500,31 +1505,54 @@ function ChatFluxoMobile() {
 
           <div className="chatbot-mobile-header-copy">
             <strong>Assistente SIGSAS</strong>
-            <small><i aria-hidden="true" /> Reservas guiadas</small>
+            <small>
+              <i aria-hidden="true" />
+              <span>Reservas guiadas</span>
+              <em>{textoEtapaAtual}</em>
+            </small>
           </div>
 
-          <span className="chatbot-mobile-header-status">Online</span>
+          <div className="chatbot-mobile-header-actions">
+            <button
+              type="button"
+              className={`chatbot-mobile-controls-toggle ${controlesAbertos ? "active" : ""}`}
+              onClick={() => setControlesAbertos((atual) => !atual)}
+              aria-expanded={controlesAbertos}
+            >
+              Opções
+            </button>
+          </div>
         </header>
 
-        <div className="sigsas-chatbot-toolbar">
-          <button
-            type="button"
-            className="sigsas-chatbot-toolbar-btn sigsas-chatbot-toolbar-btn-secondary"
-            onClick={limparChatLocal}
-          >
-            Limpar conversa
-          </button>
+        {controlesAbertos && (
+          <div className="chatbot-mobile-controls-panel">
+            <div className="sigsas-chatbot-toolbar">
+              <button
+                type="button"
+                className="sigsas-chatbot-toolbar-btn sigsas-chatbot-toolbar-btn-secondary"
+                onClick={() => {
+                  limparChatLocal()
+                  setControlesAbertos(false)
+                }}
+              >
+                Limpar conversa
+              </button>
 
-          <button
-            type="button"
-            className="sigsas-chatbot-toolbar-btn sigsas-chatbot-toolbar-btn-primary"
-            onClick={reiniciarChat}
-          >
-            Reiniciar fluxo
-          </button>
-        </div>
+              <button
+                type="button"
+                className="sigsas-chatbot-toolbar-btn sigsas-chatbot-toolbar-btn-primary"
+                onClick={() => {
+                  reiniciarChat()
+                  setControlesAbertos(false)
+                }}
+              >
+                Reiniciar fluxo
+              </button>
+            </div>
 
-        <div className="sigsas-chatbot-progress-wrap">{renderizarProgresso()}</div>
+            <div className="sigsas-chatbot-progress-wrap">{renderizarProgresso()}</div>
+          </div>
+        )}
 
         <div className="chatbot-messages sigsas-chatbot-messages-clean">
           {mensagens.map((msg, index) => (
