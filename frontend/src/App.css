@@ -30756,3 +30756,416 @@ body[data-theme="dark"] .chatbot-reserva-choice-card:has(.chatbot-reserva-choice
     font-size: 9.5px;
   }
 }
+
+
+/* =========================================================
+   CORREÇÃO TEMA ESCURO - FEEDBACK ADMIN
+   Reportes de Problemas + Sugestões de Melhorias
+   ========================================================= */
+
+html[data-theme="dark"] .feedback-page-problemas,
+html[data-theme="dark"] .feedback-page-sugestoes,
+body[data-theme="dark"] .feedback-page-problemas,
+body[data-theme="dark"] .feedback-page-sugestoes {
+  width: 100%;
+  color: #e5edf7;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-hero,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-hero,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-hero,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 22px 24px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(8, 13, 20, 0.98));
+  border: 1px solid rgba(0, 166, 223, 0.22);
+  border-radius: 22px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-hero h2,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-hero h2,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-hero h2,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-hero h2 {
+  margin: 0 0 5px;
+  color: #f8fafc;
+  font-size: 27px;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-hero p,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-hero p,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-hero p,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-hero p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-card,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-card,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-card,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-card {
+  width: 100%;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(0, 166, 223, 0.18);
+  border-radius: 22px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.30);
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 210px 210px auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros input,
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros select,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros input,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros select,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros input,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros select,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros input,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros select {
+  height: 46px;
+  width: 100%;
+  padding: 0 14px;
+  background: rgba(3, 7, 12, 0.78);
+  border: 1px solid rgba(0, 166, 223, 0.22);
+  border-radius: 14px;
+  color: #e5edf7;
+  font-size: 14px;
+  outline: none;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros input::placeholder,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros input::placeholder,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros input::placeholder,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros input::placeholder {
+  color: #64748b;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros input:focus,
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros select:focus,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros input:focus,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros select:focus,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros input:focus,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros select:focus,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros input:focus,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros select:focus {
+  border-color: rgba(0, 166, 223, 0.65);
+  box-shadow: 0 0 0 3px rgba(0, 166, 223, 0.16);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros span,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros span,
+body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros span,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros span {
+  justify-self: end;
+  white-space: nowrap;
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-table-wrapper,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table-wrapper,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table-wrapper,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(0, 166, 223, 0.18);
+  border-radius: 18px;
+  background: rgba(3, 7, 12, 0.48);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-table,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  background: transparent;
+  table-layout: fixed;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-table thead,
+html[data-theme="dark"] .feedback-page-problemas .feedback-table thead tr,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table thead,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table thead tr,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table thead,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table thead tr,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table thead,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table thead tr {
+  background: rgba(0, 166, 223, 0.12);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-table th,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table th,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table th,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table th {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(0, 166, 223, 0.22);
+  color: #f2a900;
+  font-size: 12px;
+  font-weight: 950;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-table td,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table td,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table td,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.13);
+  color: #e5edf7;
+  font-size: 13px;
+  line-height: 1.35;
+  vertical-align: middle;
+  background: rgba(15, 23, 42, 0.48);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-table tbody tr:nth-child(even) td,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table tbody tr:nth-child(even) td,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table tbody tr:nth-child(even) td,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table tbody tr:nth-child(even) td {
+  background: rgba(8, 13, 20, 0.74);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-table tbody tr:hover td,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-table tbody tr:hover td,
+body[data-theme="dark"] .feedback-page-problemas .feedback-table tbody tr:hover td,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-table tbody tr:hover td {
+  background: rgba(0, 166, 223, 0.10);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-user-cell strong,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-user-cell strong,
+body[data-theme="dark"] .feedback-page-problemas .feedback-user-cell strong,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-user-cell strong {
+  display: block;
+  color: #f8fafc;
+  font-weight: 950;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-user-cell small,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-user-cell small,
+body[data-theme="dark"] .feedback-page-problemas .feedback-user-cell small,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-user-cell small {
+  display: block;
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-title-preview,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-title-preview,
+body[data-theme="dark"] .feedback-page-problemas .feedback-title-preview,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-title-preview {
+  color: #f8fafc;
+  font-weight: 800;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-module-cell,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-module-cell,
+body[data-theme="dark"] .feedback-page-problemas .feedback-module-cell,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-module-cell {
+  color: #7dd3fc;
+  font-weight: 850;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-actions,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-actions,
+body[data-theme="dark"] .feedback-page-problemas .feedback-actions,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-actions .btn,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-actions .btn,
+body[data-theme="dark"] .feedback-page-problemas .feedback-actions .btn,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-actions .btn {
+  min-width: 104px;
+  height: 38px;
+  padding: 0 13px;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .btn.secondary,
+html[data-theme="dark"] .feedback-page-sugestoes .btn.secondary,
+body[data-theme="dark"] .feedback-page-problemas .btn.secondary,
+body[data-theme="dark"] .feedback-page-sugestoes .btn.secondary {
+  background: rgba(30, 41, 59, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .btn.secondary:hover,
+html[data-theme="dark"] .feedback-page-sugestoes .btn.secondary:hover,
+body[data-theme="dark"] .feedback-page-problemas .btn.secondary:hover,
+body[data-theme="dark"] .feedback-page-sugestoes .btn.secondary:hover {
+  background: rgba(0, 166, 223, 0.18);
+  border-color: rgba(0, 166, 223, 0.42);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .btn.delete,
+html[data-theme="dark"] .feedback-page-problemas .btn.danger,
+html[data-theme="dark"] .feedback-page-sugestoes .btn.delete,
+html[data-theme="dark"] .feedback-page-sugestoes .btn.danger,
+body[data-theme="dark"] .feedback-page-problemas .btn.delete,
+body[data-theme="dark"] .feedback-page-problemas .btn.danger,
+body[data-theme="dark"] .feedback-page-sugestoes .btn.delete,
+body[data-theme="dark"] .feedback-page-sugestoes .btn.danger {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  color: #fca5a5;
+}
+
+html[data-theme="dark"] .feedback-page-problemas .btn.delete:hover,
+html[data-theme="dark"] .feedback-page-problemas .btn.danger:hover,
+html[data-theme="dark"] .feedback-page-sugestoes .btn.delete:hover,
+html[data-theme="dark"] .feedback-page-sugestoes .btn.danger:hover,
+body[data-theme="dark"] .feedback-page-problemas .btn.delete:hover,
+body[data-theme="dark"] .feedback-page-problemas .btn.danger:hover,
+body[data-theme="dark"] .feedback-page-sugestoes .btn.delete:hover,
+body[data-theme="dark"] .feedback-page-sugestoes .btn.danger:hover {
+  background: rgba(239, 68, 68, 0.24);
+}
+
+html[data-theme="dark"] .feedback-page-problemas .feedback-badge,
+html[data-theme="dark"] .feedback-page-sugestoes .feedback-badge,
+body[data-theme="dark"] .feedback-page-problemas .feedback-badge,
+body[data-theme="dark"] .feedback-page-sugestoes .feedback-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 25px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+html[data-theme="dark"] .feedback-badge-status.status-aberto,
+body[data-theme="dark"] .feedback-badge-status.status-aberto,
+html[data-theme="dark"] .feedback-badge-status.status-nova,
+body[data-theme="dark"] .feedback-badge-status.status-nova {
+  background: rgba(0, 166, 223, 0.16);
+  border: 1px solid rgba(0, 166, 223, 0.34);
+  color: #7dd3fc;
+}
+
+html[data-theme="dark"] .feedback-badge-status.status-em-analise,
+body[data-theme="dark"] .feedback-badge-status.status-em-analise {
+  background: rgba(242, 169, 0, 0.16);
+  border: 1px solid rgba(242, 169, 0, 0.34);
+  color: #facc15;
+}
+
+html[data-theme="dark"] .feedback-badge-status.status-resolvido,
+html[data-theme="dark"] .feedback-badge-status.status-aprovada,
+html[data-theme="dark"] .feedback-badge-status.status-implementada,
+body[data-theme="dark"] .feedback-badge-status.status-resolvido,
+body[data-theme="dark"] .feedback-badge-status.status-aprovada,
+body[data-theme="dark"] .feedback-badge-status.status-implementada {
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.34);
+  color: #86efac;
+}
+
+html[data-theme="dark"] .feedback-badge-status.status-recusado,
+html[data-theme="dark"] .feedback-badge-status.status-recusada,
+body[data-theme="dark"] .feedback-badge-status.status-recusado,
+body[data-theme="dark"] .feedback-badge-status.status-recusada {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.34);
+  color: #fca5a5;
+}
+
+html[data-theme="dark"] .feedback-badge-prioridade,
+html[data-theme="dark"] .feedback-badge-categoria,
+body[data-theme="dark"] .feedback-badge-prioridade,
+body[data-theme="dark"] .feedback-badge-categoria {
+  background: rgba(0, 166, 223, 0.14);
+  border: 1px solid rgba(0, 166, 223, 0.30);
+  color: #7dd3fc;
+}
+
+html[data-theme="dark"] .feedback-modal,
+body[data-theme="dark"] .feedback-modal {
+  background: #07111f;
+  border-color: rgba(0, 166, 223, 0.24);
+  color: #e5edf7;
+}
+
+html[data-theme="dark"] .feedback-modal-header,
+body[data-theme="dark"] .feedback-modal-header {
+  border-bottom-color: rgba(148, 163, 184, 0.16);
+}
+
+html[data-theme="dark"] .feedback-modal-header h3,
+body[data-theme="dark"] .feedback-modal-header h3 {
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .feedback-modal-header p,
+body[data-theme="dark"] .feedback-modal-header p,
+html[data-theme="dark"] .feedback-detail-grid p,
+body[data-theme="dark"] .feedback-detail-grid p {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .feedback-modal-body label,
+body[data-theme="dark"] .feedback-modal-body label {
+  color: #e5edf7;
+}
+
+html[data-theme="dark"] .feedback-modal-body textarea,
+html[data-theme="dark"] .feedback-modal-body select,
+body[data-theme="dark"] .feedback-modal-body textarea,
+body[data-theme="dark"] .feedback-modal-body select {
+  background: rgba(3, 7, 12, 0.82);
+  border-color: rgba(0, 166, 223, 0.22);
+  color: #f8fafc;
+}
+
+@media (max-width: 900px) {
+  html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros,
+  html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros,
+  body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros,
+  body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros span,
+  html[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros span,
+  body[data-theme="dark"] .feedback-page-problemas .feedback-admin-filtros span,
+  body[data-theme="dark"] .feedback-page-sugestoes .feedback-admin-filtros span {
+    justify-self: start;
+  }
+}
