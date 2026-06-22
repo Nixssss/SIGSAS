@@ -24,7 +24,9 @@
     padding: 19px 19px 72px;
     border: 1px solid rgba(159, 213, 239, 0.82);
     border-radius: 24px;
-    background: linear-gradient(135deg, #0b4279 0%, #0f6399 54%, #00a6df 100%);
+    background:
+      linear-gradient(90deg, rgba(235, 249, 255, 0.76) 0%, rgba(235, 249, 255, 0.44) 48%, rgba(235, 249, 255, 0.10) 100%),
+      linear-gradient(135deg, #0b4279 0%, #0f6399 54%, #00a6df 100%);
     box-shadow: 0 17px 31px rgba(15, 79, 134, 0.20);
     color: #ffffff;
     animation: reservasMobileHeroIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -38,27 +40,29 @@
 
   .reservas-mobile-hero > div > span {
     display: inline-block;
-    color: #9ce7ff !important;
-    font-size: 9px;
+    color: #0f5f86;
+    font-size: 9.5px;
     font-weight: 950;
     letter-spacing: 0.12em;
   }
 
   .reservas-mobile-hero h1 {
     margin: 8px 0 7px;
-    color: #ffffff !important;
+    color: #06152e;
     font-size: 24px;
     line-height: 1.02;
     letter-spacing: -0.045em;
     font-weight: 950;
+    -webkit-text-fill-color: #06152e;
   }
 
   .reservas-mobile-hero p {
     margin: 0;
-    color: rgba(240, 250, 255, 0.92) !important;
-    font-size: 11.5px;
-    line-height: 1.5;
-    font-weight: 750;
+    color: #153a60;
+    font-size: 12.2px;
+    line-height: 1.48;
+    font-weight: 900;
+    -webkit-text-fill-color: #153a60;
   }
 
   .reservas-mobile-hero-decoration {
@@ -121,9 +125,9 @@
     padding: 0 14px;
     border: 1px solid rgba(255, 255, 255, 0.72);
     border-radius: 14px;
-    background: #ffffff !important;
+    background: #ffffff;
     box-shadow: 0 10px 20px rgba(3, 42, 78, 0.22);
-    color: #0b4279 !important;
+    color: #0b4279;
     font-size: 11px;
     font-weight: 950;
   }
@@ -131,7 +135,7 @@
   .reservas-mobile-new-button svg {
     width: 18px;
     height: 18px;
-    color: currentColor !important;
+    color: currentColor;
   }
 
   .reservas-mobile-hero-decoration {
