@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import api from "../../services/api"
-import ConfirmModal from "../ConfirmModal"
 import SkeletonLoader from "../SkeletonLoader"
 
 import "../../styles/admin/SugestoesMelhoriasAdminMobile.css"
@@ -23,7 +22,7 @@ function SugestoesMelhoriasAdminMobile({ showToast }) {
   }, [])
 
   useEffect(() => {
-    if (selecionada) {
+    if (selecionada || sugestaoExcluir) {
       document.body.style.overflow = "hidden"
     } else {
       document.body.style.overflow = ""
@@ -32,7 +31,7 @@ function SugestoesMelhoriasAdminMobile({ showToast }) {
     return () => {
       document.body.style.overflow = ""
     }
-  }, [selecionada])
+  }, [selecionada, sugestaoExcluir])
 
   async function carregarSugestoes() {
     setCarregando(true)
@@ -172,6 +171,75 @@ function SugestoesMelhoriasAdminMobile({ showToast }) {
   const categorias = [
     ...new Set(sugestoes.map((sugestao) => sugestao.categoria).filter(Boolean)),
   ]
+
+  function renderizarModalExclusao() {
+    if (!sugestaoExcluir) return null
+
+    return createPortal(
+      <div
+        className="feedback-delete-modal-overlay"
+        role="presentation"
+        onMouseDown={() => {
+          if (!excluindo) {
+            setSugestaoExcluir(null)
+          }
+        }}
+      >
+        <section
+          className="feedback-delete-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="feedback-delete-title"
+          onMouseDown={(evento) => evento.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="feedback-delete-close"
+            aria-label="Fechar confirmação de exclusão"
+            onClick={() => setSugestaoExcluir(null)}
+            disabled={excluindo}
+          >
+            ×
+          </button>
+
+          <div className="feedback-delete-icon" aria-hidden="true">
+            !
+          </div>
+
+          <div className="feedback-delete-content">
+            <h3 id="feedback-delete-title">Excluir sugestão?</h3>
+            <p>
+              Tem certeza que deseja excluir a sugestão
+              {" "}
+              <strong>"{sugestaoExcluir.titulo}"</strong>?
+              Essa ação não poderá ser desfeita.
+            </p>
+          </div>
+
+          <div className="feedback-delete-actions">
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={() => setSugestaoExcluir(null)}
+              disabled={excluindo}
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              className="btn danger"
+              onClick={confirmarExclusao}
+              disabled={excluindo}
+            >
+              {excluindo ? "Excluindo..." : "Excluir"}
+            </button>
+          </div>
+        </section>
+      </div>,
+      document.body
+    )
+  }
 
   function renderizarModalDetalhes() {
     if (!selecionada) return null
@@ -372,21 +440,7 @@ function SugestoesMelhoriasAdminMobile({ showToast }) {
 
       {renderizarModalDetalhes()}
 
-      <ConfirmModal
-        aberto={!!sugestaoExcluir}
-        tipo="danger"
-        titulo="Excluir sugestão?"
-        mensagem={
-          sugestaoExcluir
-            ? `Tem certeza que deseja excluir a sugestão "${sugestaoExcluir.titulo}"? Essa ação não poderá ser desfeita.`
-            : ""
-        }
-        textoCancelar="Cancelar"
-        textoConfirmar="Excluir"
-        carregando={excluindo}
-        onCancelar={() => setSugestaoExcluir(null)}
-        onConfirmar={confirmarExclusao}
-      />
+      {renderizarModalExclusao()}
     </div>
   )
 }

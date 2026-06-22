@@ -131,13 +131,24 @@ function CadastroAdminMobile({ showToast }) {
     })
   }
 
-  function selecionarCursoCoordenador(idCurso) {
-    setCursosSelecionados([
-      {
-        idCurso: Number(idCurso),
-        tipoVinculo: "Coordenador",
-      },
-    ])
+  function alternarCursoCoordenador(idCurso) {
+    setCursosSelecionados((atual) => {
+      const jaSelecionado = atual.some(
+        (curso) => Number(curso.idCurso) === Number(idCurso)
+      )
+
+      if (jaSelecionado) {
+        return atual.filter((curso) => Number(curso.idCurso) !== Number(idCurso))
+      }
+
+      return [
+        ...atual,
+        {
+          idCurso: Number(idCurso),
+          tipoVinculo: "Coordenador",
+        },
+      ]
+    })
   }
 
   function validarFormulario() {
@@ -155,8 +166,8 @@ function CadastroAdminMobile({ showToast }) {
       return true
     }
 
-    if (perfilConvidado === "Coordenador" && cursosSelecionados.length !== 1) {
-      showToast?.("Coordenador deve ter exatamente um curso", "erro")
+    if (perfilConvidado === "Coordenador" && cursosSelecionados.length === 0) {
+      showToast?.("Coordenador deve ter pelo menos um curso", "erro")
       return false
     }
 
@@ -353,10 +364,10 @@ function CadastroAdminMobile({ showToast }) {
       return (
         <div className="convite-cursos-box">
           <div className="convite-cursos-header">
-            <strong>Curso coordenado</strong>
+            <strong>Cursos coordenados</strong>
             <small>
-              O coordenador poderá aprovar ou recusar reservas somente deste
-              curso.
+              O coordenador poderá aprovar ou recusar reservas dos cursos
+              selecionados.
             </small>
           </div>
 
@@ -371,10 +382,9 @@ function CadastroAdminMobile({ showToast }) {
                 }`}
               >
                 <input
-                  type="radio"
-                  name="cursoCoordenadorConvite"
+                  type="checkbox"
                   checked={cursoEstaSelecionado(curso.id)}
-                  onChange={() => selecionarCursoCoordenador(curso.id)}
+                  onChange={() => alternarCursoCoordenador(curso.id)}
                 />
 
                 <span>{curso.nome}</span>
@@ -553,9 +563,9 @@ function CadastroAdminMobile({ showToast }) {
               </small>
             </div>
 
-            <div className="actions">
+            <div className="convite-mobile-actions">
               <button
-                className="btn primary"
+                className="convite-action-button convite-action-copy"
                 type="button"
                 onClick={() => copiarLink(convite.linkCadastro)}
                 disabled={carregando}
@@ -564,7 +574,7 @@ function CadastroAdminMobile({ showToast }) {
               </button>
 
               <button
-                className="btn edit"
+                className="convite-action-button convite-action-resend"
                 type="button"
                 onClick={() => reenviarConvite(convite)}
                 disabled={carregando || convite.usado}
@@ -573,7 +583,7 @@ function CadastroAdminMobile({ showToast }) {
               </button>
 
               <button
-                className="btn delete"
+                className="convite-action-button convite-action-delete"
                 type="button"
                 onClick={() => excluirConvite(convite.idConvite)}
                 disabled={carregando}

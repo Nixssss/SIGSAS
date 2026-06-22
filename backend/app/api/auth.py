@@ -132,10 +132,10 @@ def validar_cursos_usuario(db: Session, perfil: str, cursos_recebidos: list):
         ]
 
     if perfil == "Coordenador":
-        if len(cursos_recebidos) != 1:
+        if not cursos_recebidos:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Coordenador deve estar vinculado a exatamente um curso.",
+                detail="Coordenador deve estar vinculado a pelo menos um curso.",
             )
 
     if perfil == "Professor":

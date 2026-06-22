@@ -128,10 +128,10 @@ def validar_cursos_convite(db: Session, dados: ConviteCreate, perfil: str):
         ]
 
     if perfil == "Coordenador":
-        if len(dados.cursos) != 1:
+        if not dados.cursos:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Coordenador deve estar vinculado a exatamente um curso.",
+                detail="Coordenador deve estar vinculado a pelo menos um curso.",
             )
 
     if perfil == "Professor":

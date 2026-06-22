@@ -130,13 +130,24 @@ function CadastroAdminDesktop({ showToast }) {
     })
   }
 
-  function selecionarCursoCoordenador(idCurso) {
-    setCursosSelecionados([
-      {
-        idCurso: Number(idCurso),
-        tipoVinculo: "Coordenador",
-      },
-    ])
+  function alternarCursoCoordenador(idCurso) {
+    setCursosSelecionados((atual) => {
+      const jaSelecionado = atual.some(
+        (curso) => Number(curso.idCurso) === Number(idCurso)
+      )
+
+      if (jaSelecionado) {
+        return atual.filter((curso) => Number(curso.idCurso) !== Number(idCurso))
+      }
+
+      return [
+        ...atual,
+        {
+          idCurso: Number(idCurso),
+          tipoVinculo: "Coordenador",
+        },
+      ]
+    })
   }
 
   function validarFormulario() {
@@ -154,8 +165,8 @@ function CadastroAdminDesktop({ showToast }) {
       return true
     }
 
-    if (perfilConvidado === "Coordenador" && cursosSelecionados.length !== 1) {
-      showToast?.("Coordenador deve ter exatamente um curso", "erro")
+    if (perfilConvidado === "Coordenador" && cursosSelecionados.length === 0) {
+      showToast?.("Coordenador deve ter pelo menos um curso", "erro")
       return false
     }
 
@@ -352,10 +363,10 @@ function CadastroAdminDesktop({ showToast }) {
       return (
         <div className="convite-cursos-box">
           <div className="convite-cursos-header">
-            <strong>Curso coordenado</strong>
+            <strong>Cursos coordenados</strong>
             <small>
-              O coordenador poderá aprovar ou recusar reservas somente deste
-              curso.
+              O coordenador poderá aprovar ou recusar reservas dos cursos
+              selecionados.
             </small>
           </div>
 
@@ -370,10 +381,9 @@ function CadastroAdminDesktop({ showToast }) {
                 }`}
               >
                 <input
-                  type="radio"
-                  name="cursoCoordenadorConvite"
+                  type="checkbox"
                   checked={cursoEstaSelecionado(curso.id)}
-                  onChange={() => selecionarCursoCoordenador(curso.id)}
+                  onChange={() => alternarCursoCoordenador(curso.id)}
                 />
 
                 <span>{curso.nome}</span>

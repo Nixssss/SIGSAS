@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import api from "../../services/api"
-import ConfirmModal from "../ConfirmModal"
 import SkeletonLoader from "../SkeletonLoader"
 
 import "../../styles/admin/ReportesProblemasAdminMobile.css"
@@ -23,7 +22,7 @@ function ReportesProblemasAdminMobile({ showToast }) {
   }, [])
 
   useEffect(() => {
-    if (selecionado) {
+    if (selecionado || reporteExcluir) {
       document.body.style.overflow = "hidden"
     } else {
       document.body.style.overflow = ""
@@ -32,7 +31,7 @@ function ReportesProblemasAdminMobile({ showToast }) {
     return () => {
       document.body.style.overflow = ""
     }
-  }, [selecionado])
+  }, [selecionado, reporteExcluir])
 
   async function carregarReportes() {
     setCarregando(true)
@@ -173,6 +172,75 @@ function ReportesProblemasAdminMobile({ showToast }) {
       hour: "2-digit",
       minute: "2-digit",
     })
+  }
+
+  function renderizarModalExclusao() {
+    if (!reporteExcluir) return null
+
+    return createPortal(
+      <div
+        className="feedback-delete-modal-overlay"
+        role="presentation"
+        onMouseDown={() => {
+          if (!excluindo) {
+            setReporteExcluir(null)
+          }
+        }}
+      >
+        <section
+          className="feedback-delete-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="feedback-delete-title"
+          onMouseDown={(evento) => evento.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="feedback-delete-close"
+            aria-label="Fechar confirmação de exclusão"
+            onClick={() => setReporteExcluir(null)}
+            disabled={excluindo}
+          >
+            ×
+          </button>
+
+          <div className="feedback-delete-icon" aria-hidden="true">
+            !
+          </div>
+
+          <div className="feedback-delete-content">
+            <h3 id="feedback-delete-title">Excluir reporte?</h3>
+            <p>
+              Tem certeza que deseja excluir o reporte
+              {" "}
+              <strong>"{reporteExcluir.titulo}"</strong>?
+              Essa ação não poderá ser desfeita.
+            </p>
+          </div>
+
+          <div className="feedback-delete-actions">
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={() => setReporteExcluir(null)}
+              disabled={excluindo}
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              className="btn danger"
+              onClick={confirmarExclusao}
+              disabled={excluindo}
+            >
+              {excluindo ? "Excluindo..." : "Excluir"}
+            </button>
+          </div>
+        </section>
+      </div>,
+      document.body
+    )
   }
 
   function renderizarModalDetalhes() {
@@ -347,21 +415,7 @@ function ReportesProblemasAdminMobile({ showToast }) {
 
       {renderizarModalDetalhes()}
 
-      <ConfirmModal
-        aberto={!!reporteExcluir}
-        tipo="danger"
-        titulo="Excluir reporte?"
-        mensagem={
-          reporteExcluir
-            ? `Tem certeza que deseja excluir o reporte "${reporteExcluir.titulo}"? Essa ação não poderá ser desfeita.`
-            : ""
-        }
-        textoCancelar="Cancelar"
-        textoConfirmar="Excluir"
-        carregando={excluindo}
-        onCancelar={() => setReporteExcluir(null)}
-        onConfirmar={confirmarExclusao}
-      />
+      {renderizarModalExclusao()}
     </div>
   )
 }
