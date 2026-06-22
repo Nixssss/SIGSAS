@@ -12,3 +12,7 @@ class Edificio(Base):
     idCampus = Column(Integer, ForeignKey("campi.id"), nullable=False)
 
     campus = relationship("Campus", back_populates="edificios")
+    salas = relationship(
+    "Sala",
+    back_populates="edificio"
+    )

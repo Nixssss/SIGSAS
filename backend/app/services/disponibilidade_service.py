@@ -1,4 +1,13 @@
-from app.services.datetime_parser import interpretar_data_hora
+from datetime import datetime
+
+def montar_datetime(data, hora):
+    if isinstance(data, datetime):
+        data = data.date()
+
+    return datetime.strptime(
+        f"{data} {hora}",
+        "%Y-%m-%d %H:%M"
+    )
 
 
 def verificar_conflito(
@@ -9,7 +18,6 @@ def verificar_conflito(
     horario_inicio,
     horario_fim
 ):
-
     from app.models.reserva import Reserva
 
     reservas = (
@@ -18,37 +26,49 @@ def verificar_conflito(
         .all()
     )
 
-    nova_inicio = interpretar_data_hora(
-        f"{data_inicio} {horario_inicio}"
-    )
+    nova_inicio = montar_datetime(data_inicio, horario_inicio)
+    nova_fim = montar_datetime(data_fim, horario_fim)
 
-    nova_fim = interpretar_data_hora(
-        f"{data_fim} {horario_fim}"
-    )
-
-    if not nova_inicio or not nova_fim:
-        return {"conflito": False}
+    print("\n\n========== VERIFICAÇÃO DE CONFLITO ==========")
+    print("SALA:", sala_id)
+    print("NOVA:", nova_inicio, "->", nova_fim)
+    print("TOTAL RESERVAS ENCONTRADAS:", len(reservas))
+    print("============================================\n")
 
     for r in reservas:
 
-        existente_inicio = interpretar_data_hora(
-            f"{r.dataInicio} {r.horaInicio}"
-        )
+        # 🔥 DEBUG MAIS LIMPO E ÚTIL
+        print(f"\n[RESERVA {r.idReserva}] STATUS={r.idStatusReserva}")
 
-        existente_fim = interpretar_data_hora(
-            f"{r.dataFim} {r.horaFim}"
-        )
-
-        if not existente_inicio or not existente_fim:
+        # 🔥 IGNORA RESERVAS INVÁLIDAS
+        if not r.dataInicio or not r.dataFim:
+            print("-> IGNORADA: datas inválidas")
             continue
 
-        if nova_inicio < existente_fim and nova_fim > existente_inicio:
+        try:
+            existente_inicio = montar_datetime(r.dataInicio, r.horaInicio)
+            existente_fim = montar_datetime(r.dataFim, r.horaFim)
 
-            return {
-                "conflito": True,
-                "reserva_conflitante": r
-            }
+            print("EXISTENTE:", existente_inicio, "->", existente_fim)
 
-    return {
-        "conflito": False
-    }
+            # 🔥 REGRA DE CONFLITO (CORRETA)
+            conflito = (
+                nova_inicio < existente_fim
+                and nova_fim > existente_inicio
+            )
+
+            print("CONFLITO?", conflito)
+
+            if conflito:
+                print("\n🚨 CONFLITO ENCONTRADO COM RESERVA:", r.idReserva)
+                return {
+                    "conflito": True,
+                    "reserva_conflitante": r.idReserva
+                }
+
+        except Exception as e:
+            print(f"[ERRO] reserva {r.idReserva}: {e}")
+            continue
+
+    print("\n✔️ NENHUM CONFLITO ENCONTRADO\n")
+    return {"conflito": False}

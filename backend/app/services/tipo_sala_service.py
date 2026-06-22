@@ -11,25 +11,42 @@ def obter_tipo_sala(db, texto: str):
 
     termo = texto.strip().lower()
 
+    print("\n===== OBTER_TIPO_SALA DEBUG =====")
+    print("TERMO RECEBIDO:", termo)
+
     # =========================
-    # 1. MATCH FLEXÍVEL (CORREÇÃO PRINCIPAL)
+    # 1. MATCH EXATO (PRIORIDADE)
     # =========================
     tipo = (
         db.query(TipoSala)
-        .filter(
-            or_(
-                TipoSala.nome.ilike(f"%{termo}%"),
-                TipoSala.nome.ilike(termo)
-            )
-        )
+        .filter(TipoSala.nome.ilike(termo))
         .first()
     )
 
     if tipo:
+        print("MATCH EXATO:", tipo.id, "-", tipo.nome)
         return tipo
 
     # =========================
-    # 2. PALAVRAS (SINÔNIMOS)
+    # 2. MATCH PARCIAL
+    # =========================
+    tipos_encontrados = (
+        db.query(TipoSala)
+        .filter(TipoSala.nome.ilike(f"%{termo}%"))
+        .all()
+    )
+
+    print("\nMATCHES PARCIAIS ENCONTRADOS:")
+
+    for t in tipos_encontrados:
+        print(t.id, "-", t.nome)
+
+    if len(tipos_encontrados) == 1:
+        print("RETORNANDO MATCH PARCIAL ÚNICO")
+        return tipos_encontrados[0]
+
+    # =========================
+    # 3. PALAVRAS (SINÔNIMOS)
     # =========================
     palavra = (
         db.query(Palavra)
@@ -39,6 +56,8 @@ def obter_tipo_sala(db, texto: str):
 
     if palavra:
 
+        print("\nSINÔNIMO ENCONTRADO:", palavra.palavra)
+
         tipo = (
             db.query(TipoSala)
             .filter(TipoSala.nome.ilike(f"%{palavra.palavra}%"))
@@ -46,10 +65,16 @@ def obter_tipo_sala(db, texto: str):
         )
 
         if tipo:
+            print(
+                "TIPO ENCONTRADO VIA SINÔNIMO:",
+                tipo.id,
+                "-",
+                tipo.nome
+            )
             return tipo
 
     # =========================
-    # 3. ERRO PALAVRAS (CORREÇÃO ORTOGRÁFICA)
+    # 4. ERRO PALAVRAS
     # =========================
     erro = (
         db.query(ErroPalavra)
@@ -59,6 +84,8 @@ def obter_tipo_sala(db, texto: str):
 
     if erro:
 
+        print("\nERRO PALAVRA ENCONTRADO:", erro.palavraerrada)
+
         palavra_corrigida = (
             db.query(Palavra)
             .filter(Palavra.id == erro.palavra_id)
@@ -67,13 +94,29 @@ def obter_tipo_sala(db, texto: str):
 
         if palavra_corrigida:
 
+            print(
+                "CORRIGIDO PARA:",
+                palavra_corrigida.palavra
+            )
+
             tipo = (
                 db.query(TipoSala)
-                .filter(TipoSala.nome.ilike(f"%{palavra_corrigida.palavra}%"))
+                .filter(
+                    TipoSala.nome.ilike(
+                        f"%{palavra_corrigida.palavra}%"
+                    )
+                )
                 .first()
             )
 
             if tipo:
+                print(
+                    "TIPO ENCONTRADO VIA CORREÇÃO:",
+                    tipo.id,
+                    "-",
+                    tipo.nome
+                )
                 return tipo
 
+    print("\nNENHUM TIPO ENCONTRADO")
     return None

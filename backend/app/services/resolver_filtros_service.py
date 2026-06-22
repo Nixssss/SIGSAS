@@ -21,14 +21,24 @@ def resolver_filtros(filtros, db):
     # =========================
     # RESOLVE TIPO_SALA
     # =========================
-    tipo = obter_tipo_sala(db, tipo_nome) if tipo_nome else None
+    tipo = None
+
+    if tipo_nome:
+        tipo = obter_tipo_sala(db, tipo_nome)
+
+        # 🔥 fallback inteligente
+        if not tipo:
+            tipo = obter_tipo_sala(
+                db,
+                filtros.get("tipo_sala_raw") or tipo_nome
+            )
 
     # =========================
     # APLICA RESULTADO
     # =========================
     if tipo:
         resolvido["tipo_sala_id"] = tipo.id
-        resolvido["tipo_sala"] = tipo.nome  # mantém nome correto
+        resolvido["tipo_sala"] = tipo.nome
         resolvido.pop("tipo_sala_raw", None)
 
     else:

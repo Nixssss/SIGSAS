@@ -20,7 +20,10 @@ class Sala(Base):
     ativo = Column(Boolean, default=True)
 
     tipo_sala = relationship("TipoSala", back_populates="salas")
-    edificio = relationship("Edificio")
+    edificio = relationship(
+        "Edificio",
+        back_populates="salas"
+    )
 
     recursos = relationship(
         "SalaRecurso",

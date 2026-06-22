@@ -939,7 +939,7 @@ class ChatbotFluxoService:
 
         salas = (
             db.query(Sala)
-            .join(Edificio, Sala.idEdificio == Edificio.id)
+            .outerjoin(Edificio, Sala.idEdificio == Edificio.id)
             .filter(
                 Sala.ativo == True,
                 Edificio.idCampus == sessao["idCampus"],

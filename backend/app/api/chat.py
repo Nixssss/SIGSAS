@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+import traceback
 from app.db.session import get_db
 from app.services.chat_service import processar_mensagem
 
@@ -34,8 +34,9 @@ def chat(payload: dict, db: Session = Depends(get_db)):
         response = processar_mensagem(message, db, user_id)
         return response
 
-    except Exception as e:
-        print("ERRO CHAT:", str(e))
+    except Exception:
+        traceback.print_exc()
+
         raise HTTPException(
             status_code=500,
             detail="Erro ao processar mensagem"

@@ -18,7 +18,6 @@ def extrair_filtros(frase, db):
         "todos_campi": False,
         "recursos": [],
         "opcoes_tipo": [],
-
         "data_inicio": None,
         "data_fim": None,
         "horario_inicio": None,
@@ -46,25 +45,24 @@ def extrair_filtros(frase, db):
     # =====================================================
     # DATA
     # =====================================================
+    match_datas = re.search(
+        r"(\d{1,2}/\d{1,2})\s*(?:até|a|ate|-)\s*(\d{1,2}/\d{1,2})",
+        frase_lower
+    )
+
+    if match_datas:
+        filtros["data_inicio"] = match_datas.group(1)
+        filtros["data_fim"] = match_datas.group(2)
+
+    # parser semântico (mais confiável)
     data_hora = interpretar_data_hora(frase_original)
 
-    print("[EXTRATOR] data_hora =", data_hora)
-    print("[EXTRATOR] tipo =", type(data_hora))
-
-    if data_hora is not None:
-
-        if hasattr(data_hora, "date"):
-            filtros["data_inicio"] = data_hora.date()
+    if data_hora:
+        if isinstance(data_hora, dict):
+            filtros["data_inicio"] = data_hora.get("inicio")
+            filtros["data_fim"] = data_hora.get("fim")
         else:
-            filtros["data_inicio"] = data_hora
-
-        print(
-            "[EXTRATOR] data_inicio atribuída =",
-            filtros["data_inicio"]
-        )
-
-    else:
-        print("[EXTRATOR] data_hora veio None")
+            filtros["data_inicio"] = getattr(data_hora, "date", lambda: data_hora)()
 
     # =====================================================
     # HORÁRIO
@@ -77,18 +75,12 @@ def extrair_filtros(frase, db):
     if match_range:
         filtros["horario_inicio"] = match_range.group(1)
         filtros["horario_fim"] = match_range.group(2)
-
     else:
-        matches = re.findall(
-            r"\d{1,2}:\d{2}",
-            frase_lower
-        )
+        matches = re.findall(r"\d{1,2}:\d{2}", frase_lower)
 
-        if len(matches) == 1:
+        if len(matches) >= 1:
             filtros["horario_inicio"] = matches[0]
-
-        elif len(matches) >= 2:
-            filtros["horario_inicio"] = matches[0]
+        if len(matches) >= 2:
             filtros["horario_fim"] = matches[1]
 
     # =====================================================
@@ -99,51 +91,47 @@ def extrair_filtros(frase, db):
         frase_lower
     )
 
+    match_para = re.search(r"\bpara\s+(\d+)\b", frase_lower)
+
     if match_capacidade:
-        filtros["capacidade"] = int(
-            match_capacidade.group(1)
-        )
-
-    else:
-        match_para = re.search(
-            r"\bpara\s+(\d+)\b",
-            frase_lower
-        )
-
-        if match_para:
-            filtros["capacidade"] = int(
-                match_para.group(1)
-            )
+        filtros["capacidade"] = int(match_capacidade.group(1))
+    elif match_para:
+        filtros["capacidade"] = int(match_para.group(1))
+    elif re.fullmatch(r"\d+", frase_lower.strip()):
+        filtros["capacidade"] = int(frase_lower.strip())
 
     # =====================================================
-    # TIPO DE SALA
+    # TIPO DE SALA (SEM HARD CODE FIXO)
     # =====================================================
     tipos = db.query(TipoSala).all()
 
+    melhor_match = None
+    melhor_id = None
+    print("\n===== DEBUG TIPOS =====")
+    print("FRASE:", frase_norm)
     for t in tipos:
+        nome_norm = normalizar(t.nome)
 
-        if normalizar(t.nome) in frase_norm:
-            filtros["tipo_sala_id"] = t.id
-            filtros["tipo_sala"] = t.nome
+        if nome_norm in frase_norm:
+            melhor_match = t.nome
+            melhor_id = t.id
             break
 
+    if melhor_id:
+        filtros["tipo_sala_id"] = melhor_id
+        filtros["tipo_sala"] = melhor_match
+
+    # fallback semântico (NÃO fixa string tipo "laboratório")
     if not filtros["tipo_sala_id"]:
+        termos = frase_norm.split()
 
-        mapa = {
-            "auditorio": "auditório",
-            "laboratorio": "laboratório",
-            "lab": "laboratório",
-            "sala": "sala",
-            "quadra": "quadra"
-        }
+        for t in tipos:
+            nome_norm = normalizar(t.nome)
 
-        termo = next(
-            (t for t in mapa if t in frase_norm),
-            None
-        )
-
-        if termo:
-            filtros["tipo_sala"] = mapa[termo]
+            if any(palavra in nome_norm for palavra in termos):
+                filtros["tipo_sala_id"] = t.id
+                filtros["tipo_sala"] = t.nome
+                break
 
     # =====================================================
     # RECURSOS
@@ -151,11 +139,9 @@ def extrair_filtros(frase, db):
     recursos = db.query(Recurso).all()
 
     for r in recursos:
-
         nome_recurso = normalizar(r.nome)
 
         if nome_recurso in frase_norm:
-
             filtros["recursos"].append({
                 "id": r.id,
                 "nome": r.nome
