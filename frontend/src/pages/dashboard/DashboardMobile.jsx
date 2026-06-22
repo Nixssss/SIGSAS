@@ -135,12 +135,120 @@ function Icon({ name }) {
   )
 }
 
+
+const ROTAS_DASHBOARD_POR_PARAMETRO = {
+  inicio: "dashboard",
+  home: "dashboard",
+  dashboard: "dashboard",
+  sistema: "sistema",
+  "visao-sistema": "sistema",
+  "visao-do-sistema": "sistema",
+  salas: "salas",
+  ambientes: "salas",
+  reservas: "statusReservas",
+  reserva: "statusReservas",
+  "minhas-reservas": "statusReservas",
+  "historico-reservas": "statusReservas",
+  statusreservas: "statusReservas",
+  "status-reservas": "statusReservas",
+  chatbot: "chatbot",
+  assistente: "chatbot",
+  problema: "problema",
+  problemas: "problema",
+  "reportar-problema": "problema",
+  sugestao: "sugestao",
+  sugestoes: "sugestao",
+  "sugestoes-melhorias": "sugestao",
+  admin: "admin",
+  administracao: "admin",
+}
+
+const PARAMETRO_POR_TELA_DASHBOARD = {
+  dashboard: "inicio",
+  sistema: "sistema",
+  salas: "salas",
+  statusReservas: "reservas",
+  chatbot: "chatbot",
+  problema: "reportar-problema",
+  sugestao: "sugestoes",
+  admin: "admin",
+}
+
+function normalizarParametroRota(valor) {
+  return String(valor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/_/g, "-")
+}
+
+function obterParametroDashboardUrl() {
+  if (typeof window === "undefined") return ""
+
+  const parametros = new URLSearchParams(window.location.search)
+
+  return (
+    parametros.get("pagina") ||
+    parametros.get("tela") ||
+    parametros.get("aba") ||
+    parametros.get("page") ||
+    ""
+  )
+}
+
+function mapearParametroParaTelaDashboard(valor) {
+  const parametro = normalizarParametroRota(valor)
+
+  if (!parametro) return ""
+  if (parametro.startsWith("admin-")) return "admin"
+
+  return ROTAS_DASHBOARD_POR_PARAMETRO[parametro] || ""
+}
+
+function obterTelaInicialDashboard(isAdmin, telaPadrao) {
+  const telaUrl = mapearParametroParaTelaDashboard(obterParametroDashboardUrl())
+
+  if (!telaUrl) return telaPadrao
+
+  if (!isAdmin && (telaUrl === "dashboard" || telaUrl === "admin")) {
+    return telaPadrao
+  }
+
+  return telaUrl
+}
+
+function obterAdminTelaInicialDashboard() {
+  const parametro = normalizarParametroRota(obterParametroDashboardUrl())
+
+  if (!parametro.startsWith("admin-")) return "resumo"
+
+  return parametro.replace("admin-", "") || "resumo"
+}
+
+function atualizarParametroDashboard(tela, adminTela = null) {
+  if (typeof window === "undefined") return
+
+  const parametro =
+    tela === "admin" && adminTela
+      ? `admin-${adminTela}`
+      : PARAMETRO_POR_TELA_DASHBOARD[tela]
+
+  if (!parametro) return
+
+  const url = new URL(window.location.href)
+  url.searchParams.set("pagina", parametro)
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`)
+}
+
 function DashboardMobile({ sair }) {
   const perfil = localStorage.getItem("perfil")
   const isAdmin = ehPerfilAdmin(perfil)
 
-  const [tela, setTela] = useState(() => (isAdmin ? "dashboard" : "sistema"))
-  const [adminTela, setAdminTela] = useState("resumo")
+  const [tela, setTela] = useState(() =>
+    obterTelaInicialDashboard(isAdmin, isAdmin ? "dashboard" : "sistema")
+  )
+  const [adminTela, setAdminTela] = useState(() => obterAdminTelaInicialDashboard())
   const [tema, setTema] = useState(() => localStorage.getItem("sigsas_tema") || "light")
   const [drawerAberto, setDrawerAberto] = useState(false)
   const [drawerModo, setDrawerModo] = useState("menu")
@@ -162,6 +270,25 @@ function DashboardMobile({ sair }) {
   const cargoUsuario =
     usuarioLogado?.cargo || usuarioLogado?.perfil || perfil || "SIGSAS"
   const inicialUsuario = nomeUsuario?.charAt(0)?.toUpperCase() || "U"
+
+  useEffect(() => {
+    function atualizarTelaPelaUrl() {
+      const proximaTela = obterTelaInicialDashboard(
+        isAdmin,
+        isAdmin ? "dashboard" : "sistema"
+      )
+
+      setTela(proximaTela)
+
+      if (proximaTela === "admin" && isAdmin) {
+        setAdminTela(obterAdminTelaInicialDashboard())
+      }
+    }
+
+    window.addEventListener("popstate", atualizarTelaPelaUrl)
+
+    return () => window.removeEventListener("popstate", atualizarTelaPelaUrl)
+  }, [isAdmin])
 
   const totalNotificacoes =
     notificacoes.reservasPendentes +
@@ -193,6 +320,7 @@ function DashboardMobile({ sair }) {
     if (!isAdmin && (tela === "dashboard" || tela === "admin")) {
       setTela("sistema")
       setAdminTela("resumo")
+      atualizarParametroDashboard("sistema")
     }
   }, [isAdmin, tela])
 
@@ -258,11 +386,13 @@ function DashboardMobile({ sair }) {
   function navegar(id) {
     if (!isAdmin && (id === "dashboard" || id === "admin")) {
       setTela("sistema")
+      atualizarParametroDashboard("sistema")
       fecharDrawer()
       return
     }
 
     setTela(id)
+    atualizarParametroDashboard(id)
     fecharDrawer()
   }
 
@@ -274,6 +404,7 @@ function DashboardMobile({ sair }) {
 
     setTela("admin")
     setAdminTela(telaAdmin)
+    atualizarParametroDashboard("admin", telaAdmin)
     fecharDrawer()
   }
 

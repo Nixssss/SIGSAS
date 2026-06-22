@@ -19,12 +19,120 @@ function ehPerfilAdmin(perfil) {
   return perfilNormalizado === "admin" || perfilNormalizado === "administrador"
 }
 
+
+const ROTAS_DASHBOARD_POR_PARAMETRO = {
+  inicio: "dashboard",
+  home: "dashboard",
+  dashboard: "dashboard",
+  sistema: "sistema",
+  "visao-sistema": "sistema",
+  "visao-do-sistema": "sistema",
+  salas: "salas",
+  ambientes: "salas",
+  reservas: "statusReservas",
+  reserva: "statusReservas",
+  "minhas-reservas": "statusReservas",
+  "historico-reservas": "statusReservas",
+  statusreservas: "statusReservas",
+  "status-reservas": "statusReservas",
+  chatbot: "chatbot",
+  assistente: "chatbot",
+  problema: "problema",
+  problemas: "problema",
+  "reportar-problema": "problema",
+  sugestao: "sugestao",
+  sugestoes: "sugestao",
+  "sugestoes-melhorias": "sugestao",
+  admin: "admin",
+  administracao: "admin",
+}
+
+const PARAMETRO_POR_TELA_DASHBOARD = {
+  dashboard: "inicio",
+  sistema: "sistema",
+  salas: "salas",
+  statusReservas: "reservas",
+  chatbot: "chatbot",
+  problema: "reportar-problema",
+  sugestao: "sugestoes",
+  admin: "admin",
+}
+
+function normalizarParametroRota(valor) {
+  return String(valor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/_/g, "-")
+}
+
+function obterParametroDashboardUrl() {
+  if (typeof window === "undefined") return ""
+
+  const parametros = new URLSearchParams(window.location.search)
+
+  return (
+    parametros.get("pagina") ||
+    parametros.get("tela") ||
+    parametros.get("aba") ||
+    parametros.get("page") ||
+    ""
+  )
+}
+
+function mapearParametroParaTelaDashboard(valor) {
+  const parametro = normalizarParametroRota(valor)
+
+  if (!parametro) return ""
+  if (parametro.startsWith("admin-")) return "admin"
+
+  return ROTAS_DASHBOARD_POR_PARAMETRO[parametro] || ""
+}
+
+function obterTelaInicialDashboard(isAdmin, telaPadrao) {
+  const telaUrl = mapearParametroParaTelaDashboard(obterParametroDashboardUrl())
+
+  if (!telaUrl) return telaPadrao
+
+  if (!isAdmin && (telaUrl === "dashboard" || telaUrl === "admin")) {
+    return telaPadrao
+  }
+
+  return telaUrl
+}
+
+function obterAdminTelaInicialDashboard() {
+  const parametro = normalizarParametroRota(obterParametroDashboardUrl())
+
+  if (!parametro.startsWith("admin-")) return "resumo"
+
+  return parametro.replace("admin-", "") || "resumo"
+}
+
+function atualizarParametroDashboard(tela, adminTela = null) {
+  if (typeof window === "undefined") return
+
+  const parametro =
+    tela === "admin" && adminTela
+      ? `admin-${adminTela}`
+      : PARAMETRO_POR_TELA_DASHBOARD[tela]
+
+  if (!parametro) return
+
+  const url = new URL(window.location.href)
+  url.searchParams.set("pagina", parametro)
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`)
+}
+
 function DashboardDesktop({ sair }) {
   const perfil = localStorage.getItem("perfil")
   const isAdmin = ehPerfilAdmin(perfil)
 
-  const [tela, setTela] = useState(() => (isAdmin ? "dashboard" : "salas"))
-  const [adminTela, setAdminTela] = useState("resumo")
+  const [tela, setTela] = useState(() =>
+    obterTelaInicialDashboard(isAdmin, isAdmin ? "dashboard" : "salas")
+  )
+  const [adminTela, setAdminTela] = useState(() => obterAdminTelaInicialDashboard())
   const [tema, setTema] = useState(() => localStorage.getItem("sigsas_tema") || "light")
 
   const [buscaGlobal, setBuscaGlobal] = useState("")
@@ -60,9 +168,29 @@ function DashboardDesktop({ sair }) {
   const inicialUsuario = nomeUsuario?.charAt(0)?.toUpperCase() || "U"
 
   useEffect(() => {
+    function atualizarTelaPelaUrl() {
+      const proximaTela = obterTelaInicialDashboard(
+        isAdmin,
+        isAdmin ? "dashboard" : "salas"
+      )
+
+      setTela(proximaTela)
+
+      if (proximaTela === "admin" && isAdmin) {
+        setAdminTela(obterAdminTelaInicialDashboard())
+      }
+    }
+
+    window.addEventListener("popstate", atualizarTelaPelaUrl)
+
+    return () => window.removeEventListener("popstate", atualizarTelaPelaUrl)
+  }, [isAdmin])
+
+  useEffect(() => {
     if (!isAdmin && (tela === "dashboard" || tela === "admin")) {
       setTela("salas")
       setAdminTela("resumo")
+      atualizarParametroDashboard("salas")
     }
   }, [isAdmin, tela])
 
@@ -272,11 +400,13 @@ function DashboardDesktop({ sair }) {
     if (!isAdmin && (id === "dashboard" || id === "admin")) {
       setTela("salas")
       setAdminTela("resumo")
+      atualizarParametroDashboard("salas")
       fecharPaineisFlutuantes()
       return
     }
 
     setTela(id)
+    atualizarParametroDashboard(id)
     fecharPaineisFlutuantes()
   }
 
@@ -290,23 +420,27 @@ function DashboardDesktop({ sair }) {
     if (!isAdmin) {
       setTela("salas")
       setAdminTela("resumo")
+      atualizarParametroDashboard("salas")
       fecharPaineisFlutuantes()
       return
     }
 
     setTela("admin")
     setAdminTela(telaAdmin)
+    atualizarParametroDashboard("admin", telaAdmin)
     fecharPaineisFlutuantes()
   }
 
   function irParaDashboard() {
     if (!isAdmin) {
       setTela("salas")
+      atualizarParametroDashboard("salas")
       fecharPaineisFlutuantes()
       return
     }
 
     setTela("dashboard")
+    atualizarParametroDashboard("dashboard")
     fecharPaineisFlutuantes()
   }
 
@@ -642,8 +776,7 @@ function DashboardDesktop({ sair }) {
     } else if (resultado.destino === "admin-usuarios") {
       abrirAdmin("usuarios")
     } else {
-      setTela(resultado.destino)
-      fecharPaineisFlutuantes()
+      selecionarTela(resultado.destino)
     }
 
     setBuscaGlobal("")
@@ -1449,10 +1582,7 @@ function DashboardDesktop({ sair }) {
                     <button
                       type="button"
                       className="profile-panel-item"
-                      onClick={() => {
-                        setTela("salas")
-                        setPerfilAberto(false)
-                      }}
+                      onClick={() => selecionarTela("salas") }
                     >
                       <span>▦</span>
                       Ir para Salas e Ambientes
